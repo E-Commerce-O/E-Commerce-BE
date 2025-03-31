@@ -1,0 +1,16 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /identity
+spring:
+  datasource:
+    url: "jdbc:mysql://localhost:3306/cdweb"
+    username: root
+    password:
+  #    T? t?o table
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+jwt:
+  signerKey: "NL8FWNjikoVGaAOLuLfULIhWVIB8GFYqFzP5wSBFwbmFKI749VKfrwOJ5TwMdinN"
