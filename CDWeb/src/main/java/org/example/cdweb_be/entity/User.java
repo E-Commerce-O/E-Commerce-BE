@@ -1,6 +1,7 @@
 package org.example.cdweb_be.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -22,6 +23,7 @@ import java.sql.Timestamp;
 
 public class User {
     @Id
+//    @GeneratedValue
     long id;
     String userName;
     String password;

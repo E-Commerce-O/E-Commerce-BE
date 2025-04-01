@@ -19,12 +19,21 @@ import java.sql.Timestamp;
 @FieldDefaults(level = AccessLevel.PRIVATE) // mặc định là private nếu k tự định nghĩa
 // annotation thể hiện là 1 bảng trong db
 @Entity
-public class ProductTag {
+public class OrderItem {
     @Id
 //    @GeneratedValue
     long id;
     @ManyToOne
+    Order order;
+    @ManyToOne
     Product product;
     @ManyToOne
-    Tag tag;
+    ProductSize productSize;
+    @ManyToOne
+    ProductColor productColor;
+    int quantity;
+    double originalPrice;
+    int discount;
+    Timestamp createdAt;
+    Timestamp updatedAt;
 }

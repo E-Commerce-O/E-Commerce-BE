@@ -1,5 +1,6 @@
 package org.example.cdweb_be.entity;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -19,6 +20,7 @@ import java.sql.Timestamp;
 @Entity
 public class Category {
     @Id
+//    @GeneratedValue
     long id;
     String name;
     String imagePath;

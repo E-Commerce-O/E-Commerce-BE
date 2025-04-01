@@ -2,7 +2,6 @@ package org.example.cdweb_be.entity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -19,12 +18,21 @@ import java.sql.Timestamp;
 @FieldDefaults(level = AccessLevel.PRIVATE) // mặc định là private nếu k tự định nghĩa
 // annotation thể hiện là 1 bảng trong db
 @Entity
-public class ProductTag {
+public class Voucher {
     @Id
 //    @GeneratedValue
     long id;
-    @ManyToOne
-    Product product;
-    @ManyToOne
-    Tag tag;
+    String name;
+    String code;
+    String imagePath;
+    String description;
+    int quantity;
+    double percentDecrease;
+    int maxDecrease;
+    int minPrice;
+    int type;
+    Timestamp createdAt;
+    Timestamp updatedAt;
+    Timestamp startAt;
+    Timestamp endAt;
 }

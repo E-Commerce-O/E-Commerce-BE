@@ -1,8 +1,5 @@
 package org.example.cdweb_be.entity;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -22,6 +19,7 @@ import java.sql.Timestamp;
 @Entity
 public class WishlistItem {
     @Id
+//    @GeneratedValue
     long id;
     @ManyToOne
     User user;

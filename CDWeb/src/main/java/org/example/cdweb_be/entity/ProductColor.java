@@ -1,5 +1,6 @@
 package org.example.cdweb_be.entity;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import lombok.*;
@@ -18,9 +19,10 @@ import lombok.experimental.FieldDefaults;
 @Entity
 public class ProductColor {
     @Id
+//    @GeneratedValue
     long id;
     @ManyToOne
     Product product;
     String color;
-    String description;
+//    String description;
 }
