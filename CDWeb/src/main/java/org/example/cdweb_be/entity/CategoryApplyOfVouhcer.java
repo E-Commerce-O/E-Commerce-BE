@@ -18,7 +18,7 @@ import java.sql.Timestamp;
 @Entity
 public class CategoryApplyOfVouhcer {
     @Id
-//    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
     @ManyToOne
     Voucher voucher;

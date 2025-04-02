@@ -5,6 +5,9 @@ import lombok.experimental.FieldDefaults;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.List;
+import java.util.Set;
+
 // annotation tạo getter và setter cho các field private
 @Data
 // annotation giúp khởi tại đối tượng
@@ -18,10 +21,13 @@ import java.sql.Timestamp;
 @Entity
 public class Cart {
     @Id
-//    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
     @OneToOne
     User user;
+
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    Set<CartItem> cartItems;
     Timestamp createdAt;
     Timestamp updatedAt;
 

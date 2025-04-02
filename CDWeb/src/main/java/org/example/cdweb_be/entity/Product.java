@@ -5,6 +5,9 @@ import lombok.experimental.FieldDefaults;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.List;
+import java.util.Set;
+
 // annotation tạo getter và setter cho các field private
 @Data
 // annotation giúp khởi tại đối tượng
@@ -18,7 +21,7 @@ import java.sql.Timestamp;
 @Entity
 public class Product {
     @Id
-//    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
     String name;
     String lug;
@@ -26,6 +29,12 @@ public class Product {
     int discount;
     @ManyToOne
     Category category;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    Set<ProductColor> colors;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    List<ProductSize> sizes;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    List<ProductImage> images;
     String description;
     String brand;
     Timestamp createdAt;

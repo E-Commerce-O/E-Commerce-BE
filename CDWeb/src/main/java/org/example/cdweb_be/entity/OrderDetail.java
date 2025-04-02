@@ -18,7 +18,7 @@ import java.sql.Timestamp;
 @Entity
 public class OrderDetail {
     @Id
-//    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
     @OneToOne
     Order order;

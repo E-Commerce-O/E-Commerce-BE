@@ -18,9 +18,10 @@ import java.sql.Timestamp;
 @Entity
 public class ProductSize {
     @Id
-//    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
-
+    @ManyToOne
+    Product product;
     String size;
     String description;
 }

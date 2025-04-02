@@ -18,15 +18,19 @@ import java.sql.Timestamp;
 @Entity
 public class CartItem {
     @Id
-//    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
     @ManyToOne
+    @JoinColumn(name = "cart_id", nullable = false)
     Cart cart;
     @ManyToOne
+    @JoinColumn(name = "product_id", nullable = false)
     Product product;
     @ManyToOne
+    @JoinColumn(name = "product_size_id")
     ProductSize productSize;
     @ManyToOne
+    @JoinColumn(name = "product_color_id")
     ProductColor productColor;
     int quantity;
     Timestamp createdAt;

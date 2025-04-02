@@ -19,7 +19,7 @@ import java.sql.Timestamp;
 @Entity
 public class WishlistItem {
     @Id
-//    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
     @ManyToOne
     User user;
