@@ -35,9 +35,14 @@ public class TagController {
     ApiResponse getAllTagsById(@RequestBody List<String> tagNames){
         return new ApiResponse(tagService.getAllByid(tagNames));
     }
-    @PostMapping("/update")
+    @PutMapping("/update")
     ApiResponse updateTag(@RequestBody TagCreateRequest request){
         return new ApiResponse(tagService.updateTag(request));
+    }
+    @DeleteMapping("/delete/{tagName}")
+    ApiResponse deleteTag(@PathVariable String tagName){
+        tagService.deleteTag(tagName);
+        return new ApiResponse<>("Tag deleted successfully");
     }
 
 }

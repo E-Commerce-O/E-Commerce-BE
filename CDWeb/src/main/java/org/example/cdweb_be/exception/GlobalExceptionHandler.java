@@ -15,7 +15,7 @@ public class GlobalExceptionHandler {
         ApiResponse<String> response = new ApiResponse<>();
         response.setCode(errorCode.getCode());
         response.setSuccess(errorCode.isSuccess());
-        response.setData(errorCode.getMessage());
+        response.setData(exception.getMessage());
         return ResponseEntity.status(errorCode.getStatusCode()).body(response);
     }
     @ExceptionHandler(value = AppException.class) // bắt lỗi tự định nghĩa

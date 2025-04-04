@@ -43,6 +43,7 @@ public class SecurityConfig {
 //                                .requestMatchers(HttpMethod.GET,"/tag/*").permitAll()
 //                                .requestMatchers(HttpMethod.POST,"/tag").permitAll()
                                 .requestMatchers("/*", "/*/*").permitAll()
+                                .requestMatchers("/category/*").permitAll()
                                 // -- Phân quyền trên endpoint -- -> thực tế ít dùng
 //                        .requestMatchers(HttpMethod.GET, "/users").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER") // nhiều role
 //                        .requestMatchers(HttpMethod.GET, "/users").hasAuthority("ROLE_ADMIN") // 1 role

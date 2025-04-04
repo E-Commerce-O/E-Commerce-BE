@@ -18,7 +18,7 @@ import java.net.URL;
 @RestController
 @RequestMapping("upload")
 @Slf4j
-public class FileUpload {
+public class FileUploadController {
     private final String CLIENT_ID = "dd8ce706a76465e";
     @PostMapping
     public ApiResponse uploadFile(@RequestParam("file") MultipartFile file) {

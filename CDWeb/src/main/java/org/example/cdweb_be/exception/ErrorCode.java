@@ -7,7 +7,9 @@ import org.springframework.http.HttpStatusCode;
 public enum ErrorCode {
     TAG_EXISTED(4001, "Tag name existed!", HttpStatus.BAD_REQUEST),
     IMAGE_REQUIRED(4002, "Image file is required!", HttpStatus.BAD_REQUEST),
+    CATEGORY_EXISTED(4003, "Category name existed!", HttpStatus.BAD_REQUEST),
     NOT_FOUND(4004, "Not found!", HttpStatus.BAD_REQUEST),
+    CATEGORY_NOT_EXISTS(4004, "CategoryId not exists", HttpStatus.BAD_REQUEST),
     USER_EXISTED(400, "Username existed!", HttpStatus.BAD_REQUEST), //400
     USER_NOT_EXISTS(400, "User not exists!", HttpStatus.NOT_FOUND),//404
     INVALID_KEY(400, "Invalid message key!", HttpStatus.BAD_REQUEST),

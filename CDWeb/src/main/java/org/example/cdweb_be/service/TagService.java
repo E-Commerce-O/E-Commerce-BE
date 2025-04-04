@@ -22,41 +22,47 @@ import java.util.Optional;
 public class TagService {
     TagRepository tagRepository;
     TagMapper tagMapper;
-    public Tag addTag(TagCreateRequest request){
+
+    public Tag addTag(TagCreateRequest request) {
         Optional<Tag> tagOptional = tagRepository.findById(request.getName());
-        if(tagOptional.isPresent()){
+        if (tagOptional.isPresent()) {
             throw new AppException(ErrorCode.TAG_EXISTED);
-        }else{
+        } else {
 
             return tagRepository.save(tagMapper.toTag(request));
         }
     }
-    public Tag getTagByName(String tagName){
+
+    public Tag getTagByName(String tagName) {
         Optional<Tag> tagOptional = tagRepository.findById(tagName);
-        if(tagOptional.isPresent()){
+        if (tagOptional.isPresent()) {
             return tagOptional.get();
-        }else{
+        } else {
             throw new AppException(ErrorCode.NOT_FOUND);
 
         }
     }
-    public List<Tag> getAll(){
+
+    public List<Tag> getAll() {
         return tagRepository.findAll();
     }
-    public List<Tag> getAllByid(List<String> tagNames){
+
+    public List<Tag> getAllByid(List<String> tagNames) {
         return tagRepository.findAllById(tagNames);
     }
-    public Tag updateTag(TagCreateRequest request){
-    Optional<Tag> tagOptional = tagRepository.findById(request.getName());
-    if (tagOptional.isPresent()) {
-        Tag tag = tagOptional.get();
-        tag.setDescription(request.getDescription());
-        return tagRepository.save(tag);
-    } else {
-        throw new AppException(ErrorCode.NOT_FOUND);
+
+    public Tag updateTag(TagCreateRequest request) {
+        Optional<Tag> tagOptional = tagRepository.findById(request.getName());
+        if (tagOptional.isPresent()) {
+            Tag tag = tagOptional.get();
+            tag.setDescription(request.getDescription());
+            return tagRepository.save(tag);
+        } else {
+            throw new AppException(ErrorCode.NOT_FOUND);
+        }
     }
-}
-public void deleteTag(String tagName){
-    tagRepository.deleteById(tagName);
-}
+
+    public void deleteTag(String tagName) {
+        tagRepository.deleteById(tagName);
+    }
 }
