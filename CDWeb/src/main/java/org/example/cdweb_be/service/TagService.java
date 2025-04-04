@@ -47,13 +47,16 @@ public class TagService {
         return tagRepository.findAllById(tagNames);
     }
     public Tag updateTag(TagCreateRequest request){
-        Optional<Tag> tagOptional = tagRepository.findById(request.getName());
-        if (tagOptional.isPresent()) {
-            Tag tag = tagOptional.get();
-            tag.setDescription(request.getDescription());
-            return tagRepository.save(tag);
-        } else {
-            throw new AppException(ErrorCode.NOT_FOUND);
-        }
+    Optional<Tag> tagOptional = tagRepository.findById(request.getName());
+    if (tagOptional.isPresent()) {
+        Tag tag = tagOptional.get();
+        tag.setDescription(request.getDescription());
+        return tagRepository.save(tag);
+    } else {
+        throw new AppException(ErrorCode.NOT_FOUND);
     }
+}
+public void deleteTag(String tagName){
+    tagRepository.deleteById(tagName);
+}
 }

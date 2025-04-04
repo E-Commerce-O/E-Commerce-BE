@@ -267,22 +267,22 @@ CREATE TABLE IF NOT EXISTS `product_size` (
 CREATE TABLE IF NOT EXISTS `product_tag` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `product_id` bigint(20) DEFAULT NULL,
-  `tag_id` bigint(20) DEFAULT NULL,
+  `tag_name` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FK2rf7w3d88x20p7vuc2m9mvv91` (`product_id`),
-  KEY `FK3b3a7hu5g2kh24wf0cwv3lgsm` (`tag_id`),
+  KEY `FK3b3a7hu5g2kh24wf0cwv3lgsm` (`tag_name`) USING BTREE,
   CONSTRAINT `FK2rf7w3d88x20p7vuc2m9mvv91` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`),
-  CONSTRAINT `FK3b3a7hu5g2kh24wf0cwv3lgsm` FOREIGN KEY (`tag_id`) REFERENCES `tag` (`id`)
+  CONSTRAINT `FK_product_tag_tag` FOREIGN KEY (`tag_name`) REFERENCES `tag` (`name`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Dumping data for table cdweb.product_tag: ~0 rows (approximately)
 
 -- Dumping structure for table cdweb.tag
 CREATE TABLE IF NOT EXISTS `tag` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL DEFAULT '""',
   `description` varchar(255) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`name`),
+  UNIQUE KEY `UK1wdpsed5kna2y38hnbgrnhi5b` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Dumping data for table cdweb.tag: ~0 rows (approximately)
