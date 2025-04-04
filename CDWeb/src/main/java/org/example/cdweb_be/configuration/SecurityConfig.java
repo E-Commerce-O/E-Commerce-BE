@@ -24,7 +24,8 @@ import javax.crypto.spec.SecretKeySpec;
 public class SecurityConfig {
 
     // Mảng chứa các endpoint công khai không yêu cầu xác thực
-    private static final String[] PUBLIC_ENDPOINTS = {"/users", "/auth/login", "/auth/introspect"};
+    private static final String[] PUBLIC_ENDPOINTS = {"/users", "/auth/login", "/auth/introspect", "/upload"};
+
 
     // Lấy giá trị của "jwt.signerKey" từ tệp cấu hình
     @Value("${jwt.signerKey}")
@@ -36,23 +37,27 @@ public class SecurityConfig {
 
         // Cấu hình quyền truy cập cho các yêu cầu HTTP
         httpSecurity.authorizeHttpRequests(request ->
-                request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll() // Cho phép tất cả yêu cầu POST đến PUBLIC_ENDPOINTS
-                        .requestMatchers(HttpMethod.GET, "/*").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/*").permitAll()
-                        // -- Phân quyền trên endpoint -- -> thực tế ít dùng
+                        request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll() // Cho phép tất cả yêu cầu POST đến PUBLIC_ENDPOINTS
+                                .requestMatchers("/swagger-ui/index.html").permitAll()
+                                .requestMatchers("/swagger.html","/swagger-ui/**", "/swagger-ui.html", "/docs/**", "/v3/api-docs/**").permitAll()
+//                                .requestMatchers(HttpMethod.GET,"/tag/*").permitAll()
+//                                .requestMatchers(HttpMethod.POST,"/tag").permitAll()
+                                .requestMatchers("/*", "/*/*").permitAll()
+                                // -- Phân quyền trên endpoint -- -> thực tế ít dùng
 //                        .requestMatchers(HttpMethod.GET, "/users").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER") // nhiều role
 //                        .requestMatchers(HttpMethod.GET, "/users").hasAuthority("ROLE_ADMIN") // 1 role
 //                        .requestMatchers(HttpMethod.GET, "/users").hasRole(Role.ADMIN.name()) // 1 role
-                        .anyRequest().authenticated()); // Tất cả các yêu cầu khác đều cần xác thực
-
+                                .anyRequest().authenticated()
+        ); // Tất cả các yêu cầu khác đều cần xác thực
+        httpSecurity.cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.disable());
         // Tắt tính năng CSRF để tránh lỗi 403
         httpSecurity.csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.disable());
 
         // Cấu hình máy chủ tài nguyên OAuth2 để sử dụng JWT
         httpSecurity.oauth2ResourceServer(oauth2 ->
                 oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder())
-                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
-//                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint()) // điều hướng khi auth thất bại (401)
+                                .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint()) // điều hướng khi auth thất bại (401)
 
 
         ); // Chỉ định bộ giải mã JWT
