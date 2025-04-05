@@ -9,17 +9,24 @@ public enum ErrorCode {
     IMAGE_REQUIRED(4002, "Image file is required!", HttpStatus.BAD_REQUEST),
     CATEGORY_EXISTED(4003, "Category name existed!", HttpStatus.BAD_REQUEST),
     NOT_FOUND(4004, "Not found!", HttpStatus.BAD_REQUEST),
-    CATEGORY_NOT_EXISTS(4004, "CategoryId not exists", HttpStatus.BAD_REQUEST),
-    USER_EXISTED(400, "Username existed!", HttpStatus.BAD_REQUEST), //400
-    USER_NOT_EXISTS(400, "User not exists!", HttpStatus.NOT_FOUND),//404
+    CATEGORY_NOT_EXISTS(4005, "CategoryId not exists", HttpStatus.BAD_REQUEST),
+    USERNAME_INVALID(4006, "Username must be at least 6 characters!", HttpStatus.BAD_REQUEST),
+    PASSWORD_INVALID(4007, "Password must be at least 6 characters!", HttpStatus.BAD_REQUEST),
+    EMAIL_INVALID(4008, "Email invalid!", HttpStatus.BAD_REQUEST),
+    PHONENUMER_INVALID(4009, "Email invalid!", HttpStatus.BAD_REQUEST),
+    USERNAME_EXISTED(4010, "Username existed!", HttpStatus.BAD_REQUEST), //400
+    EMAIL_EXISTED(4011, "Email existed!", HttpStatus.BAD_REQUEST), //400
+    PHONE_NUMBER_EXISTED(4012, "Phone number existed!", HttpStatus.BAD_REQUEST), //400
+    USER_NOT_EXISTS(4013, "Username not exists!", HttpStatus.BAD_REQUEST),//404
+    PASSWORD_INCORRECT(4014, "Incorrect password!", HttpStatus.BAD_REQUEST),//404
+    REFRESH_TOKEN_NOT_FOUND(4015, "Incorrect refresh token!", HttpStatus.BAD_REQUEST),//404
+    REFRESH_TOKEN_INVALID(4015, "Invalid refresh token!", HttpStatus.BAD_REQUEST),//404
     INVALID_KEY(400, "Invalid message key!", HttpStatus.BAD_REQUEST),
     INVALID_DOB(400, "Invalid date of birth!", HttpStatus.BAD_REQUEST),
     INVALID_TOKEN(400, "Invalid token!", HttpStatus.BAD_REQUEST),
-    UNAUTHENTICATED(400, "Unauthenticated!", HttpStatus.UNAUTHORIZED),//401
-    USERNAME_INVALID(400, "Username must be at least 3 characters!", HttpStatus.BAD_REQUEST),
-    PASSWORD_INVALID(400, "Password must be at least 8 characters!", HttpStatus.BAD_REQUEST) //400
-    ,UNCATEGORIZED_EXCEPTION(400, "Uncategorized error!", HttpStatus.INTERNAL_SERVER_ERROR)// 500
-    ,SERVER_ERROR(5001, "There is an error from the server, please try again later!", HttpStatus.INTERNAL_SERVER_ERROR)// 500
+    UNAUTHENTICATED(400, "Unauthenticated!", HttpStatus.UNAUTHORIZED),//401,
+    UNCATEGORIZED_EXCEPTION(400, "Uncategorized error!", HttpStatus.INTERNAL_SERVER_ERROR),// 500
+    SERVER_ERROR(5001, "There is an error from the server, please try again later!", HttpStatus.INTERNAL_SERVER_ERROR)// 500
      ,UNAUTHORIZED(400, "You do not have permission", HttpStatus.FORBIDDEN) //403
     ;
     private int code;

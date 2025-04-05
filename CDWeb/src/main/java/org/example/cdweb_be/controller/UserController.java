@@ -1,5 +1,14 @@
 package org.example.cdweb_be.controller;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.example.cdweb_be.dto.request.LoginRequest;
+import org.example.cdweb_be.dto.request.RefreshTokenRequest;
+import org.example.cdweb_be.dto.request.UserCreateRequest;
+import org.example.cdweb_be.dto.request.UserUpdateRequest;
+import org.example.cdweb_be.dto.response.ApiResponse;
 import org.example.cdweb_be.entity.Cart;
 import org.example.cdweb_be.entity.CartItem;
 import org.example.cdweb_be.entity.User;
@@ -7,44 +16,39 @@ import org.example.cdweb_be.entity.WishlistItem;
 import org.example.cdweb_be.respository.CartRepository;
 import org.example.cdweb_be.respository.UserRepository;
 import org.example.cdweb_be.respository.WishlistItemRepository;
+import org.example.cdweb_be.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashSet;
 
 @RestController
 @RequestMapping("/user")
-
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j // annotation để sử dụng log
 public class UserController {
-    @Autowired
-    WishlistItemRepository wishlistItemRepository;
-    @Autowired
-    UserRepository userRepository;
-    @Autowired
-    CartRepository cartRepository;
-@PostMapping
-    public WishlistItem add(){
-    WishlistItem wishlistItem = new WishlistItem();
-    User user = User.builder()
-            .userName("admin")
-            .fullName("Át Văn Min").build();
-    user = userRepository.save(user);
-    Cart cart = Cart.builder()
-            .user(user).build();
-    cart = cartRepository.save(cart);
-    CartItem cartItem1 = CartItem.builder()
-            .quantity(10)
-            .build();
-    CartItem cartItem2 = CartItem.builder()
-            .quantity(20)
-            .build();
-    cart.setCartItems(new HashSet<>());
-    cart.getCartItems().add(cartItem1);
-    cart.getCartItems().add(cartItem2);
-    cartRepository.save(cart);
-    return wishlistItemRepository.save(wishlistItem);
+    UserService userService;
+    @GetMapping("/validEmail/{email}")
+    ApiResponse validEmail(@PathVariable String email){
+        return new ApiResponse(userService.validEmail(email));
+    }
 
-}
+
+    @PostMapping("/add")
+    ApiResponse registerUser(@RequestBody UserCreateRequest request){
+        return new ApiResponse(userService.addUser(request));
+    }
+    @PostMapping("/login")
+    ApiResponse login(@RequestBody LoginRequest request){
+        return new ApiResponse(userService.login(request));
+    }
+    @PostMapping("/refreshToken")
+    ApiResponse refreshToken( @RequestBody RefreshTokenRequest request){
+        return new ApiResponse(userService.refreshToken( request));
+    }
+    @PutMapping("/changeInfo")
+    ApiResponse changeInfo(@RequestHeader("Authorization") String token,@RequestBody UserUpdateRequest request){
+        return new ApiResponse(userService.updateUser(token, request));
+    }
 }

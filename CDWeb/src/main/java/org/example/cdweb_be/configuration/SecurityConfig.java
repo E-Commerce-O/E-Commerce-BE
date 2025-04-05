@@ -42,8 +42,9 @@ public class SecurityConfig {
                                 .requestMatchers("/swagger.html","/swagger-ui/**", "/swagger-ui.html", "/docs/**", "/v3/api-docs/**").permitAll()
 //                                .requestMatchers(HttpMethod.GET,"/tag/*").permitAll()
 //                                .requestMatchers(HttpMethod.POST,"/tag").permitAll()
-                                .requestMatchers("/*", "/*/*").permitAll()
+                                .requestMatchers("/*", "/*/**").permitAll()
                                 .requestMatchers("/category/*").permitAll()
+                                .requestMatchers(HttpMethod.GET,"/user/*").permitAll()
                                 // -- Phân quyền trên endpoint -- -> thực tế ít dùng
 //                        .requestMatchers(HttpMethod.GET, "/users").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER") // nhiều role
 //                        .requestMatchers(HttpMethod.GET, "/users").hasAuthority("ROLE_ADMIN") // 1 role

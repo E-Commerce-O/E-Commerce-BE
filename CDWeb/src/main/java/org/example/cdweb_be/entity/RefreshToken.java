@@ -1,12 +1,10 @@
 package org.example.cdweb_be.entity;
-
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.sql.Date;
 import java.sql.Timestamp;
-
 // annotation tạo getter và setter cho các field private
 @Data
 // annotation giúp khởi tại đối tượng
@@ -18,21 +16,10 @@ import java.sql.Timestamp;
 @FieldDefaults(level = AccessLevel.PRIVATE) // mặc định là private nếu k tự định nghĩa
 // annotation thể hiện là 1 bảng trong db
 @Entity
-@Table(name = "user", uniqueConstraints = @UniqueConstraint(columnNames = {"username", "email", "phone_number"}))
-public class User {
+public class RefreshToken {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id;
-    String username;
-    String password;
-    String fullName;
-    String avtPath;
-    Date dateOfBirth;
-    String phoneNumber;
-    String email;
-    int gender;
-    String role;
+    String refreshToken;
+    long userId;
     Timestamp createdAt;
-    Timestamp updatedAt;
-
+    Timestamp expriredAt;
 }

@@ -1,7 +1,6 @@
 package org.example.cdweb_be.service;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +23,7 @@ public class CategoryService {
     CategoryRepository categoryRepository;
     CategoryMapper categoryMapper;
     public Category addCategory(CategoryCreateRequest request){
-        Optional<Category> categoryOptional = categoryRepository.getByName(request.getName());
+        Optional<Category> categoryOptional = categoryRepository.findByName(request.getName());
         if(categoryOptional.isPresent()){
             throw new AppException(ErrorCode.CATEGORY_EXISTED);
         }else{
