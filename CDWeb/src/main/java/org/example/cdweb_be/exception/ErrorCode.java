@@ -1,9 +1,12 @@
 package org.example.cdweb_be.exception;
 
 import lombok.Getter;
+import lombok.Setter;
+import org.mapstruct.Builder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 @Getter
+
 public enum ErrorCode {
     TAG_EXISTED(4001, "Tag name existed!", HttpStatus.BAD_REQUEST),
     IMAGE_REQUIRED(4002, "Image file is required!", HttpStatus.BAD_REQUEST),
@@ -24,6 +27,12 @@ public enum ErrorCode {
     ACCESS_TOKEN_INVALID(4016, "Missing accessToken or invalid accessToken!", HttpStatus.BAD_REQUEST),//400
     PRODUCT_NOT_EXISTS(4017, "ProductId not exists!", HttpStatus.BAD_REQUEST),//400
     PRODUCT_DETAIL_NOT_EXISTS(4018, "ProductDetailId not exists!", HttpStatus.BAD_REQUEST),//400
+    IMAGE_NOT_EXISTS(4019, "ImageId not exists!", HttpStatus.BAD_REQUEST),//400
+    IMAGE_INVALID(4020, "ImageId invalid with ProductId!", HttpStatus.BAD_REQUEST),//400
+    ADD_TAG_FAILD(4021, "TagNames empty or all of new tag existed with ProductId!", HttpStatus.BAD_REQUEST),//400
+    PRODUCT_TAG_NOT_EXISTS(4022, "TagNames empty or all of new tag existed with ProductId!", HttpStatus.BAD_REQUEST),//400
+    PRODUCT_TAG_EMPTY(4023, "TagNames is empty!", HttpStatus.BAD_REQUEST),//400
+    IMAGE_PAHTS_EMPTY(4024, "ImagePaths is empty!", HttpStatus.BAD_REQUEST),//400
     INVALID_KEY(400, "Invalid message key!", HttpStatus.BAD_REQUEST),
     INVALID_DOB(400, "Invalid date of birth!", HttpStatus.BAD_REQUEST),
     INVALID_TOKEN(400, "Invalid token!", HttpStatus.BAD_REQUEST),
@@ -42,6 +51,9 @@ public enum ErrorCode {
         this.message = message;
         this.statusCode = statusCode;
     }
-
+    public ErrorCode setMessage(String message){
+        this.message = message;
+        return this;
+    }
 
 }

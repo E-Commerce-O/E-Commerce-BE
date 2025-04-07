@@ -3,6 +3,8 @@ package org.example.cdweb_be.dto.request;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.List;
+
 @Data
 // annotation giúp khởi tại đối tượng
 @Builder
@@ -14,5 +16,5 @@ import lombok.experimental.FieldDefaults;
 // annotation thể hiện là 1 bảng trong db
 public class AddProductImageRequest {
     long productId;
-    String imagePath;
+    List<String> imagePaths;
 }

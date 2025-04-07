@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.example.cdweb_be.dto.request.AddProductImageRequest;
 import org.example.cdweb_be.dto.request.ProductCreateRequest;
+import org.example.cdweb_be.dto.request.ProductTagRequest;
 import org.example.cdweb_be.dto.request.ProductUpdateRequest;
 import org.example.cdweb_be.dto.response.ApiResponse;
 import org.example.cdweb_be.service.ProductService;
@@ -37,10 +38,22 @@ public class ProductController {
     }
     @PostMapping("/addImage")
     public ApiResponse addImage(@RequestBody AddProductImageRequest request) {
-        return new ApiResponse(productService.addProductImage(request));
+        return new ApiResponse(productService.addProductImages(request));
     }
-    @PutMapping("update")
+    @PutMapping("/update")
     public ApiResponse updateProduct(@RequestBody ProductUpdateRequest request){
         return new ApiResponse(productService.updateProduct(request));
+    }
+    @PutMapping("/addTags")
+    public ApiResponse addTags(@RequestBody ProductTagRequest request){
+        return new ApiResponse(productService.addTags(request));
+    }
+    @DeleteMapping("/deleteImage")
+    public ApiResponse deleteImage(@RequestParam long productId, @RequestParam long imageId){
+        return new ApiResponse(productService.deleteImage(productId, imageId));
+    }
+    @DeleteMapping("/deleteTags")
+    public ApiResponse deleteTags(@RequestBody ProductTagRequest request){
+        return new ApiResponse(productService.deleteTags(request));
     }
 }

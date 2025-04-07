@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.example.cdweb_be.dto.request.AddProductImageRequest;
 import org.example.cdweb_be.dto.request.ProductCreateRequest;
+import org.example.cdweb_be.dto.request.ProductTagRequest;
 import org.example.cdweb_be.dto.request.ProductUpdateRequest;
 import org.example.cdweb_be.dto.response.ProductResponse;
 import org.example.cdweb_be.entity.*;
@@ -102,19 +103,21 @@ public class ProductService {
         }
         return productRepository.save(product);
     }
-    public ProductImage addProductImage(AddProductImageRequest request){
-        Optional<Product> productOptional = productRepository.findById(request.getProductId());
-        if (productOptional.isEmpty())
-            throw new AppException(ErrorCode.PRODUCT_NOT_EXISTS);
-        ProductImage productImage = ProductImage.builder()
-                .imagePath(request.getImagePath())
-                .build();
-        productImage = productImageRepository.save(productImage);
-        if (productOptional.get().getImages() == null)
-            productOptional.get().setImages(new ArrayList<>()) ;
-        productOptional.get().getImages().add(productImage);
-        productRepository.save(productOptional.get());
-        return productImage;
+    public List<ProductImage> addProductImages(AddProductImageRequest request){
+        Product product = productRepository.findById(request.getProductId()).orElseThrow(
+                () -> new AppException(ErrorCode.PRODUCT_NOT_EXISTS)
+        );
+        if(request.getImagePaths().size() ==0) throw new AppException(ErrorCode.IMAGE_PAHTS_EMPTY);
+        List<ProductImage> productImages = request.getImagePaths().stream()
+                .map(imagePath -> productImageRepository.save(ProductImage.builder()
+                        .imagePath(imagePath)
+                        .build())).collect(Collectors.toList());
+//        productImage = productImageRepository.save(productImage);
+        if (product.getImages() == null)
+            product.setImages(new ArrayList<>()) ;
+        product.getImages().addAll(productImages);
+        productRepository.save(product);
+        return productImages;
     }
     public ProductResponse getByProductId(long productId){
         Optional<Product> productOptional = productRepository.findById(productId);
@@ -178,7 +181,7 @@ public class ProductService {
                 .map(product -> converToProductResponse(product)).collect(Collectors.toList());
         return productResponses;
     }
-    public ProductResponse updateProduct(ProductUpdateRequest request){
+    public Product updateProduct(ProductUpdateRequest request){
         Product product = productRepository.findById(request.getId()).orElseThrow(
                 () -> new AppException(ErrorCode.PRODUCT_NOT_EXISTS));
         product.setName(request.getName());
@@ -189,7 +192,72 @@ public class ProductService {
         product.setDescription(request.getDescription());
         product.setBrand(request.getBrand());
         product.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-        return productMapper.toProductResponse(productRepository.save(product));
+        return productRepository.save(product);
     }
-
+    public String deleteImage(long productId, long imageId){
+        Product product = productRepository.findById(productId).orElseThrow(
+                () -> new AppException(ErrorCode.PRODUCT_NOT_EXISTS)
+        );
+        ProductImage productImage = productImageRepository.findById(imageId)
+                .orElseThrow(() -> new AppException(ErrorCode.IMAGE_NOT_EXISTS));
+        if(product.getImages().contains(productImage)){
+            product.getImages().remove(productImage);
+            productRepository.save(product);
+            return "Delete image success!";
+        }else{
+            throw new AppException(ErrorCode.IMAGE_INVALID);
+        }
+    }
+    public List<String> addTags(ProductTagRequest request){
+        Product product = productRepository.findById(request.getProductId())
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTS));
+        int curTags = productTagRepositoty.findByProductId(product.getId()).size();
+        List<Tag> tags = new ArrayList<>();
+        for(String tagName : request.getTagNames()){
+            Optional<Tag> tagOptional = tagRepository.findById(tagName);
+            if(tagOptional.isEmpty()){
+                Tag newTag = Tag.builder().name(tagName).build();
+                tags.add(tagRepository.save(newTag));
+            }else{
+                tags.add(tagOptional.get());
+            }
+        }
+        for(Tag tag:tags){
+            Optional<ProductTag> productTagOptional = productTagRepositoty
+                    .findByProductIdAndTagName(product.getId(), tag.getName());
+            if(productTagOptional.isEmpty()){
+                ProductTag productTag = ProductTag.builder()
+                        .product(product)
+                        .tag(tag)
+                        .build();
+                productTagRepositoty.save(productTag);
+            }else{
+                tags.remove(tag);
+            }
+        }
+        List<ProductTag> newTags = productTagRepositoty.findByProductId(product.getId());
+        if(curTags == newTags.size()) throw new AppException(ErrorCode.ADD_TAG_FAILD);
+        List<String> rs = tags
+                .stream().map(tag -> tag.getName()).collect(Collectors.toList());
+        return rs;
+    }
+    public List<String> deleteTags(ProductTagRequest request){
+        Product product = productRepository.findById(request.getProductId())
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTS));
+        if(request.getTagNames().size() ==0 ) throw new AppException(ErrorCode.PRODUCT_TAG_EMPTY);
+        List<ProductTag> productTags = new ArrayList<>();
+        for (String tagName : request.getTagNames()) {
+            Optional<ProductTag> productTagOptional = productTagRepositoty
+                    .findByProductIdAndTagName(request.getProductId(), tagName);
+            if(productTagOptional.isEmpty()){
+                throw new AppException(ErrorCode.PRODUCT_TAG_NOT_EXISTS.setMessage(tagName +" is not a tag of ProductId"));
+            }else{
+                productTags.add(productTagOptional.get());
+            }
+        }
+        productTagRepositoty.deleteAll(productTags);
+        List<String> curTags = productTagRepositoty.findByProductId(product.getId())
+                .stream().map(productTag -> productTag.getTag().getName()).collect(Collectors.toList());
+        return curTags;
+    }
 }
