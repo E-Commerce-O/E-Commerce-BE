@@ -24,7 +24,8 @@ import javax.crypto.spec.SecretKeySpec;
 public class SecurityConfig {
 
     // Mảng chứa các endpoint công khai không yêu cầu xác thực
-    private static final String[] PUBLIC_ENDPOINTS = {"/users", "/auth/login", "/auth/introspect", "/upload"};
+    private static final String[] PUBLIC_POST_ENDPOINTS = {"/user", "/auth/login", "/auth/introspect", "/upload"};
+    private static final String[] PUBLIC_GET_ENDPOINTS = {"/user", "/auth/login", "/auth/introspect", "/upload"};
 
 
     // Lấy giá trị của "jwt.signerKey" từ tệp cấu hình
@@ -37,18 +38,14 @@ public class SecurityConfig {
 
         // Cấu hình quyền truy cập cho các yêu cầu HTTP
         httpSecurity.authorizeHttpRequests(request ->
-                        request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll() // Cho phép tất cả yêu cầu POST đến PUBLIC_ENDPOINTS
+                        request.requestMatchers(HttpMethod.POST, PUBLIC_POST_ENDPOINTS).permitAll() // Cho phép tất cả yêu cầu POST đến PUBLIC_ENDPOINTS
+                                .requestMatchers(HttpMethod.GET, PUBLIC_GET_ENDPOINTS).permitAll()
                                 .requestMatchers("/swagger-ui/index.html").permitAll()
-                                .requestMatchers("/swagger.html","/swagger-ui/**", "/swagger-ui.html", "/docs/**", "/v3/api-docs/**").permitAll()
-//                                .requestMatchers(HttpMethod.GET,"/tag/*").permitAll()
-//                                .requestMatchers(HttpMethod.POST,"/tag").permitAll()
+                                .requestMatchers("/swagger.html","/swagger-ui/**",
+                                        "/swagger-ui.html", "/docs/**", "/v3/api-docs/**").permitAll()
                                 .requestMatchers("/*", "/*/**").permitAll()
                                 .requestMatchers("/category/*").permitAll()
                                 .requestMatchers(HttpMethod.GET,"/user/*").permitAll()
-                                // -- Phân quyền trên endpoint -- -> thực tế ít dùng
-//                        .requestMatchers(HttpMethod.GET, "/users").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER") // nhiều role
-//                        .requestMatchers(HttpMethod.GET, "/users").hasAuthority("ROLE_ADMIN") // 1 role
-//                        .requestMatchers(HttpMethod.GET, "/users").hasRole(Role.ADMIN.name()) // 1 role
                                 .anyRequest().authenticated()
         ); // Tất cả các yêu cầu khác đều cần xác thực
         httpSecurity.cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.disable());

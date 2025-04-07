@@ -4,9 +4,11 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.example.cdweb_be.dto.response.ApiResponse;
 import org.example.cdweb_be.entity.ProductTag;
 import org.example.cdweb_be.service.ProductTagService;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,9 +26,9 @@ public class ProductTagController {
         return productTagService.getAll();
     }
 
-    @GetMapping("/id")
-    public List<ProductTag> getByProductId(){
-        return productTagService.getByProductId(1);
+    @GetMapping("/getByProduct/{productId}")
+    public ApiResponse getByProductId(@PathVariable long productId){
+        return new ApiResponse( productTagService.getByProductId(productId));
     }
 
 }

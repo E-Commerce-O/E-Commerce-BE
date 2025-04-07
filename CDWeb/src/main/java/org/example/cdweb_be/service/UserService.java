@@ -18,6 +18,7 @@ import org.example.cdweb_be.mapper.UserMapper;
 import org.example.cdweb_be.respository.RefreshTokenRepository;
 import org.example.cdweb_be.respository.UserRepository;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,10 +28,13 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -114,7 +118,7 @@ public class UserService {
                     .build();
 
         }catch (Exception e){
-        throw new AppException(ErrorCode.SERVER_ERROR);
+            throw new AppException(ErrorCode.SERVER_ERROR);
         }
     }
     public boolean validEmail(String email){
@@ -127,6 +131,28 @@ public class UserService {
         Optional<User> userOptional = userRepository.findByEmail(email);
         if(userOptional.isPresent()) return false;
         return true;
+    }
+    public UserResponse getMyInfo(String token){
+        try{
+            long userId = authenticationService.getClaimsSet(token).getLongClaim("id");
+            Optional<User> userOptional = userRepository.findById(userId);
+            if (userOptional.isPresent()) {
+                return userMapper.toUserResponse(userOptional.get());
+            } else {
+                throw new AppException(ErrorCode.USER_NOT_EXISTS);
+            }
+        } catch (Exception e) {
+            throw new AppException(ErrorCode.SERVER_ERROR);
+        }
+    }
+//    @PreAuthorize("hasRole('ADMIN')")
+    public List<UserResponse> getAllUsers(){
+        List<User> users = userRepository.findAll();
+        List<UserResponse> result = users.stream().map(user ->
+                userMapper.toUserResponse(user)
+        ).collect(Collectors.toList());
+        return result;
+
     }
 
 }

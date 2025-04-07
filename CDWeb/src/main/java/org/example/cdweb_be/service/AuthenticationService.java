@@ -58,6 +58,14 @@ public class AuthenticationService {
         }
 
     }
+    public long getUserId(String token){
+        try {
+            return getClaimsSet(token).getLongClaim("id");
+        } catch (Exception e) {
+
+            throw new AppException(ErrorCode.SERVER_ERROR);
+        }
+    }
     public JWTClaimsSet getClaimsSet(String token) {
         try {
             JWSObject jwsObject = JWSObject.parse(token.substring(7));

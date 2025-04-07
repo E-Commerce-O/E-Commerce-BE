@@ -20,7 +20,5 @@ public class ProductImage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
-    @ManyToOne
-    Product product;
     String imagePath;
 }

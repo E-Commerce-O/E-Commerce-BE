@@ -20,8 +20,6 @@ public class ProductSize {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
-    @ManyToOne
-    Product product;
     String size;
     String description;
 }

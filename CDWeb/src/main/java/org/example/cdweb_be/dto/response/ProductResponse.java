@@ -1,14 +1,16 @@
-package org.example.cdweb_be.entity;
-import jakarta.persistence.*;
+package org.example.cdweb_be.dto.response;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.example.cdweb_be.entity.*;
 
-import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Set;
 
-// annotation tạo getter và setter cho các field private
 @Data
 // annotation giúp khởi tại đối tượng
 @Builder
@@ -17,27 +19,25 @@ import java.util.Set;
 @AllArgsConstructor
 // annotation định nghĩa field mặc định của biến
 @FieldDefaults(level = AccessLevel.PRIVATE) // mặc định là private nếu k tự định nghĩa
-// annotation thể hiện là 1 bảng trong db
-@Entity
-public class Product {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class ProductResponse {
     long id;
     String name;
     String slug;
     double defaultPrice;
     int defaultDiscount;
     boolean published;
-    @ManyToOne
     Category category;
-    @OneToMany
-    List<ProductColor> colors;
-    @OneToMany
-    List<ProductSize> sizes;
-    @OneToMany
-    List<ProductImage> images;
     String description;
+    List<ProductImage> images;
+    List<ProductColor> colors;
+    List<ProductSize> sizes;
+    List<String> tags;
+    int totalSale;
+    int quantity;
+    double avgRating;
+    int numReviews;
     String brand;
+//    List<ProductDetailRespone> details;
     Timestamp createdAt;
     Timestamp updatedAt;
 }

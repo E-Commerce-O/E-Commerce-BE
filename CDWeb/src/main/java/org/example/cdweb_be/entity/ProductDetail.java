@@ -1,14 +1,9 @@
 package org.example.cdweb_be.entity;
+
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.sql.Date;
-import java.sql.Timestamp;
-import java.util.List;
-import java.util.Set;
-
-// annotation tạo getter và setter cho các field private
 @Data
 // annotation giúp khởi tại đối tượng
 @Builder
@@ -19,25 +14,16 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE) // mặc định là private nếu k tự định nghĩa
 // annotation thể hiện là 1 bảng trong db
 @Entity
-public class Product {
+public class ProductDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
-    String name;
-    String slug;
-    double defaultPrice;
-    int defaultDiscount;
-    boolean published;
     @ManyToOne
-    Category category;
-    @OneToMany
-    List<ProductColor> colors;
-    @OneToMany
-    List<ProductSize> sizes;
-    @OneToMany
-    List<ProductImage> images;
-    String description;
-    String brand;
-    Timestamp createdAt;
-    Timestamp updatedAt;
+    Product product;
+    @ManyToOne
+    ProductColor productColor;
+    @ManyToOne
+    ProductSize productSize;
+    int discount;
+    double price;
 }

@@ -33,9 +33,16 @@ public class UserController {
     ApiResponse validEmail(@PathVariable String email){
         return new ApiResponse(userService.validEmail(email));
     }
+    @GetMapping("/getInfo")
+    ApiResponse getMyInfo(@RequestHeader("Authorization") String token){
+        return new ApiResponse(userService.getMyInfo(token));
+    }
+    @GetMapping("/getAllUsers")
+    ApiResponse getAllUsers(){
+        return new ApiResponse(userService.getAllUsers());
+    }
 
-
-    @PostMapping("/add")
+    @PostMapping("/register")
     ApiResponse registerUser(@RequestBody UserCreateRequest request){
         return new ApiResponse(userService.addUser(request));
     }

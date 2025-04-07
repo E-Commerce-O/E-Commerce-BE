@@ -17,10 +17,13 @@ public enum ErrorCode {
     USERNAME_EXISTED(4010, "Username existed!", HttpStatus.BAD_REQUEST), //400
     EMAIL_EXISTED(4011, "Email existed!", HttpStatus.BAD_REQUEST), //400
     PHONE_NUMBER_EXISTED(4012, "Phone number existed!", HttpStatus.BAD_REQUEST), //400
-    USER_NOT_EXISTS(4013, "Username not exists!", HttpStatus.BAD_REQUEST),//404
-    PASSWORD_INCORRECT(4014, "Incorrect password!", HttpStatus.BAD_REQUEST),//404
-    REFRESH_TOKEN_NOT_FOUND(4015, "Incorrect refresh token!", HttpStatus.BAD_REQUEST),//404
-    REFRESH_TOKEN_INVALID(4015, "Invalid refresh token!", HttpStatus.BAD_REQUEST),//404
+    USER_NOT_EXISTS(4013, "Username not exists!", HttpStatus.BAD_REQUEST),//400
+    PASSWORD_INCORRECT(4014, "Incorrect password!", HttpStatus.BAD_REQUEST),//400
+    REFRESH_TOKEN_NOT_FOUND(4015, "Incorrect refresh token!", HttpStatus.BAD_REQUEST),//400
+    REFRESH_TOKEN_INVALID(4015, "Invalid refresh token!", HttpStatus.BAD_REQUEST),//400
+    ACCESS_TOKEN_INVALID(4016, "Missing accessToken or invalid accessToken!", HttpStatus.BAD_REQUEST),//400
+    PRODUCT_NOT_EXISTS(4017, "ProductId not exists!", HttpStatus.BAD_REQUEST),//400
+    PRODUCT_DETAIL_NOT_EXISTS(4018, "ProductDetailId not exists!", HttpStatus.BAD_REQUEST),//400
     INVALID_KEY(400, "Invalid message key!", HttpStatus.BAD_REQUEST),
     INVALID_DOB(400, "Invalid date of birth!", HttpStatus.BAD_REQUEST),
     INVALID_TOKEN(400, "Invalid token!", HttpStatus.BAD_REQUEST),

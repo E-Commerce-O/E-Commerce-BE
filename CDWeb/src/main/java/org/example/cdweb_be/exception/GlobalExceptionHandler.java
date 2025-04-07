@@ -4,6 +4,7 @@ import org.example.cdweb_be.dto.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -47,6 +48,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = AccessDeniedException.class)// bắt lỗi 403
     ResponseEntity<ApiResponse> handlingAccessDeniedException(AccessDeniedException exception){
         ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
+        return ResponseEntity.status(errorCode.getStatusCode()).body(
+                ApiResponse.builder()
+
+                        .code(errorCode.getCode())
+                        .isSuccess(errorCode.isSuccess())
+                        .data(errorCode.getMessage())
+                        .build()
+        );
+    }
+    @ExceptionHandler(value = MissingRequestHeaderException.class)// bắt lỗi 403
+    ResponseEntity<ApiResponse> handlingMissingRequestHeaderException(MissingRequestHeaderException exception){
+        ErrorCode errorCode = ErrorCode.ACCESS_TOKEN_INVALID;
         return ResponseEntity.status(errorCode.getStatusCode()).body(
                 ApiResponse.builder()
 

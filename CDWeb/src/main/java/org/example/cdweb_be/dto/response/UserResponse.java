@@ -14,6 +14,7 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @FieldDefaults(level =  AccessLevel.PRIVATE)
 public class UserResponse {
+    long id;
     String username;
     String phoneNumber;
     String email;
