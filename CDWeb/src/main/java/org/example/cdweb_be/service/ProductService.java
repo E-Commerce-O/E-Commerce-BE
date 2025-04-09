@@ -138,6 +138,8 @@ public class ProductService {
             }else{
                 productHistory = productHistoryOptional.get();
             }
+            productHistory.getProducts().remove(productOptional.get());
+            productHistoryRepository.save(productHistory);
             productHistory.getProducts().add(productOptional.get());
             productHistoryRepository.save(productHistory);
             return converToProductResponse(productOptional.get());
