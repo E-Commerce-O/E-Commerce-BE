@@ -1,15 +1,22 @@
 package org.example.cdweb_be.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.example.cdweb_be.dto.request.AddProductImageRequest;
 import org.example.cdweb_be.dto.request.ProductCreateRequest;
 import org.example.cdweb_be.dto.request.ProductTagRequest;
 import org.example.cdweb_be.dto.request.ProductUpdateRequest;
 import org.example.cdweb_be.dto.response.ApiResponse;
 import org.example.cdweb_be.service.ProductService;
+import org.json.JSONObject;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,19 +26,32 @@ import org.springframework.web.bind.annotation.*;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ProductController {
     ProductService productService;
+
     @GetMapping("/getALl")
     public ApiResponse getAllProduct() {
         return new ApiResponse(productService.getAll());
     }
     @GetMapping("/getById/{productId}")
-    public ApiResponse getProductById(@PathVariable long productId){
-        return new ApiResponse(productService.getByProductId(productId));
+    public ApiResponse getProductById(@PathVariable long productId, HttpServletRequest request){
+        return new ApiResponse(productService.getByProductId(productId, request));
     }
     @GetMapping("/getByName/{productName}")
     public ApiResponse getByName(@PathVariable String productName){
         return new ApiResponse(productService.getByName(productName));
     }
+    @GetMapping("/getByCategory/{categoryId}")
+    public ApiResponse getByCategory(@PathVariable long categoryId){
+        return new ApiResponse(productService.getByCategory(categoryId));
 
+    }
+    @GetMapping("/getSimilar/{productId}")
+    public ApiResponse getSimilar(@PathVariable long productId){
+        return new ApiResponse(productService.getSimilar(productId));
+    }
+    @GetMapping("/getHistory")
+    public ApiResponse getHistory(HttpServletRequest request){
+        return new ApiResponse(productService.getHistory(request));
+    }
     @PostMapping("/add")
     public ApiResponse addProduct(@RequestBody ProductCreateRequest request){
         return new ApiResponse(productService.addProduct(request));
@@ -56,4 +76,17 @@ public class ProductController {
     public ApiResponse deleteTags(@RequestBody ProductTagRequest request){
         return new ApiResponse(productService.deleteTags(request));
     }
+    @DeleteMapping("/deleteProduct/{productId}")
+    public ApiResponse deleteProduct(@PathVariable long productId){
+        return new ApiResponse(productService.deleteProduct(productId));
+    }
+//    @GetMapping("/get-ip")
+//    public String search(HttpServletRequest request) {
+//        String ipAddress = getIP(request);
+//        // Lưu lịch sử tìm kiếm cùng với ipAddress và query vào cơ sở dữ liệu
+//        // Ví dụ: saveSearchHistory(ipAddress, query);
+//
+//        return " from IP: " + ipAddress;
+//    }
+
 }

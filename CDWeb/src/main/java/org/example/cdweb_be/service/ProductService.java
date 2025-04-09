@@ -1,5 +1,6 @@
 package org.example.cdweb_be.service;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -16,12 +17,12 @@ import org.example.cdweb_be.exception.ErrorCode;
 import org.example.cdweb_be.mapper.ProductMapper;
 import org.example.cdweb_be.mapper.ProductSizeMapper;
 import org.example.cdweb_be.respository.*;
+import org.example.cdweb_be.utils.IPUtils;
 import org.springframework.stereotype.Service;
 
+import java.net.http.HttpRequest;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -38,10 +39,11 @@ public class ProductService {
     ProductImageRepository productImageRepository;
     CategoryRepository categoryRepository;
     ProductDetailRepository productDetailRepository;
-    ProductTagRepositoty productTagRepositoty;
+    ProductTagRepository productTagRepository;
     OrderItemRepository orderItemRepository;
     ProductImportRepository productImportRepository;
     ProductReviewRepository productReviewRepository;
+    ProductHistoryRepository productHistoryRepository;
     public Product addProduct(ProductCreateRequest request){
         Product product = productMapper.toProduct(request);
         product.setCreatedAt(new Timestamp(System.currentTimeMillis()));
@@ -82,7 +84,7 @@ public class ProductService {
             product.setSizes(sizes);
         }
         for(Tag tag: tags){
-            productTagRepositoty.save(ProductTag.builder().product(product).tag(tag).build());
+            productTagRepository.save(ProductTag.builder().product(product).tag(tag).build());
         }
         for(ProductColor color:colors){
             for(ProductSize size: sizes){
@@ -119,14 +121,39 @@ public class ProductService {
         productRepository.save(product);
         return productImages;
     }
-    public ProductResponse getByProductId(long productId){
+    public ProductResponse getByProductId(long productId, HttpServletRequest request){
         Optional<Product> productOptional = productRepository.findById(productId);
         if(productOptional.isEmpty()){
             throw new AppException(ErrorCode.PRODUCT_NOT_EXISTS);
         }else{
+            String ip = IPUtils.getIP(request);
+            Optional<ProductHistory> productHistoryOptional = productHistoryRepository.findById(ip);
+            ProductHistory productHistory;
+            if(productHistoryOptional.isEmpty()){
+                productHistory = ProductHistory.builder()
+                        .ip(ip)
+                        .products(new HashSet<Product>())
+                        .build();
+
+            }else{
+                productHistory = productHistoryOptional.get();
+            }
+            productHistory.getProducts().add(productOptional.get());
+            productHistoryRepository.save(productHistory);
             return converToProductResponse(productOptional.get());
         }
 
+    }
+    public List<ProductResponse> getHistory(HttpServletRequest request){
+        String ip = IPUtils.getIP(request);
+        Optional<ProductHistory > productHistoryOptional = productHistoryRepository.findById(ip);
+        if(productHistoryOptional.isEmpty()){
+            return new ArrayList<>();
+        }else{
+            List<ProductResponse> productResponses = productHistoryOptional.get().getProducts().stream()
+                    .map(product -> converToProductResponse(product)).collect(Collectors.toList());
+            return productResponses;
+        }
     }
     public List<ProductResponse> getAll(){
         List<Product> products = productRepository.findAll();
@@ -136,7 +163,7 @@ public class ProductService {
     }
     public ProductResponse converToProductResponse(Product product){
         ProductResponse productResponse = productMapper.toProductResponse(product);
-        List<ProductTag> productTags = productTagRepositoty.findByProductId(product.getId());
+        List<ProductTag> productTags = productTagRepository.findByProductId(product.getId());
         List<ProductReview> productReviews = productReviewRepository.findByProductId(product.getId());
         int totalRating = productReviews.stream()
                 .mapToInt(productReview -> productReview.getRatingScore())
@@ -184,6 +211,9 @@ public class ProductService {
     public Product updateProduct(ProductUpdateRequest request){
         Product product = productRepository.findById(request.getId()).orElseThrow(
                 () -> new AppException(ErrorCode.PRODUCT_NOT_EXISTS));
+        Category category = categoryRepository.findById(request.getCategoryId()).
+                orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_EXISTS));
+        product.setCategory(category);
         product.setName(request.getName());
         product.setSlug(request.getSlug());
         product.setDefaultPrice(request.getDefaultPrice());
@@ -211,7 +241,7 @@ public class ProductService {
     public List<String> addTags(ProductTagRequest request){
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTS));
-        int curTags = productTagRepositoty.findByProductId(product.getId()).size();
+        int curTags = productTagRepository.findByProductId(product.getId()).size();
         List<Tag> tags = new ArrayList<>();
         for(String tagName : request.getTagNames()){
             Optional<Tag> tagOptional = tagRepository.findById(tagName);
@@ -223,19 +253,19 @@ public class ProductService {
             }
         }
         for(Tag tag:tags){
-            Optional<ProductTag> productTagOptional = productTagRepositoty
+            Optional<ProductTag> productTagOptional = productTagRepository
                     .findByProductIdAndTagName(product.getId(), tag.getName());
             if(productTagOptional.isEmpty()){
                 ProductTag productTag = ProductTag.builder()
                         .product(product)
                         .tag(tag)
                         .build();
-                productTagRepositoty.save(productTag);
+                productTagRepository.save(productTag);
             }else{
                 tags.remove(tag);
             }
         }
-        List<ProductTag> newTags = productTagRepositoty.findByProductId(product.getId());
+        List<ProductTag> newTags = productTagRepository.findByProductId(product.getId());
         if(curTags == newTags.size()) throw new AppException(ErrorCode.ADD_TAG_FAILD);
         List<String> rs = tags
                 .stream().map(tag -> tag.getName()).collect(Collectors.toList());
@@ -247,7 +277,7 @@ public class ProductService {
         if(request.getTagNames().size() ==0 ) throw new AppException(ErrorCode.PRODUCT_TAG_EMPTY);
         List<ProductTag> productTags = new ArrayList<>();
         for (String tagName : request.getTagNames()) {
-            Optional<ProductTag> productTagOptional = productTagRepositoty
+            Optional<ProductTag> productTagOptional = productTagRepository
                     .findByProductIdAndTagName(request.getProductId(), tagName);
             if(productTagOptional.isEmpty()){
                 throw new AppException(ErrorCode.PRODUCT_TAG_NOT_EXISTS.setMessage(tagName +" is not a tag of ProductId"));
@@ -255,9 +285,39 @@ public class ProductService {
                 productTags.add(productTagOptional.get());
             }
         }
-        productTagRepositoty.deleteAll(productTags);
-        List<String> curTags = productTagRepositoty.findByProductId(product.getId())
+        productTagRepository.deleteAll(productTags);
+        List<String> curTags = productTagRepository.findByProductId(product.getId())
                 .stream().map(productTag -> productTag.getTag().getName()).collect(Collectors.toList());
         return curTags;
+    }
+    public List<ProductResponse> getByCategory(long categoryId){
+        Category category = categoryRepository.findById(categoryId).orElseThrow(
+                () -> new AppException(ErrorCode.CATEGORY_NOT_EXISTS)
+        );
+        List<Product> products = productRepository.findByCategoryId(categoryId);
+        List<ProductResponse> result = products.stream().map(
+                product -> converToProductResponse(product)
+        ).collect(Collectors.toList());
+        return result;
+    }
+    public Set<ProductResponse> getSimilar(long productId){
+        Set<ProductResponse> result = new HashSet<>();
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTS));
+        List<ProductResponse> productResponses = productRepository.findByName(product.getName()).stream()
+                        .map(pr -> converToProductResponse(pr)).collect(Collectors.toList());
+        result.addAll(productResponses);
+        productResponses = productRepository.findByCategoryId(product.getCategory().getId()).stream()
+                .map(pr -> converToProductResponse( pr)).collect(Collectors.toList());
+        result.addAll(productResponses);
+        return result;
+    }
+    public String deleteProduct(long productId){
+        Product product = productRepository.findById(productId)
+                .orElseThrow( () -> new AppException(ErrorCode.PRODUCT_NOT_EXISTS));
+        productTagRepository.deleteAll(productTagRepository.findByProductId(productId));
+        productDetailRepository.deleteAll(productDetailRepository.findByProductId(productId));
+        productRepository.delete(product);
+        return "Delete product success!";
     }
 }

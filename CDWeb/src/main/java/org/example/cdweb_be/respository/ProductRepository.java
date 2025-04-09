@@ -15,5 +15,5 @@ import java.util.List;
 public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT pr FROM Product pr WHERE pr.name like %:productName%")
     List<Product> findByName(@Param("productName") String productName);
-
+    List<Product> findByCategoryId(long categoryId);
 }

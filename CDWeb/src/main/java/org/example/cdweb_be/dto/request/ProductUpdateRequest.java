@@ -19,6 +19,7 @@ public class ProductUpdateRequest {
     long id;
     String name;
     String slug;
+    long categoryId;
     double defaultPrice;
     int defaultDiscount;
     boolean published;
