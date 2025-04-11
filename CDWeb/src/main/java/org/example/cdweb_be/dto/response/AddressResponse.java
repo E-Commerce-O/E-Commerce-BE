@@ -1,10 +1,13 @@
-package org.example.cdweb_be.entity;
-import jakarta.persistence.*;
+package org.example.cdweb_be.dto.response;
+
+import jakarta.persistence.ManyToOne;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.example.cdweb_be.entity.District;
+import org.example.cdweb_be.entity.Province;
+import org.example.cdweb_be.entity.User;
+import org.example.cdweb_be.entity.Ward;
 
-import java.sql.Date;
-import java.sql.Timestamp;
 // annotation tạo getter và setter cho các field private
 @Data
 // annotation giúp khởi tại đối tượng
@@ -14,20 +17,10 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 // annotation định nghĩa field mặc định của biến
 @FieldDefaults(level = AccessLevel.PRIVATE) // mặc định là private nếu k tự định nghĩa
-// annotation thể hiện là 1 bảng trong db
-@Entity
-public class Address {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class AddressResponse {
     long id;
-    @ManyToOne
-    User user;
-    @ManyToOne
     Province province;
-    @ManyToOne
     District district;
-    @ManyToOne
     Ward ward;
     String houseNumber;
-
 }

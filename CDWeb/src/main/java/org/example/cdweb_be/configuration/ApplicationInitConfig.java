@@ -27,7 +27,7 @@ public class ApplicationInitConfig {
                 User user = User.builder()
                         .username("admin")
                         .avtPath("https://i.imgur.com/W60xqJf.png")
-                        .fullName("Ái Văn Min")
+                        .fullName("At Van Min")
                         .email("admin@min.ad")
                         .password(passwordEncoder.encode("123"))
                         .role(Role.ADMIN.name())

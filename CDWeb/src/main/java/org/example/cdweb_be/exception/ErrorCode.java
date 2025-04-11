@@ -33,6 +33,16 @@ public enum ErrorCode {
     PRODUCT_TAG_NOT_EXISTS(4022, "TagNames empty or all of new tag existed with ProductId!", HttpStatus.BAD_REQUEST),//400
     PRODUCT_TAG_EMPTY(4023, "TagNames is empty!", HttpStatus.BAD_REQUEST),//400
     IMAGE_PAHTS_EMPTY(4024, "ImagePaths is empty!", HttpStatus.BAD_REQUEST),//400
+    PROVINCE_NOT_EXISTS(4025, "ProvinceId not exists!", HttpStatus.BAD_REQUEST),//400
+    DISTRICT_NOT_EXISTS(4026, "DistrictId not exists!", HttpStatus.BAD_REQUEST),//400
+    WARD_NOT_EXISTS(4027, "WardId not exists!", HttpStatus.BAD_REQUEST),//400
+    DISTRICT_INVALID(4027, "DistrictId not in provinceId!", HttpStatus.BAD_REQUEST),//400
+    WARD_INVALID(4027, "WardId not in districtId!", HttpStatus.BAD_REQUEST),//400
+    ADDRESS_EXISTED(4028, "Address already exists!", HttpStatus.BAD_REQUEST),//400
+    ADDRESS_NOT_EXISTS(4029, "AddressId not exists!", HttpStatus.BAD_REQUEST),//400
+    ADDRESS_UNAUTHORIZED(4030, "You do not have permission to operate on this addressId!", HttpStatus.BAD_REQUEST),//400
+    WHISTLIST_EXISTED(4031, "ProductId already exists in your wishlist!", HttpStatus.BAD_REQUEST),//400
+    WHISTLIST_NOT_EXISTS(4031, "ProductId not in your wishlist!", HttpStatus.BAD_REQUEST),//400
     INVALID_KEY(400, "Invalid message key!", HttpStatus.BAD_REQUEST),
     INVALID_DOB(400, "Invalid date of birth!", HttpStatus.BAD_REQUEST),
     INVALID_TOKEN(400, "Invalid token!", HttpStatus.BAD_REQUEST),
