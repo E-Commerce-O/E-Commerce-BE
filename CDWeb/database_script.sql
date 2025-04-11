@@ -86,7 +86,29 @@ CREATE TABLE IF NOT EXISTS `category` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.category: ~0 rows (approximately)
+-- Dumping data for table cdweb.category: ~21 rows (approximately)
+INSERT INTO `category` (`id`, `description`, `image_path`, `name`) VALUES
+	(1, 'Áo phông là trang phục cơ bản với thiết kế đơn giản, thường làm từ chất liệu cotton thoáng mát. Phù hợp cho cả nam và nữ, thường được mặc trong các dịp thường ngày hoặc hoạt động thể thao.', NULL, 'Áo phông (T-shirt)'),
+	(2, 'Áo sơ mi có cổ và thường được làm bằng vải cotton hoặc polyester. Là lựa chọn hoàn hảo cho cả trang phục công sở và các dịp trang trọng.', NULL, 'Áo sơ mi (Shirt)'),
+	(3, 'Áo khoác giúp bảo vệ người mặc khỏi gió và thời tiết lạnh. Có nhiều kiểu dáng từ bomber đến denim, phù hợp với nhiều phong cách cá nhân.', NULL, 'Áo khoác (Jacket)'),
+	(4, 'Áo len được làm từ sợi len hoặc các chất liệu tổng hợp, đem lại sự ấm áp trong mùa đông. Có nhiều kiểu dáng, từ cổ tròn đến cổ lọ.', NULL, 'Áo len (Sweater)'),
+	(5, 'Hoodie là áo khoác có mũ, thường được làm từ vải nỉ hoặc cotton. Rất thoải mái và dễ mặc, thường được ưa chuộng trong các hoạt động thể thao hoặc mặc thường ngày.', NULL, 'Áo hoodie (Hoodie)'),
+	(6, 'Áo vest là trang phục lịch lãm, thường được mặc trong các dịp trang trọng hoặc công sở. Có kiểu dáng ôm sát và tạo phong cách thanh lịch.', NULL, 'Áo vest (Blazer)'),
+	(7, 'Giống như áo phông nhưng có tay dài, phù hợp cho mùa thu và đông. Thích hợp cho trang phục hàng ngày và có thể dễ dàng kết hợp với nhiều loại quần.\n', NULL, 'Áo thun dài tay (Long Sleeve T-shirt)'),
+	(8, 'Váy có nhiều kiểu dáng và chất liệu, từ đơn giản đến cầu kỳ, thường được sử dụng cho các dịp đặc biệt hoặc hàng ngày, thể hiện sự nữ tính và phong cách.', NULL, 'Váy (Dress)'),
+	(9, 'Quần được làm từ vải denim, bền chắc và thoải mái. Có nhiều kiểu dáng, từ skinny đến bootcut, và là trang phục cơ bản không thể thiếu trong tủ đồ.', NULL, 'Quần jeans (Jeans)'),
+	(10, 'Quần tây thường được làm bằng vải mịn, thường được sử dụng trong môi trường công sở hoặc các sự kiện trang trọng. Mang đến vẻ ngoài chuyên nghiệp và lịch sự.', NULL, 'Quần tây (Trousers)'),
+	(11, 'Quần ngắn, thoải mái, thường được mặc trong mùa hè hoặc trong các hoạt động thể thao. Có nhiều kiểu dáng và chất liệu khác nhau.\n', NULL, 'Quần shorts (Shorts)'),
+	(12, 'Quần ôm sát, thường được làm từ chất liệu co giãn, rất thoải mái và thích hợp cho các hoạt động thể thao hoặc mặc thường ngày.', NULL, 'Quần legging (Leggings)'),
+	(13, 'Quần thể thao có ống bo, thường được làm từ chất liệu thoáng khí, phù hợp cho hoạt động tập luyện và phong cách hàng ngày.', NULL, 'Quần jogger (Joggers)'),
+	(14, 'Quần ngắn đến mắt cá chân, thường mang lại vẻ ngoài hiện đại. Phù hợp cho cả nam và nữ trong các dịp informal.', NULL, 'Quần chéo (Cropped Pants)'),
+	(15, 'Váy ngắn, thường trên đầu gối, mang lại nét trẻ trung và quyến rũ, phù hợp cho các dịp vui chơi, đi tiệc hoặc sự kiện không chính thức. Có thể được làm từ nhiều chất liệu và kiểu dáng khác nhau để tôn lên vẻ đẹp cá nhân.', NULL, 'Váy ngắn (Mini Dress)'),
+	(16, 'Thiết kế dành riêng cho hoạt động bơi lội và các hoạt động trên bãi biển. Có nhiều kiểu dáng như bikini, một mảnh hoặc tankini, nhằm mang lại sự thoải mái và phong cách trong mùa hè.', NULL, 'Đồ bơi (Swimwear)'),
+	(17, 'Áo khoác dài, thường được làm từ vải dày để giữ ấm trong mùa đông. Có nhiều kiểu dáng khác nhau từ dày, mỏng đến khoác ngoài, phù hợp cho các dịp trang trọng và không trang trọng.', NULL, 'Áo choàng (Coat)'),
+	(18, 'Trang phục dành riêng cho việc ngủ, thường được làm từ chất liệu mềm mại và thoải mái như cotton hoặc satin. Có nhiều kiểu dáng từ bộ pijama đến váy ngủ.', NULL, 'Đồ ngủ (Sleepwear)'),
+	(19, 'Trang phục thiết kế đặc biệt cho các hoạt động thể thao, thường được làm từ chất liệu co giãn và thấm hút mồ hôi. Bao gồm áo thun, quần tập gym và đồ bơi.', NULL, 'Đồ thể thao (Athletic Wear)'),
+	(20, 'Áo khoác bảo vệ khỏi mưa, thường được làm từ chất liệu chống thấm nước. Có thể có mũ và được thiết kế nhẹ nhàng để dễ dàng mang theo.', NULL, 'Áo mưa (Raincoat)'),
+	(21, 'Được thiết kế với nhiều kiểu dáng và độ dài khác nhau, từ chân váy ngắn đến dài, phù hợp với nhiều phong cách. Chân váy có thể được kết hợp với nhiều loại áo khác nhau để tạo nên bộ trang phục hoàn hảo.', NULL, 'Chân váy (Skirt)');
 
 -- Dumping structure for table cdweb.category_apply_of_vouhcer
 CREATE TABLE IF NOT EXISTS `category_apply_of_vouhcer` (
@@ -1165,7 +1187,18 @@ CREATE TABLE IF NOT EXISTS `tag` (
   PRIMARY KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.tag: ~0 rows (approximately)
+-- Dumping data for table cdweb.tag: ~10 rows (approximately)
+INSERT INTO `tag` (`name`, `description`) VALUES
+	('Áo thun', NULL),
+	('Bán chạy nhất', 'Những sản phẩm được khách hàng ưa chuộng và mua sắm nhiều nhất. Hãy khám phá những món đồ đang gây sốt để không bỏ lỡ cơ hội sở hữu chúng.\n'),
+	('Dành cho bạn', 'Những sản phẩm được tuyển chọn đặc biệt, dựa trên sở thích và nhu cầu của bạn. Tìm kiếm những món đồ phù hợp nhất với phong cách sống của bạn.\n'),
+	('Giảm giá sốc', 'Các sản phẩm với mức giảm giá lớn, lên tới 70%, chỉ có trong thời gian giới hạn. Đây là cơ hội tuyệt vời cho bạn để mua sắm những món đồ yêu thích với giá cực kỳ hấp dẫn.'),
+	('Hot trend', 'Các sản phẩm đang là xu hướng mới nhất, theo kịp thị trường và nhu cầu của khách hàng. Hãy nhanh tay sở hữu những sản phẩm thời thượng nhất.'),
+	('Miễn phí vận chuyển', 'Tận hưởng dịch vụ vận chuyển miễn phí cho mọi đơn hàng hoặc đơn hàng trên giá trị nhất định. Đặt hàng dễ dàng và tiết kiệm chi phí giao hàng.'),
+	('Mới về', 'Khám phá các sản phẩm mới nhất đang có mặt tại cửa hàng. Từ các xu hướng thời trang mới đến công nghệ tiên tiến, hãy là người đầu tiên sở hữu những sản phẩm hot nhất trên thị trường.'),
+	('Sản phẩm chất lượng cao', 'Chúng tôi chỉ cung cấp những sản phẩm được chọn lọc kỹ càng, đảm bảo chất lượng và độ bền. Sắm sửa những món đồ bạn có thể tin tưởng và yêu thích.'),
+	('Sản phẩm khuyến mãi', 'Các sản phẩm đang có chương trình khuyến mãi với mức giá ưu đãi. Khám phá những món đồ chất lượng cao với giá cả hợp lý và tiết kiệm.'),
+	('Ưu đãi đặc biệt', 'Các khuyến mãi và ưu đãi đặc biệt chỉ có cho một số sản phẩm nhất định. Đừng bỏ lỡ cơ hội tận hưởng những ưu đãi mà bạn không thể tìm thấy ở nơi khác.');
 
 -- Dumping structure for table cdweb.user
 CREATE TABLE IF NOT EXISTS `user` (
