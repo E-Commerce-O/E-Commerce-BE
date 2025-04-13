@@ -1,9 +1,5 @@
 package org.example.cdweb_be.dto.response;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.example.cdweb_be.entity.*;
@@ -28,9 +24,9 @@ public class ProductResponse {
     boolean published;
     Category category;
     String description;
-    List<ProductImage> images;
-    List<ProductColor> colors;
-    List<ProductSize> sizes;
+    List<Image> images;
+    List<Color> colors;
+    List<Size> sizes;
     List<String> tags;
     int totalSale;
     int quantity;

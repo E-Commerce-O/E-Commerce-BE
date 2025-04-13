@@ -10,14 +10,13 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.example.cdweb_be.dto.request.AddProductImageRequest;
-import org.example.cdweb_be.dto.request.ProductCreateRequest;
-import org.example.cdweb_be.dto.request.ProductTagRequest;
-import org.example.cdweb_be.dto.request.ProductUpdateRequest;
+import org.example.cdweb_be.dto.request.*;
 import org.example.cdweb_be.dto.response.ApiResponse;
 import org.example.cdweb_be.service.ProductService;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/product")
@@ -59,6 +58,14 @@ public class ProductController {
     @PostMapping("/addImage")
     public ApiResponse addImage(@RequestBody AddProductImageRequest request) {
         return new ApiResponse(productService.addProductImages(request));
+    }
+    @PostMapping("addColors/{productId}")
+    public ApiResponse addColors(@PathVariable long productId, @RequestBody List<ColorRequest> requests){
+        return new ApiResponse(productService.addColors(productId, requests));
+    }
+    @PostMapping("/addSizes/{productId}")
+    public ApiResponse addSizes(@PathVariable long productId, @RequestBody List<SizeCreateRequest> requests){
+        return new ApiResponse(productService.addSizes(productId, requests));
     }
     @PutMapping("/update")
     public ApiResponse updateProduct(@RequestBody ProductUpdateRequest request){

@@ -36,13 +36,27 @@ public enum ErrorCode {
     PROVINCE_NOT_EXISTS(4025, "ProvinceId not exists!", HttpStatus.BAD_REQUEST),//400
     DISTRICT_NOT_EXISTS(4026, "DistrictId not exists!", HttpStatus.BAD_REQUEST),//400
     WARD_NOT_EXISTS(4027, "WardId not exists!", HttpStatus.BAD_REQUEST),//400
-    DISTRICT_INVALID(4027, "DistrictId not in provinceId!", HttpStatus.BAD_REQUEST),//400
-    WARD_INVALID(4027, "WardId not in districtId!", HttpStatus.BAD_REQUEST),//400
     ADDRESS_EXISTED(4028, "Address already exists!", HttpStatus.BAD_REQUEST),//400
     ADDRESS_NOT_EXISTS(4029, "AddressId not exists!", HttpStatus.BAD_REQUEST),//400
     ADDRESS_UNAUTHORIZED(4030, "You do not have permission to operate on this addressId!", HttpStatus.BAD_REQUEST),//400
     WHISTLIST_EXISTED(4031, "ProductId already exists in your wishlist!", HttpStatus.BAD_REQUEST),//400
-    WHISTLIST_NOT_EXISTS(4031, "ProductId not in your wishlist!", HttpStatus.BAD_REQUEST),//400
+    WHISTLIST_NOT_EXISTS(4032, "ProductId not in your wishlist!", HttpStatus.BAD_REQUEST),//400
+    PRODUCT_SIZE_NOT_EXISTS(4033, "SizeId not exists!", HttpStatus.BAD_REQUEST),//400
+    PRODUCT_SIZE_INVALID(4034, "SizeId is not in the product size list!", HttpStatus.BAD_REQUEST),//400
+    PRODUCT_COLOR_NOT_EXISTS(4035, "ColorId not exists!", HttpStatus.BAD_REQUEST),//400
+    PRODUCT_COLOR_INVALID(4036, "ColorId is not in the product size list!", HttpStatus.BAD_REQUEST),//400
+    DISTRICT_INVALID(4037, "DistrictId not in provinceId!", HttpStatus.BAD_REQUEST),//400
+    WARD_INVALID(4038, "WardId not in districtId!", HttpStatus.BAD_REQUEST),//400
+    PRODUCT_SIZE_REQUIRE(4039, "SizeId is require (>0)!", HttpStatus.BAD_REQUEST),//400
+    PRODUCT_COLOR_REQUIRE(4040, "ColorId is require (>0)!", HttpStatus.BAD_REQUEST),//400
+    CANT_ADD_COLOR(4041, "Cannot add color because this product is already import without color!", HttpStatus.BAD_REQUEST),//400
+    CANT_ADD_SIZE(4041, "Cannot add size because this product is already import without size!", HttpStatus.BAD_REQUEST),//400
+    COLOR_EXIDTED(4041, "ColorName is already exists!", HttpStatus.BAD_REQUEST),//400
+    SIZE_EXIDTED(4042, "Size is already exists!", HttpStatus.BAD_REQUEST),//400
+    QUANTITY_INVALID(4043, "Quantity must be greater than 0!", HttpStatus.BAD_REQUEST),//400
+    PRICE_INVALID(4044, "Price must be greater than 0!", HttpStatus.BAD_REQUEST),//400
+    PRODUCT_IMPORT_NOT_EXISTS(4045, "ImportId not exists!", HttpStatus.BAD_REQUEST),//400
+    CANT_UPDATE_IMPORT(4045, "Cannot update because there are no changes!", HttpStatus.BAD_REQUEST),//400
     INVALID_KEY(400, "Invalid message key!", HttpStatus.BAD_REQUEST),
     INVALID_DOB(400, "Invalid date of birth!", HttpStatus.BAD_REQUEST),
     INVALID_TOKEN(400, "Invalid token!", HttpStatus.BAD_REQUEST),

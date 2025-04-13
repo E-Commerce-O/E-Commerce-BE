@@ -44,9 +44,9 @@ CREATE TABLE IF NOT EXISTS `address` (
 -- Dumping structure for table cdweb.cart
 CREATE TABLE IF NOT EXISTS `cart` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) DEFAULT NULL,
   `created_at` datetime(6) DEFAULT NULL,
   `updated_at` datetime(6) DEFAULT NULL,
-  `user_id` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UK9emlp6m95v5er2bcqkjsw48he` (`user_id`),
   CONSTRAINT `FKl70asp4l4w0jmbm1tqyofho4o` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
@@ -57,22 +57,22 @@ CREATE TABLE IF NOT EXISTS `cart` (
 -- Dumping structure for table cdweb.cart_item
 CREATE TABLE IF NOT EXISTS `cart_item` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `created_at` datetime(6) DEFAULT NULL,
-  `quantity` int(11) NOT NULL,
-  `updated_at` datetime(6) DEFAULT NULL,
   `cart_id` bigint(20) NOT NULL,
   `product_id` bigint(20) NOT NULL,
-  `product_color_id` bigint(20) DEFAULT NULL,
-  `product_size_id` bigint(20) DEFAULT NULL,
+  `color_id` bigint(20) DEFAULT NULL,
+  `size_id` bigint(20) DEFAULT NULL,
+  `quantity` int(11) NOT NULL,
+  `created_at` datetime(6) DEFAULT NULL,
+  `updated_at` datetime(6) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FK1uobyhgl1wvgt1jpccia8xxs3` (`cart_id`),
   KEY `FKjcyd5wv4igqnw413rgxbfu4nv` (`product_id`),
-  KEY `FKrgbw6vdh8jqbrmplf0g4u1eep` (`product_color_id`),
-  KEY `FK7efcv6f1jpjksufhxm6klklr5` (`product_size_id`),
+  KEY `FKrgbw6vdh8jqbrmplf0g4u1eep` (`color_id`) USING BTREE,
+  KEY `FK7efcv6f1jpjksufhxm6klklr5` (`size_id`) USING BTREE,
   CONSTRAINT `FK1uobyhgl1wvgt1jpccia8xxs3` FOREIGN KEY (`cart_id`) REFERENCES `cart` (`id`),
-  CONSTRAINT `FK7efcv6f1jpjksufhxm6klklr5` FOREIGN KEY (`product_size_id`) REFERENCES `product_size` (`id`),
+  CONSTRAINT `FK7efcv6f1jpjksufhxm6klklr5` FOREIGN KEY (`size_id`) REFERENCES `size` (`id`),
   CONSTRAINT `FKjcyd5wv4igqnw413rgxbfu4nv` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`),
-  CONSTRAINT `FKrgbw6vdh8jqbrmplf0g4u1eep` FOREIGN KEY (`product_color_id`) REFERENCES `product_color` (`id`)
+  CONSTRAINT `FKrgbw6vdh8jqbrmplf0g4u1eep` FOREIGN KEY (`color_id`) REFERENCES `color` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Dumping data for table cdweb.cart_item: ~0 rows (approximately)
@@ -80,35 +80,35 @@ CREATE TABLE IF NOT EXISTS `cart_item` (
 -- Dumping structure for table cdweb.category
 CREATE TABLE IF NOT EXISTS `category` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
   `description` varchar(255) DEFAULT NULL,
   `image_path` varchar(255) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Dumping data for table cdweb.category: ~21 rows (approximately)
-INSERT INTO `category` (`id`, `description`, `image_path`, `name`) VALUES
-	(1, 'Áo phông là trang phục cơ bản với thiết kế đơn giản, thường làm từ chất liệu cotton thoáng mát. Phù hợp cho cả nam và nữ, thường được mặc trong các dịp thường ngày hoặc hoạt động thể thao.', NULL, 'Áo phông (T-shirt)'),
-	(2, 'Áo sơ mi có cổ và thường được làm bằng vải cotton hoặc polyester. Là lựa chọn hoàn hảo cho cả trang phục công sở và các dịp trang trọng.', NULL, 'Áo sơ mi (Shirt)'),
-	(3, 'Áo khoác giúp bảo vệ người mặc khỏi gió và thời tiết lạnh. Có nhiều kiểu dáng từ bomber đến denim, phù hợp với nhiều phong cách cá nhân.', NULL, 'Áo khoác (Jacket)'),
-	(4, 'Áo len được làm từ sợi len hoặc các chất liệu tổng hợp, đem lại sự ấm áp trong mùa đông. Có nhiều kiểu dáng, từ cổ tròn đến cổ lọ.', NULL, 'Áo len (Sweater)'),
-	(5, 'Hoodie là áo khoác có mũ, thường được làm từ vải nỉ hoặc cotton. Rất thoải mái và dễ mặc, thường được ưa chuộng trong các hoạt động thể thao hoặc mặc thường ngày.', NULL, 'Áo hoodie (Hoodie)'),
-	(6, 'Áo vest là trang phục lịch lãm, thường được mặc trong các dịp trang trọng hoặc công sở. Có kiểu dáng ôm sát và tạo phong cách thanh lịch.', NULL, 'Áo vest (Blazer)'),
-	(7, 'Giống như áo phông nhưng có tay dài, phù hợp cho mùa thu và đông. Thích hợp cho trang phục hàng ngày và có thể dễ dàng kết hợp với nhiều loại quần.\n', NULL, 'Áo thun dài tay (Long Sleeve T-shirt)'),
-	(8, 'Váy có nhiều kiểu dáng và chất liệu, từ đơn giản đến cầu kỳ, thường được sử dụng cho các dịp đặc biệt hoặc hàng ngày, thể hiện sự nữ tính và phong cách.', NULL, 'Váy (Dress)'),
-	(9, 'Quần được làm từ vải denim, bền chắc và thoải mái. Có nhiều kiểu dáng, từ skinny đến bootcut, và là trang phục cơ bản không thể thiếu trong tủ đồ.', NULL, 'Quần jeans (Jeans)'),
-	(10, 'Quần tây thường được làm bằng vải mịn, thường được sử dụng trong môi trường công sở hoặc các sự kiện trang trọng. Mang đến vẻ ngoài chuyên nghiệp và lịch sự.', NULL, 'Quần tây (Trousers)'),
-	(11, 'Quần ngắn, thoải mái, thường được mặc trong mùa hè hoặc trong các hoạt động thể thao. Có nhiều kiểu dáng và chất liệu khác nhau.\n', NULL, 'Quần shorts (Shorts)'),
-	(12, 'Quần ôm sát, thường được làm từ chất liệu co giãn, rất thoải mái và thích hợp cho các hoạt động thể thao hoặc mặc thường ngày.', NULL, 'Quần legging (Leggings)'),
-	(13, 'Quần thể thao có ống bo, thường được làm từ chất liệu thoáng khí, phù hợp cho hoạt động tập luyện và phong cách hàng ngày.', NULL, 'Quần jogger (Joggers)'),
-	(14, 'Quần ngắn đến mắt cá chân, thường mang lại vẻ ngoài hiện đại. Phù hợp cho cả nam và nữ trong các dịp informal.', NULL, 'Quần chéo (Cropped Pants)'),
-	(15, 'Váy ngắn, thường trên đầu gối, mang lại nét trẻ trung và quyến rũ, phù hợp cho các dịp vui chơi, đi tiệc hoặc sự kiện không chính thức. Có thể được làm từ nhiều chất liệu và kiểu dáng khác nhau để tôn lên vẻ đẹp cá nhân.', NULL, 'Váy ngắn (Mini Dress)'),
-	(16, 'Thiết kế dành riêng cho hoạt động bơi lội và các hoạt động trên bãi biển. Có nhiều kiểu dáng như bikini, một mảnh hoặc tankini, nhằm mang lại sự thoải mái và phong cách trong mùa hè.', NULL, 'Đồ bơi (Swimwear)'),
-	(17, 'Áo khoác dài, thường được làm từ vải dày để giữ ấm trong mùa đông. Có nhiều kiểu dáng khác nhau từ dày, mỏng đến khoác ngoài, phù hợp cho các dịp trang trọng và không trang trọng.', NULL, 'Áo choàng (Coat)'),
-	(18, 'Trang phục dành riêng cho việc ngủ, thường được làm từ chất liệu mềm mại và thoải mái như cotton hoặc satin. Có nhiều kiểu dáng từ bộ pijama đến váy ngủ.', NULL, 'Đồ ngủ (Sleepwear)'),
-	(19, 'Trang phục thiết kế đặc biệt cho các hoạt động thể thao, thường được làm từ chất liệu co giãn và thấm hút mồ hôi. Bao gồm áo thun, quần tập gym và đồ bơi.', NULL, 'Đồ thể thao (Athletic Wear)'),
-	(20, 'Áo khoác bảo vệ khỏi mưa, thường được làm từ chất liệu chống thấm nước. Có thể có mũ và được thiết kế nhẹ nhàng để dễ dàng mang theo.', NULL, 'Áo mưa (Raincoat)'),
-	(21, 'Được thiết kế với nhiều kiểu dáng và độ dài khác nhau, từ chân váy ngắn đến dài, phù hợp với nhiều phong cách. Chân váy có thể được kết hợp với nhiều loại áo khác nhau để tạo nên bộ trang phục hoàn hảo.', NULL, 'Chân váy (Skirt)');
+INSERT INTO `category` (`id`, `name`, `description`, `image_path`) VALUES
+	(1, 'Áo phông (T-shirt)', 'Áo phông là trang phục cơ bản với thiết kế đơn giản, thường làm từ chất liệu cotton thoáng mát. Phù hợp cho cả nam và nữ, thường được mặc trong các dịp thường ngày hoặc hoạt động thể thao.', NULL),
+	(2, 'Áo sơ mi (Shirt)', 'Áo sơ mi có cổ và thường được làm bằng vải cotton hoặc polyester. Là lựa chọn hoàn hảo cho cả trang phục công sở và các dịp trang trọng.', NULL),
+	(3, 'Áo khoác (Jacket)', 'Áo khoác giúp bảo vệ người mặc khỏi gió và thời tiết lạnh. Có nhiều kiểu dáng từ bomber đến denim, phù hợp với nhiều phong cách cá nhân.', NULL),
+	(4, 'Áo len (Sweater)', 'Áo len được làm từ sợi len hoặc các chất liệu tổng hợp, đem lại sự ấm áp trong mùa đông. Có nhiều kiểu dáng, từ cổ tròn đến cổ lọ.', NULL),
+	(5, 'Áo hoodie (Hoodie)', 'Hoodie là áo khoác có mũ, thường được làm từ vải nỉ hoặc cotton. Rất thoải mái và dễ mặc, thường được ưa chuộng trong các hoạt động thể thao hoặc mặc thường ngày.', NULL),
+	(6, 'Áo vest (Blazer)', 'Áo vest là trang phục lịch lãm, thường được mặc trong các dịp trang trọng hoặc công sở. Có kiểu dáng ôm sát và tạo phong cách thanh lịch.', NULL),
+	(7, 'Áo thun dài tay (Long Sleeve T-shirt)', 'Giống như áo phông nhưng có tay dài, phù hợp cho mùa thu và đông. Thích hợp cho trang phục hàng ngày và có thể dễ dàng kết hợp với nhiều loại quần.\n', NULL),
+	(8, 'Váy (Dress)', 'Váy có nhiều kiểu dáng và chất liệu, từ đơn giản đến cầu kỳ, thường được sử dụng cho các dịp đặc biệt hoặc hàng ngày, thể hiện sự nữ tính và phong cách.', NULL),
+	(9, 'Quần jeans (Jeans)', 'Quần được làm từ vải denim, bền chắc và thoải mái. Có nhiều kiểu dáng, từ skinny đến bootcut, và là trang phục cơ bản không thể thiếu trong tủ đồ.', NULL),
+	(10, 'Quần tây (Trousers)', 'Quần tây thường được làm bằng vải mịn, thường được sử dụng trong môi trường công sở hoặc các sự kiện trang trọng. Mang đến vẻ ngoài chuyên nghiệp và lịch sự.', NULL),
+	(11, 'Quần shorts (Shorts)', 'Quần ngắn, thoải mái, thường được mặc trong mùa hè hoặc trong các hoạt động thể thao. Có nhiều kiểu dáng và chất liệu khác nhau.\n', NULL),
+	(12, 'Quần legging (Leggings)', 'Quần ôm sát, thường được làm từ chất liệu co giãn, rất thoải mái và thích hợp cho các hoạt động thể thao hoặc mặc thường ngày.', NULL),
+	(13, 'Quần jogger (Joggers)', 'Quần thể thao có ống bo, thường được làm từ chất liệu thoáng khí, phù hợp cho hoạt động tập luyện và phong cách hàng ngày.', NULL),
+	(14, 'Quần chéo (Cropped Pants)', 'Quần ngắn đến mắt cá chân, thường mang lại vẻ ngoài hiện đại. Phù hợp cho cả nam và nữ trong các dịp informal.', NULL),
+	(15, 'Váy ngắn (Mini Dress)', 'Váy ngắn, thường trên đầu gối, mang lại nét trẻ trung và quyến rũ, phù hợp cho các dịp vui chơi, đi tiệc hoặc sự kiện không chính thức. Có thể được làm từ nhiều chất liệu và kiểu dáng khác nhau để tôn lên vẻ đẹp cá nhân.', NULL),
+	(16, 'Đồ bơi (Swimwear)', 'Thiết kế dành riêng cho hoạt động bơi lội và các hoạt động trên bãi biển. Có nhiều kiểu dáng như bikini, một mảnh hoặc tankini, nhằm mang lại sự thoải mái và phong cách trong mùa hè.', NULL),
+	(17, 'Áo choàng (Coat)', 'Áo khoác dài, thường được làm từ vải dày để giữ ấm trong mùa đông. Có nhiều kiểu dáng khác nhau từ dày, mỏng đến khoác ngoài, phù hợp cho các dịp trang trọng và không trang trọng.', NULL),
+	(18, 'Đồ ngủ (Sleepwear)', 'Trang phục dành riêng cho việc ngủ, thường được làm từ chất liệu mềm mại và thoải mái như cotton hoặc satin. Có nhiều kiểu dáng từ bộ pijama đến váy ngủ.', NULL),
+	(19, 'Đồ thể thao (Athletic Wear)', 'Trang phục thiết kế đặc biệt cho các hoạt động thể thao, thường được làm từ chất liệu co giãn và thấm hút mồ hôi. Bao gồm áo thun, quần tập gym và đồ bơi.', NULL),
+	(20, 'Áo mưa (Raincoat)', 'Áo khoác bảo vệ khỏi mưa, thường được làm từ chất liệu chống thấm nước. Có thể có mũ và được thiết kế nhẹ nhàng để dễ dàng mang theo.', NULL),
+	(21, 'Chân váy (Skirt)', 'Được thiết kế với nhiều kiểu dáng và độ dài khác nhau, từ chân váy ngắn đến dài, phù hợp với nhiều phong cách. Chân váy có thể được kết hợp với nhiều loại áo khác nhau để tạo nên bộ trang phục hoàn hảo.', NULL);
 
 -- Dumping structure for table cdweb.category_apply_of_vouhcer
 CREATE TABLE IF NOT EXISTS `category_apply_of_vouhcer` (
@@ -123,6 +123,31 @@ CREATE TABLE IF NOT EXISTS `category_apply_of_vouhcer` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Dumping data for table cdweb.category_apply_of_vouhcer: ~0 rows (approximately)
+
+-- Dumping structure for table cdweb.color
+CREATE TABLE IF NOT EXISTS `color` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `color_code` varchar(255) DEFAULT NULL,
+  `color_name` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Dumping data for table cdweb.color: ~14 rows (approximately)
+INSERT INTO `color` (`id`, `color_code`, `color_name`) VALUES
+	(1, '#123123', 'Xanh'),
+	(2, '#232323', 'Xám'),
+	(3, '#123123', 'Xanh'),
+	(4, '#232323', 'Xám'),
+	(5, '#123123', 'Xanh'),
+	(6, '#232323', 'Xám'),
+	(7, '#123123', 'Xanh'),
+	(8, '#232323', 'Xám'),
+	(9, '#123123', 'Xanh'),
+	(10, '#232323', 'Xám'),
+	(11, '#ddd', 'Đen'),
+	(12, '#fff', 'Trắng'),
+	(13, '#ddd', 'Đen'),
+	(14, '#fff', 'Trắng');
 
 -- Dumping structure for table cdweb.district
 CREATE TABLE IF NOT EXISTS `district` (
@@ -848,34 +873,53 @@ INSERT INTO `district` (`id`, `name`, `province_id`) VALUES
 	(21743, 'Thị Xã Chũ', 27),
 	(21744, 'Quận Phú Xuân', 37);
 
+-- Dumping structure for table cdweb.image
+CREATE TABLE IF NOT EXISTS `image` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `image_path` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Dumping data for table cdweb.image: ~7 rows (approximately)
+INSERT INTO `image` (`id`, `image_path`) VALUES
+	(1, 'string'),
+	(2, 'string'),
+	(3, 'string'),
+	(4, 'string'),
+	(5, 'string'),
+	(6, 'string'),
+	(7, 'string');
+
 -- Dumping structure for table cdweb.orders
 CREATE TABLE IF NOT EXISTS `orders` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `created_at` datetime(6) DEFAULT NULL,
+  `user_id` bigint(20) DEFAULT NULL,
   `delivery_method` varchar(255) DEFAULT NULL,
   `delivery_price` double NOT NULL,
   `status` int(11) NOT NULL,
-  `updated_at` datetime(6) DEFAULT NULL,
   `order_detail_id` bigint(20) DEFAULT NULL,
-  `user_id` bigint(20) DEFAULT NULL,
+  `created_at` datetime(6) DEFAULT NULL,
+  `updated_at` datetime(6) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UK29ccmfm0xbvm1u1j0htr1qbxd` (`order_detail_id`),
   KEY `FKel9kyl84ego2otj2accfd8mr7` (`user_id`),
   CONSTRAINT `FK19p8j74c74j5717x1m1i8wsf3` FOREIGN KEY (`order_detail_id`) REFERENCES `order_detail` (`id`),
   CONSTRAINT `FKel9kyl84ego2otj2accfd8mr7` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Dumping data for table cdweb.orders: ~0 rows (approximately)
+INSERT INTO `orders` (`id`, `user_id`, `delivery_method`, `delivery_price`, `status`, `order_detail_id`, `created_at`, `updated_at`) VALUES
+	(1, NULL, NULL, 0, 1, NULL, NULL, NULL);
 
 -- Dumping structure for table cdweb.order_detail
 CREATE TABLE IF NOT EXISTS `order_detail` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `product_decrease` double NOT NULL,
-  `ship_decrease` double NOT NULL,
   `address_id` bigint(20) DEFAULT NULL,
   `order_id` bigint(20) DEFAULT NULL,
   `product_voucher_id` bigint(20) DEFAULT NULL,
   `ship_voucher_id` bigint(20) DEFAULT NULL,
+  `product_decrease` double NOT NULL,
+  `ship_decrease` double NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UKq6bwjb8y711vixrxinko7wmnw` (`order_id`),
   KEY `FKworhp4pd7gwxpn8l493chbxe` (`address_id`),
@@ -892,57 +936,57 @@ CREATE TABLE IF NOT EXISTS `order_detail` (
 -- Dumping structure for table cdweb.order_item
 CREATE TABLE IF NOT EXISTS `order_item` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `created_at` datetime(6) DEFAULT NULL,
-  `discount` int(11) NOT NULL,
-  `original_price` double NOT NULL,
-  `quantity` int(11) NOT NULL,
-  `updated_at` datetime(6) DEFAULT NULL,
   `order_id` bigint(20) DEFAULT NULL,
   `product_id` bigint(20) DEFAULT NULL,
-  `product_color_id` bigint(20) DEFAULT NULL,
-  `product_size_id` bigint(20) DEFAULT NULL,
+  `color_id` bigint(20) DEFAULT NULL,
+  `size_id` bigint(20) DEFAULT NULL,
+  `original_price` double NOT NULL,
+  `discount` int(11) NOT NULL,
+  `quantity` int(11) NOT NULL,
+  `created_at` datetime(6) DEFAULT NULL,
+  `updated_at` datetime(6) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FKt4dc2r9nbvbujrljv3e23iibt` (`order_id`),
   KEY `FK551losx9j75ss5d6bfsqvijna` (`product_id`),
-  KEY `FKbtxf5g8lvyw7pgwq713rtgagh` (`product_color_id`),
-  KEY `FKhhtfmjxqj7awt1qmiydpp4n9e` (`product_size_id`),
+  KEY `FK5le3et9evitic5shrvmuenkli` (`color_id`),
+  KEY `FK8klnbu469mgjnuybpa6lbkljo` (`size_id`),
   CONSTRAINT `FK551losx9j75ss5d6bfsqvijna` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`),
-  CONSTRAINT `FKbtxf5g8lvyw7pgwq713rtgagh` FOREIGN KEY (`product_color_id`) REFERENCES `product_color` (`id`),
-  CONSTRAINT `FKhhtfmjxqj7awt1qmiydpp4n9e` FOREIGN KEY (`product_size_id`) REFERENCES `product_size` (`id`),
+  CONSTRAINT `FK5le3et9evitic5shrvmuenkli` FOREIGN KEY (`color_id`) REFERENCES `color` (`id`),
+  CONSTRAINT `FK8klnbu469mgjnuybpa6lbkljo` FOREIGN KEY (`size_id`) REFERENCES `size` (`id`),
   CONSTRAINT `FKt4dc2r9nbvbujrljv3e23iibt` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.order_item: ~0 rows (approximately)
+-- Dumping data for table cdweb.order_item: ~1 rows (approximately)
+INSERT INTO `order_item` (`id`, `order_id`, `product_id`, `color_id`, `size_id`, `original_price`, `discount`, `quantity`, `created_at`, `updated_at`) VALUES
+	(1, 1, 7, 12, 7, 0, 0, 33, NULL, NULL);
 
 -- Dumping structure for table cdweb.product
 CREATE TABLE IF NOT EXISTS `product` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `brand` varchar(255) DEFAULT NULL,
-  `created_at` datetime(6) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `slug` varchar(255) DEFAULT NULL,
   `default_discount` int(11) NOT NULL,
   `default_price` double NOT NULL,
   `description` varchar(255) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
   `published` bit(1) NOT NULL,
-  `slug` varchar(255) DEFAULT NULL,
-  `updated_at` datetime(6) DEFAULT NULL,
   `category_id` bigint(20) DEFAULT NULL,
+  `brand` varchar(255) DEFAULT NULL,
+  `created_at` datetime(6) DEFAULT NULL,
+  `updated_at` datetime(6) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FK1mtsbur82frn64de7balymq9s` (`category_id`),
   CONSTRAINT `FK1mtsbur82frn64de7balymq9s` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.product: ~0 rows (approximately)
-
--- Dumping structure for table cdweb.product_color
-CREATE TABLE IF NOT EXISTS `product_color` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `color_code` varchar(255) DEFAULT NULL,
-  `color_name` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- Dumping data for table cdweb.product_color: ~0 rows (approximately)
+-- Dumping data for table cdweb.product: ~6 rows (approximately)
+INSERT INTO `product` (`id`, `name`, `slug`, `default_discount`, `default_price`, `description`, `published`, `category_id`, `brand`, `created_at`, `updated_at`) VALUES
+	(1, 'Áo thun nam', 'ao_thun_nam', 15, 150000, 'Áo thun thoáng mát cho nam', b'0', 2, 'Quang híu', '2025-04-12 13:36:49.000000', NULL),
+	(2, 'Áo thun nam', 'ao_thun_nam', 15, 150000, 'Áo thun thoáng mát cho nam', b'0', 2, 'Quang híu', '2025-04-12 13:37:29.000000', NULL),
+	(3, 'Áo thun nam', 'ao_thun_nam', 15, 150000, 'Áo thun thoáng mát cho nam', b'0', 2, 'Quang híu', '2025-04-12 14:34:10.000000', NULL),
+	(4, 'Áo thun nam', 'ao_thun_nam', 15, 150000, 'Áo thun thoáng mát cho nam', b'0', 2, 'Quang híu', '2025-04-12 14:45:27.000000', NULL),
+	(5, 'Áo thun nam', 'ao_thun_nam', 15, 150000, 'Áo thun thoáng mát cho nam', b'0', 2, 'Quang híu', '2025-04-12 14:51:32.000000', NULL),
+	(6, 'Áo thun nam', 'ao_thun_nam', 15, 150000, 'Áo thun thoáng mát cho nam', b'0', 2, 'Quang híu', '2025-04-12 14:52:29.000000', NULL),
+	(7, 'Áo thun ', 'ao_thun', 10, 120000, 'string', b'0', 1, 'string', '2025-04-12 18:07:09.000000', NULL);
 
 -- Dumping structure for table cdweb.product_colors
 CREATE TABLE IF NOT EXISTS `product_colors` (
@@ -950,30 +994,66 @@ CREATE TABLE IF NOT EXISTS `product_colors` (
   `colors_id` bigint(20) NOT NULL,
   UNIQUE KEY `UK7tlkx6ot4yy6ap0no9au3wb1r` (`colors_id`),
   KEY `FKrxtutgloy8nt7w2k50fnmu3ji` (`product_id`),
-  CONSTRAINT `FKe1kwy2m1ytoxls9xgfhm7fo9o` FOREIGN KEY (`colors_id`) REFERENCES `product_color` (`id`),
+  CONSTRAINT `FKe1kwy2m1ytoxls9xgfhm7fo9o` FOREIGN KEY (`colors_id`) REFERENCES `color` (`id`),
   CONSTRAINT `FKrxtutgloy8nt7w2k50fnmu3ji` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.product_colors: ~0 rows (approximately)
+-- Dumping data for table cdweb.product_colors: ~14 rows (approximately)
+INSERT INTO `product_colors` (`product_id`, `colors_id`) VALUES
+	(1, 1),
+	(1, 2),
+	(2, 3),
+	(2, 4),
+	(3, 5),
+	(3, 6),
+	(4, 7),
+	(4, 8),
+	(5, 9),
+	(5, 10),
+	(6, 13),
+	(6, 14),
+	(7, 11),
+	(7, 12);
 
 -- Dumping structure for table cdweb.product_detail
 CREATE TABLE IF NOT EXISTS `product_detail` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `product_id` bigint(20) DEFAULT NULL,
+  `color_id` bigint(20) DEFAULT NULL,
+  `size_id` bigint(20) DEFAULT NULL,
   `discount` int(11) NOT NULL,
   `price` double NOT NULL,
-  `product_id` bigint(20) DEFAULT NULL,
-  `product_color_id` bigint(20) DEFAULT NULL,
-  `product_size_id` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FKilxoi77ctyin6jn9robktb16c` (`product_id`),
-  KEY `FKqvxhhk9dsfufrdslh3dj416pw` (`product_color_id`),
-  KEY `FKrj9c0x4mf6wuur1g16m2eqqta` (`product_size_id`),
-  CONSTRAINT `FKilxoi77ctyin6jn9robktb16c` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`),
-  CONSTRAINT `FKqvxhhk9dsfufrdslh3dj416pw` FOREIGN KEY (`product_color_id`) REFERENCES `product_color` (`id`),
-  CONSTRAINT `FKrj9c0x4mf6wuur1g16m2eqqta` FOREIGN KEY (`product_size_id`) REFERENCES `product_size` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  KEY `FK99vj2np1gk1robp8n6htiweii` (`color_id`),
+  KEY `FKcum8u2vfvebmmc4xo8de3k35s` (`size_id`),
+  CONSTRAINT `FK99vj2np1gk1robp8n6htiweii` FOREIGN KEY (`color_id`) REFERENCES `color` (`id`),
+  CONSTRAINT `FKcum8u2vfvebmmc4xo8de3k35s` FOREIGN KEY (`size_id`) REFERENCES `size` (`id`),
+  CONSTRAINT `FKilxoi77ctyin6jn9robktb16c` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.product_detail: ~0 rows (approximately)
+-- Dumping data for table cdweb.product_detail: ~20 rows (approximately)
+INSERT INTO `product_detail` (`id`, `product_id`, `color_id`, `size_id`, `discount`, `price`) VALUES
+	(1, 1, NULL, NULL, 15, 150000),
+	(2, 1, NULL, NULL, 15, 150000),
+	(4, 4, NULL, NULL, 15, 150000),
+	(5, 4, NULL, NULL, 15, 150000),
+	(6, 5, NULL, NULL, 15, 150000),
+	(7, 5, NULL, NULL, 15, 150000),
+	(12, 7, 11, 6, 10, 120000),
+	(13, 7, 11, 7, 10, 120000),
+	(14, 7, 12, 6, 10, 120000),
+	(15, 7, 12, 7, 10, 120000),
+	(18, 7, 11, 9, 10, 120000),
+	(19, 7, 12, 9, 10, 120000),
+	(20, 6, 13, 2, 15, 150000),
+	(21, 6, 13, 3, 15, 150000),
+	(22, 6, 13, 4, 15, 150000),
+	(23, 6, 13, 5, 15, 150000),
+	(24, 6, 14, 2, 15, 150000),
+	(25, 6, 14, 3, 15, 150000),
+	(26, 6, 14, 4, 15, 150000),
+	(27, 6, 14, 5, 15, 150000);
 
 -- Dumping structure for table cdweb.product_history
 CREATE TABLE IF NOT EXISTS `product_history` (
@@ -981,7 +1061,9 @@ CREATE TABLE IF NOT EXISTS `product_history` (
   PRIMARY KEY (`ip`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.product_history: ~0 rows (approximately)
+-- Dumping data for table cdweb.product_history: ~1 rows (approximately)
+INSERT INTO `product_history` (`ip`) VALUES
+	('1.53.52.67');
 
 -- Dumping structure for table cdweb.product_history_products
 CREATE TABLE IF NOT EXISTS `product_history_products` (
@@ -993,16 +1075,9 @@ CREATE TABLE IF NOT EXISTS `product_history_products` (
   CONSTRAINT `FKjy64ag2b2i541pij0tnqqehr5` FOREIGN KEY (`products_id`) REFERENCES `product` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.product_history_products: ~0 rows (approximately)
-
--- Dumping structure for table cdweb.product_image
-CREATE TABLE IF NOT EXISTS `product_image` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `image_path` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- Dumping data for table cdweb.product_image: ~0 rows (approximately)
+-- Dumping data for table cdweb.product_history_products: ~1 rows (approximately)
+INSERT INTO `product_history_products` (`product_history_ip`, `products_id`) VALUES
+	('1.53.52.67', 6);
 
 -- Dumping structure for table cdweb.product_images
 CREATE TABLE IF NOT EXISTS `product_images` (
@@ -1010,47 +1085,58 @@ CREATE TABLE IF NOT EXISTS `product_images` (
   `images_id` bigint(20) NOT NULL,
   UNIQUE KEY `UK3701am6d8us1lbn5v3j75yinr` (`images_id`),
   KEY `FKi8jnqq05sk5nkma3pfp3ylqrt` (`product_id`),
-  CONSTRAINT `FKf0umfnj5k9xnadjjss6qced6h` FOREIGN KEY (`images_id`) REFERENCES `product_image` (`id`),
+  CONSTRAINT `FKf0umfnj5k9xnadjjss6qced6h` FOREIGN KEY (`images_id`) REFERENCES `image` (`id`),
   CONSTRAINT `FKi8jnqq05sk5nkma3pfp3ylqrt` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.product_images: ~0 rows (approximately)
+-- Dumping data for table cdweb.product_images: ~7 rows (approximately)
+INSERT INTO `product_images` (`product_id`, `images_id`) VALUES
+	(1, 1),
+	(2, 2),
+	(3, 3),
+	(4, 4),
+	(5, 5),
+	(6, 6),
+	(7, 7);
 
 -- Dumping structure for table cdweb.product_import
 CREATE TABLE IF NOT EXISTS `product_import` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `created_at` datetime(6) DEFAULT NULL,
-  `imported_at` datetime(6) DEFAULT NULL,
+  `product_id` bigint(20) DEFAULT NULL,
+  `user_id` bigint(20) DEFAULT NULL,
+  `color_id` bigint(20) DEFAULT NULL,
+  `size_id` bigint(20) DEFAULT NULL,
   `price` double NOT NULL,
   `quantity` int(11) NOT NULL,
+  `created_at` datetime(6) DEFAULT NULL,
+  `imported_at` date DEFAULT NULL,
   `updated_at` datetime(6) DEFAULT NULL,
-  `product_id` bigint(20) DEFAULT NULL,
-  `product_color_id` bigint(20) DEFAULT NULL,
-  `product_size_id` bigint(20) DEFAULT NULL,
-  `user_id` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FKludugctmrtqoopcsb8jpqpsea` (`product_id`),
-  KEY `FK9lavd38gy63bqs6tevdjl2oci` (`product_color_id`),
-  KEY `FKhl0qtn6vae87fft8o2w35fn0a` (`product_size_id`),
   KEY `FKdhvthjfn2m3bgcy4l2lrk5d06` (`user_id`),
-  CONSTRAINT `FK9lavd38gy63bqs6tevdjl2oci` FOREIGN KEY (`product_color_id`) REFERENCES `product_color` (`id`),
+  KEY `FK6ylwolc6yh5llx7i68mklnk1r` (`color_id`),
+  KEY `FKagfgu72k94l7wkabsc5h1eacj` (`size_id`),
+  CONSTRAINT `FK6ylwolc6yh5llx7i68mklnk1r` FOREIGN KEY (`color_id`) REFERENCES `color` (`id`),
+  CONSTRAINT `FKagfgu72k94l7wkabsc5h1eacj` FOREIGN KEY (`size_id`) REFERENCES `size` (`id`),
   CONSTRAINT `FKdhvthjfn2m3bgcy4l2lrk5d06` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),
-  CONSTRAINT `FKhl0qtn6vae87fft8o2w35fn0a` FOREIGN KEY (`product_size_id`) REFERENCES `product_size` (`id`),
   CONSTRAINT `FKludugctmrtqoopcsb8jpqpsea` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.product_import: ~0 rows (approximately)
+-- Dumping data for table cdweb.product_import: ~2 rows (approximately)
+INSERT INTO `product_import` (`id`, `product_id`, `user_id`, `color_id`, `size_id`, `price`, `quantity`, `created_at`, `imported_at`, `updated_at`) VALUES
+	(1, 7, 2, 12, 7, 120000, 100, NULL, NULL, NULL),
+	(5, 6, 2, 13, 2, 120000, 50, '2025-04-13 18:30:28.000000', '2025-04-12', NULL);
 
 -- Dumping structure for table cdweb.product_review
 CREATE TABLE IF NOT EXISTS `product_review` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) DEFAULT NULL,
+  `product_id` bigint(20) DEFAULT NULL,
   `content` varchar(255) DEFAULT NULL,
-  `created_at` datetime(6) DEFAULT NULL,
   `is_show` int(11) NOT NULL,
   `rating_score` int(11) NOT NULL,
+  `created_at` datetime(6) DEFAULT NULL,
   `updated_at` datetime(6) DEFAULT NULL,
-  `product_id` bigint(20) DEFAULT NULL,
-  `user_id` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FKkaqmhakwt05p3n0px81b9pdya` (`product_id`),
   KEY `FK78cdr7qgrm9sp9igada7vk4xp` (`user_id`),
@@ -1060,16 +1146,6 @@ CREATE TABLE IF NOT EXISTS `product_review` (
 
 -- Dumping data for table cdweb.product_review: ~0 rows (approximately)
 
--- Dumping structure for table cdweb.product_size
-CREATE TABLE IF NOT EXISTS `product_size` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `description` varchar(255) DEFAULT NULL,
-  `size` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- Dumping data for table cdweb.product_size: ~0 rows (approximately)
-
 -- Dumping structure for table cdweb.product_sizes
 CREATE TABLE IF NOT EXISTS `product_sizes` (
   `product_id` bigint(20) NOT NULL,
@@ -1077,10 +1153,19 @@ CREATE TABLE IF NOT EXISTS `product_sizes` (
   UNIQUE KEY `UK51qxp61oih4mjc27ob0ne93ej` (`sizes_id`),
   KEY `FK4w69qsh5hd062xv3hqkpgpdpu` (`product_id`),
   CONSTRAINT `FK4w69qsh5hd062xv3hqkpgpdpu` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`),
-  CONSTRAINT `FKdkuro0gtnwv4onedldpu94esm` FOREIGN KEY (`sizes_id`) REFERENCES `product_size` (`id`)
+  CONSTRAINT `FKdkuro0gtnwv4onedldpu94esm` FOREIGN KEY (`sizes_id`) REFERENCES `size` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.product_sizes: ~0 rows (approximately)
+-- Dumping data for table cdweb.product_sizes: ~8 rows (approximately)
+INSERT INTO `product_sizes` (`product_id`, `sizes_id`) VALUES
+	(1, 1),
+	(6, 2),
+	(6, 3),
+	(6, 4),
+	(6, 5),
+	(7, 6),
+	(7, 7),
+	(7, 9);
 
 -- Dumping structure for table cdweb.product_tag
 CREATE TABLE IF NOT EXISTS `product_tag` (
@@ -1092,9 +1177,22 @@ CREATE TABLE IF NOT EXISTS `product_tag` (
   KEY `FKmkwenho1ceh0xlwoq9e5xdmhe` (`tag_name`),
   CONSTRAINT `FK2rf7w3d88x20p7vuc2m9mvv91` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`),
   CONSTRAINT `FKmkwenho1ceh0xlwoq9e5xdmhe` FOREIGN KEY (`tag_name`) REFERENCES `tag` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.product_tag: ~0 rows (approximately)
+-- Dumping data for table cdweb.product_tag: ~12 rows (approximately)
+INSERT INTO `product_tag` (`id`, `product_id`, `tag_name`) VALUES
+	(1, 1, 'Áo sơ mi (Shirt)'),
+	(2, 1, 'Dành cho bạn'),
+	(3, 2, 'Áo sơ mi (Shirt)'),
+	(4, 2, 'Dành cho bạn'),
+	(5, 3, 'Áo sơ mi (Shirt)'),
+	(6, 3, 'Dành cho bạn'),
+	(7, 4, 'Áo sơ mi (Shirt)'),
+	(8, 4, 'Dành cho bạn'),
+	(9, 5, 'Áo sơ mi (Shirt)'),
+	(10, 5, 'Dành cho bạn'),
+	(11, 6, 'string'),
+	(12, 7, 'string');
 
 -- Dumping structure for table cdweb.province
 CREATE TABLE IF NOT EXISTS `province` (
@@ -1178,7 +1276,28 @@ CREATE TABLE IF NOT EXISTS `refresh_token` (
   PRIMARY KEY (`refresh_token`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.refresh_token: ~0 rows (approximately)
+-- Dumping data for table cdweb.refresh_token: ~1 rows (approximately)
+INSERT INTO `refresh_token` (`refresh_token`, `created_at`, `exprired_at`, `user_id`) VALUES
+	('ef7b514a-c644-45e3-b466-9dc09561e8f4', '2025-04-13 18:11:14.000000', '2025-04-27 18:11:14.000000', 2);
+
+-- Dumping structure for table cdweb.size
+CREATE TABLE IF NOT EXISTS `size` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `description` varchar(255) DEFAULT NULL,
+  `size` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Dumping data for table cdweb.size: ~8 rows (approximately)
+INSERT INTO `size` (`id`, `description`, `size`) VALUES
+	(1, NULL, NULL),
+	(2, 'string', 'XL'),
+	(3, 'string', 'L'),
+	(4, 'string', 'XLL'),
+	(5, 'string', 'XXL'),
+	(6, 'string', 'XL'),
+	(7, 'string', 'XXL'),
+	(9, 'string', 'LL');
 
 -- Dumping structure for table cdweb.tag
 CREATE TABLE IF NOT EXISTS `tag` (
@@ -1187,8 +1306,9 @@ CREATE TABLE IF NOT EXISTS `tag` (
   PRIMARY KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.tag: ~10 rows (approximately)
+-- Dumping data for table cdweb.tag: ~12 rows (approximately)
 INSERT INTO `tag` (`name`, `description`) VALUES
+	('Áo sơ mi (Shirt)', NULL),
 	('Áo thun', NULL),
 	('Bán chạy nhất', 'Những sản phẩm được khách hàng ưa chuộng và mua sắm nhiều nhất. Hãy khám phá những món đồ đang gây sốt để không bỏ lỡ cơ hội sở hữu chúng.\n'),
 	('Dành cho bạn', 'Những sản phẩm được tuyển chọn đặc biệt, dựa trên sở thích và nhu cầu của bạn. Tìm kiếm những món đồ phù hợp nhất với phong cách sống của bạn.\n'),
@@ -1198,6 +1318,7 @@ INSERT INTO `tag` (`name`, `description`) VALUES
 	('Mới về', 'Khám phá các sản phẩm mới nhất đang có mặt tại cửa hàng. Từ các xu hướng thời trang mới đến công nghệ tiên tiến, hãy là người đầu tiên sở hữu những sản phẩm hot nhất trên thị trường.'),
 	('Sản phẩm chất lượng cao', 'Chúng tôi chỉ cung cấp những sản phẩm được chọn lọc kỹ càng, đảm bảo chất lượng và độ bền. Sắm sửa những món đồ bạn có thể tin tưởng và yêu thích.'),
 	('Sản phẩm khuyến mãi', 'Các sản phẩm đang có chương trình khuyến mãi với mức giá ưu đãi. Khám phá những món đồ chất lượng cao với giá cả hợp lý và tiết kiệm.'),
+	('string', NULL),
 	('Ưu đãi đặc biệt', 'Các khuyến mãi và ưu đãi đặc biệt chỉ có cho một số sản phẩm nhất định. Đừng bỏ lỡ cơ hội tận hưởng những ưu đãi mà bạn không thể tìm thấy ở nơi khác.');
 
 -- Dumping structure for table cdweb.user
@@ -1216,9 +1337,11 @@ CREATE TABLE IF NOT EXISTS `user` (
   `username` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UKko17hhca8tc1abp8so09fsygo` (`username`,`email`,`phone_number`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.user: ~0 rows (approximately)
+-- Dumping data for table cdweb.user: ~1 rows (approximately)
+INSERT INTO `user` (`id`, `avt_path`, `created_at`, `date_of_birth`, `email`, `full_name`, `gender`, `password`, `phone_number`, `role`, `updated_at`, `username`) VALUES
+	(2, 'https://i.imgur.com/W60xqJf.png', NULL, NULL, 'admin@min.ad', 'At Van Min', 0, '$2a$10$k5X09dALn8GAH30EpJHtQ.KSCzbbuBq5Qq29IwqpOUgUIDi6cpbnq', NULL, 'ADMIN', NULL, 'admin');
 
 -- Dumping structure for table cdweb.voucher
 CREATE TABLE IF NOT EXISTS `voucher` (
@@ -1249,7 +1372,7 @@ CREATE TABLE IF NOT EXISTS `ward` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.ward: ~11.802 rows (approximately)
+-- Dumping data for table cdweb.ward: ~11.712 rows (approximately)
 INSERT INTO `ward` (`id`, `district_id`, `name`) VALUES
 	(1, 1, 'Phường Hàng Buồm'),
 	(2, 1, 'Phường Hàng Đào'),
@@ -13582,9 +13705,9 @@ INSERT INTO `ward` (`id`, `district_id`, `name`) VALUES
 -- Dumping structure for table cdweb.wishlist_item
 CREATE TABLE IF NOT EXISTS `wishlist_item` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `created_at` datetime(6) DEFAULT NULL,
-  `product_id` bigint(20) DEFAULT NULL,
   `user_id` bigint(20) DEFAULT NULL,
+  `product_id` bigint(20) DEFAULT NULL,
+  `created_at` datetime(6) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FK5s5jxai41c8tqklyy111ngqh7` (`product_id`),
   KEY `FKbsjwaanb89g3yvyetvkn67u6m` (`user_id`),

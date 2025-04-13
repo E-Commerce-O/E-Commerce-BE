@@ -3,10 +3,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Set;
 
 // annotation tạo getter và setter cho các field private
 @Data
@@ -31,13 +29,19 @@ public class Product {
     @ManyToOne
     Category category;
     @OneToMany
-    List<ProductColor> colors;
+    List<Color> colors;
     @OneToMany
-    List<ProductSize> sizes;
+    List<Size> sizes;
     @OneToMany
-    List<ProductImage> images;
+    List<Image> images;
     String description;
     String brand;
     Timestamp createdAt;
     Timestamp updatedAt;
+    public boolean isExistedColor(String colorName){
+        return colors.stream().anyMatch(color -> color.getColorName().equalsIgnoreCase(colorName));
+    }
+    public boolean isExistedSize(String sizeName){
+        return sizes.stream().anyMatch(size -> size.getSize().equalsIgnoreCase(sizeName));
+    }
 }

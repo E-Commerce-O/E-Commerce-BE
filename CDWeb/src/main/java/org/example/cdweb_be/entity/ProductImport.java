@@ -3,6 +3,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 
 // annotation tạo getter và setter cho các field private
@@ -25,12 +26,12 @@ public class ProductImport {
     @ManyToOne
     Product product;
     @ManyToOne
-    ProductColor productColor;
+    Color color;
     @ManyToOne
-    ProductSize productSize;
+    Size size;
     int quantity;
     double price;
-    Timestamp importedAt;
+    Date importedAt;
     Timestamp createdAt;
     Timestamp updatedAt;
 }

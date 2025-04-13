@@ -1,14 +1,12 @@
 package org.example.cdweb_be.service;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.example.cdweb_be.dto.request.AddProductImageRequest;
-import org.example.cdweb_be.dto.request.ProductCreateRequest;
-import org.example.cdweb_be.dto.request.ProductTagRequest;
-import org.example.cdweb_be.dto.request.ProductUpdateRequest;
+import org.example.cdweb_be.dto.request.*;
 import org.example.cdweb_be.dto.response.ProductResponse;
 import org.example.cdweb_be.entity.*;
 import org.example.cdweb_be.enums.OrderStatus;
@@ -20,7 +18,6 @@ import org.example.cdweb_be.respository.*;
 import org.example.cdweb_be.utils.IPUtils;
 import org.springframework.stereotype.Service;
 
-import java.net.http.HttpRequest;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,16 +28,17 @@ import java.util.stream.Collectors;
 @Service
 public class ProductService {
     TagRepository tagRepository;
+    CategoryRepository categoryRepository;
+    OrderItemRepository orderItemRepository;
+    ProductDetailService productDetailService;
     ProductRepository productRepository;
     ProductSizeRepository productSizeRepository;
     ProductColorRepository productColorRepository;
     ProductMapper productMapper;
     ProductSizeMapper productSizeMapper;
     ProductImageRepository productImageRepository;
-    CategoryRepository categoryRepository;
     ProductDetailRepository productDetailRepository;
     ProductTagRepository productTagRepository;
-    OrderItemRepository orderItemRepository;
     ProductImportRepository productImportRepository;
     ProductReviewRepository productReviewRepository;
     ProductHistoryRepository productHistoryRepository;
@@ -52,13 +50,13 @@ public class ProductService {
             throw new AppException(ErrorCode.CATEGORY_NOT_EXISTS);
         product.setCategory(categoryOptional.get());
         product= productRepository.save(product);
-        List<ProductImage> images = request.getImages().stream()
-                .map(image -> ProductImage.builder().imagePath(image).build()
+        List<Image> images = request.getImages().stream()
+                .map(image -> Image.builder().imagePath(image).build()
         ).collect(Collectors.toList());
-        List<ProductColor> colors = request.getColors().stream()
-                .map(productColorRequest -> productMapper.toProductColor(productColorRequest)
+        List<Color> colors = request.getColors().stream()
+                .map(colorRequest -> productMapper.toProductColor(colorRequest)
                 ).collect(Collectors.toList());
-        List<ProductSize> sizes = request.getSizes().stream()
+        List<Size> sizes = request.getSizes().stream()
                 .map(size ->productSizeMapper.toProductSize(size)
                 ).collect(Collectors.toList());
         List<Tag> tags = new ArrayList<>();
@@ -86,40 +84,31 @@ public class ProductService {
         for(Tag tag: tags){
             productTagRepository.save(ProductTag.builder().product(product).tag(tag).build());
         }
-        for(ProductColor color:colors){
-            for(ProductSize size: sizes){
-                Optional<ProductDetail> productDetailOptional =
-                        productDetailRepository.findByProductIdAndProductColorIdAndProductSizeId(product.getId(), color.getId(), size.getId());
-                if(productDetailOptional.isEmpty()){
-                    ProductDetail productDetail = ProductDetail.builder()
-                            .product(product)
-                            .productColor(color)
-                            .productSize(size)
-                            .price(product.getDefaultPrice())
-                            .discount(product.getDefaultDiscount())
-                            .build();
-                    productDetailRepository.save(productDetail);
+        if(colors.isEmpty() && sizes.isEmpty()){
+            return productRepository.save(product);
 
-                }
-            }
+        }else{
+            productDetailService.initDetail(product, colors, sizes);
         }
+
         return productRepository.save(product);
     }
-    public List<ProductImage> addProductImages(AddProductImageRequest request){
+    public List<Image> addProductImages(AddProductImageRequest request){
         Product product = productRepository.findById(request.getProductId()).orElseThrow(
                 () -> new AppException(ErrorCode.PRODUCT_NOT_EXISTS)
         );
+
         if(request.getImagePaths().size() ==0) throw new AppException(ErrorCode.IMAGE_PAHTS_EMPTY);
-        List<ProductImage> productImages = request.getImagePaths().stream()
-                .map(imagePath -> productImageRepository.save(ProductImage.builder()
+        List<Image> images = request.getImagePaths().stream()
+                .map(imagePath -> productImageRepository.save(Image.builder()
                         .imagePath(imagePath)
                         .build())).collect(Collectors.toList());
 //        productImage = productImageRepository.save(productImage);
         if (product.getImages() == null)
             product.setImages(new ArrayList<>()) ;
-        product.getImages().addAll(productImages);
+        product.getImages().addAll(images);
         productRepository.save(product);
-        return productImages;
+        return images;
     }
     public ProductResponse getByProductId(long productId, HttpServletRequest request){
         Optional<Product> productOptional = productRepository.findById(productId);
@@ -189,7 +178,7 @@ public class ProductService {
 
 
     public int getTotalSale(long productId){
-        List<OrderItem> orderItems = orderItemRepository.findOrderItemsByProductIdAndOrderStatus(productId, OrderStatus.DA_HUY);
+        List<OrderItem> orderItems = orderItemRepository.findByProductIdAndExceptStatus(productId, OrderStatus.DA_HUY);
         int totalSale =0;
         for (OrderItem orderItem : orderItems) {
             totalSale += orderItem.getQuantity();
@@ -230,10 +219,10 @@ public class ProductService {
         Product product = productRepository.findById(productId).orElseThrow(
                 () -> new AppException(ErrorCode.PRODUCT_NOT_EXISTS)
         );
-        ProductImage productImage = productImageRepository.findById(imageId)
+        Image image = productImageRepository.findById(imageId)
                 .orElseThrow(() -> new AppException(ErrorCode.IMAGE_NOT_EXISTS));
-        if(product.getImages().contains(productImage)){
-            product.getImages().remove(productImage);
+        if(product.getImages().contains(image)){
+            product.getImages().remove(image);
             productRepository.save(product);
             return "Delete image success!";
         }else{
@@ -321,5 +310,107 @@ public class ProductService {
         productDetailRepository.deleteAll(productDetailRepository.findByProductId(productId));
         productRepository.delete(product);
         return "Delete product success!";
+    }
+    @Transactional
+    public List<Color> addColors(long productId, List<ColorRequest> requests){
+        Product product = productRepository.findById(productId).orElseThrow(
+                () -> new AppException(ErrorCode.PRODUCT_NOT_EXISTS)
+        );
+        if((product.getColors() == null || product.getColors().isEmpty())
+                && !productImportRepository.findByProductId(productId).isEmpty()){
+            throw new AppException(ErrorCode.CANT_ADD_COLOR);
+        }
+        List<Color> colors = new ArrayList<>();
+        for (ColorRequest request : requests) {
+            Color color = Color.builder()
+                    .colorName(request.getColorName())
+                    .colorCode(request.getColorCode())
+                    .build();
+            colors.add(color);
+            if(product.isExistedColor(request.getColorName()))
+                throw new AppException(ErrorCode.COLOR_EXIDTED.
+                        setMessage("ColorName "+request.getColorName()+" is already exists!"));
+        }
+        colors = productColorRepository.saveAll(colors);
+        product.getColors().addAll(colors);
+        productRepository.save(product);
+        productDetailService.initDetail(product, colors,
+                product.getSizes() != null?product.getSizes():new ArrayList<>());
+        productDetailRepository.deleteNullColor(productId);
+        return colors;
+    }
+    @Transactional
+    public List<Size> addSizes(long productId, List<SizeCreateRequest> requests){
+        Product product = productRepository.findById(productId).orElseThrow( () ->
+                new AppException(ErrorCode.PRODUCT_NOT_EXISTS));
+        if((product.getSizes() == null || product.getSizes().isEmpty())
+                && !productImportRepository.findByProductId(productId).isEmpty()){
+            throw new AppException(ErrorCode.CANT_ADD_SIZE);
+        }
+        List<Size> sizes = new ArrayList<>();
+        for (SizeCreateRequest sizeRequest : requests) {
+            Size size = Size.builder()
+                    .size(sizeRequest.getSize())
+                    .description(sizeRequest.getDescription())
+                    .build();
+            sizes.add(size);
+            if (product.isExistedSize(sizeRequest.getSize()))
+                throw new AppException(ErrorCode.SIZE_EXIDTED.setMessage("Size "+sizeRequest.getSize()+" is already exists!"));
+
+        }
+        sizes = productSizeRepository.saveAll(sizes);
+        product.getSizes().addAll(sizes);
+        productRepository.save(product);
+        productDetailService.initDetail(product,
+                product.getColors() != null?product.getColors():new ArrayList<>(), sizes);
+        productDetailRepository.deleteNullSize(productId);
+        return sizes;
+    }
+    public int getRemainingQuantityByAllInfo(long productId, long sizeId, long colorId){
+        List<OrderItem> orderItems = orderItemRepository.findByProductAndColorAndSizeAndExceptStatus(
+                productId, colorId, sizeId, OrderStatus.DA_HUY);
+        List<ProductImport> productImports = productImportRepository.findByProductAndColorAndSize(
+                productId, colorId, sizeId);
+        log.info(productImports.size()+"");
+        for(ProductImport productImport: productImports){
+            log.info(productImport.toString());
+        }
+        int totalImport = productImports.stream().mapToInt(
+                ProductImport::getQuantity
+        ).sum();
+        int totalSale = orderItems.stream().mapToInt(OrderItem::getQuantity).sum();
+        return (totalImport - totalSale >0)?totalImport - totalSale:0;
+    }
+    public int getRemainingQuantity(long productId){
+        List<OrderItem> orderItems = orderItemRepository.findByProductIdAndExceptStatus(productId, OrderStatus.DA_HUY);
+        List<ProductImport> productImports = productImportRepository.findByProductId(
+                productId);
+        int totalImport = productImports.stream().mapToInt(
+                ProductImport::getQuantity
+        ).sum();
+        int totalSale = orderItems.stream().mapToInt(OrderItem::getQuantity).sum();
+        return (totalImport - totalSale >0)?totalImport - totalSale:0;
+    }
+    public int getRemainingQuantityWithoutColor(long productId, long sizeId){
+        List<OrderItem> orderItems = orderItemRepository.findByProductAndSizeAndExceptStatus(
+                productId, sizeId, OrderStatus.DA_HUY);
+        List<ProductImport> productImports = productImportRepository.findByProductAndSize(
+                productId, sizeId);
+        int totalImport = productImports.stream().mapToInt(
+                ProductImport::getQuantity
+        ).sum();
+        int totalSale = orderItems.stream().mapToInt(OrderItem::getQuantity).sum();
+        return (totalImport - totalSale >0)?totalImport - totalSale:0;
+    }
+    public int getRemainingQuantityWithoutSize(long productId, long colorId){
+        List<OrderItem> orderItems = orderItemRepository.findByProductAndColorAndExceptStatus(
+                productId, colorId, OrderStatus.DA_HUY);
+        List<ProductImport> productImports = productImportRepository.findByProductAndColor(
+                productId, colorId);
+        int totalImport = productImports.stream().mapToInt(
+                ProductImport::getQuantity
+        ).sum();
+        int totalSale = orderItems.stream().mapToInt(OrderItem::getQuantity).sum();
+        return (totalImport - totalSale >0)?totalImport - totalSale:0;
     }
 }

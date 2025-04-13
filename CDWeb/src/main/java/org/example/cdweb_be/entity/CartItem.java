@@ -3,7 +3,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.sql.Date;
 import java.sql.Timestamp;
 // annotation tạo getter và setter cho các field private
 @Data
@@ -27,13 +26,12 @@ public class CartItem {
     @JoinColumn(name = "product_id", nullable = false)
     Product product;
     @ManyToOne
-    @JoinColumn(name = "product_size_id")
-    ProductSize productSize;
+    @JoinColumn(name = "size_id")
+    Size size;
     @ManyToOne
-    @JoinColumn(name = "product_color_id")
-    ProductColor productColor;
+    @JoinColumn(name = "color_id")
+    Color color;
     int quantity;
     Timestamp createdAt;
     Timestamp updatedAt;
-
 }

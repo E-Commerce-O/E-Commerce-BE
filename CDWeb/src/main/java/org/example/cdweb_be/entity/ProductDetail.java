@@ -21,9 +21,9 @@ public class ProductDetail {
     @ManyToOne
     Product product;
     @ManyToOne
-    ProductColor productColor;
+    Color color;
     @ManyToOne
-    ProductSize productSize;
+    Size size;
     int discount;
     double price;
 }

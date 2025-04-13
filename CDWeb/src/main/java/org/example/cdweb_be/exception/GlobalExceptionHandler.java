@@ -1,5 +1,6 @@
 package org.example.cdweb_be.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.cdweb_be.dto.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
     @ExceptionHandler(value = RuntimeException.class) // bắt lỗi runtime
     ResponseEntity<ApiResponse> handlingRuntimeException(RuntimeException exception){
@@ -17,6 +19,7 @@ public class GlobalExceptionHandler {
         response.setCode(errorCode.getCode());
         response.setSuccess(errorCode.isSuccess());
         response.setData(exception.getMessage());
+        log.error(exception.toString());
         return ResponseEntity.status(errorCode.getStatusCode()).body(response);
     }
     @ExceptionHandler(value = AppException.class) // bắt lỗi tự định nghĩa

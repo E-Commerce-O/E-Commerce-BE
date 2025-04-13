@@ -1,11 +1,11 @@
 package org.example.cdweb_be.mapper;
 
-import org.example.cdweb_be.dto.request.ProductColorRequest;
+import org.example.cdweb_be.dto.request.ColorRequest;
 import org.example.cdweb_be.dto.request.ProductCreateRequest;
 import org.example.cdweb_be.dto.response.ProductDetailRespone;
 import org.example.cdweb_be.dto.response.ProductResponse;
 import org.example.cdweb_be.entity.Product;
-import org.example.cdweb_be.entity.ProductColor;
+import org.example.cdweb_be.entity.Color;
 import org.example.cdweb_be.entity.ProductDetail;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -23,7 +23,10 @@ public interface ProductMapper {
 
     Product toProduct(ProductCreateRequest request);
     ProductResponse toProductResponse(Product product);
-
+    @Mappings({
+            @Mapping(source = "size" , target = "size"),
+            @Mapping(source = "color", target = "color")
+    })
     ProductDetailRespone toProductDetailResponse(ProductDetail productDetail);
-    ProductColor toProductColor(ProductColorRequest request);
+    Color toProductColor(ColorRequest request);
 }
