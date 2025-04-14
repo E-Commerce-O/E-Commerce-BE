@@ -24,9 +24,9 @@ public class OrderItem {
     @ManyToOne
     Product product;
     @ManyToOne
-    Size size;
+    ProductSize size;
     @ManyToOne
-    Color color;
+    ProductColor productColor;
     int quantity;
     double originalPrice;
     int discount;

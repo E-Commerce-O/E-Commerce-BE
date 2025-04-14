@@ -26,9 +26,9 @@ public class ProductImport {
     @ManyToOne
     Product product;
     @ManyToOne
-    Color color;
+    ProductColor productColor;
     @ManyToOne
-    Size size;
+    ProductSize size;
     int quantity;
     double price;
     Date importedAt;

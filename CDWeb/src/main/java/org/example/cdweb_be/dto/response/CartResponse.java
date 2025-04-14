@@ -10,6 +10,7 @@ import org.example.cdweb_be.entity.CartItem;
 import org.example.cdweb_be.entity.User;
 
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -23,7 +24,7 @@ import java.util.Set;
 public class CartResponse {
     long id;
     long userId;
-    Set<CartItem> cartItems;
+    List<CartItemResponse> cartItems;
     Timestamp createdAt;
     Timestamp updatedAt;
 }

@@ -14,7 +14,6 @@ import org.example.cdweb_be.mapper.ProductMapper;
 import org.example.cdweb_be.respository.*;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -30,11 +29,13 @@ public class ProductDetailService {
     OrderItemRepository orderItemRepository;
     ProductImportRepository productImportRepository;
 
-    public void initDetail(Product product, List<Color> colors, List<Size> sizes) {
-        if (colors.isEmpty()) colors.add(new Color());
-        if (sizes.isEmpty()) sizes.add(new Size());
-        for (Color color : colors) {
-            for (Size size : sizes) {
+    public void initDetail(Product product, List<ProductColor> colors, List<ProductSize> sizes) {
+        log.info("colors size "+ colors.size());
+        log.info("sizes size "+ sizes.size());
+        if (colors.isEmpty()) colors.add(new ProductColor());
+        if (sizes.isEmpty()) sizes.add(new ProductSize());
+        for (ProductColor color : colors) {
+            for (ProductSize size : sizes) {
                 Optional<ProductDetail> productDetailOptional =
                         productDetailRepository.findByProductIdAndColorIdAndSizeId(product.getId(), color.getId(), size.getId());
                 if (productDetailOptional.isEmpty()) {
@@ -128,6 +129,8 @@ public class ProductDetailService {
     }
     public ProductDetailRespone convertToProductDetailRespons(ProductDetail productDetail){
         ProductDetailRespone result = productMapper.toProductDetailResponse(productDetail);
+        result.setColor(productMapper.toProductColorResponse(productDetail.getColor()));
+        result.setSize(productMapper.toProductSizeResponse(productDetail.getSize()));
         result.setQuantity(getRemainingQuantity(productDetail));
         return result;
     }
@@ -177,5 +180,38 @@ public class ProductDetailService {
         ).sum();
         int totalSale = orderItems.stream().mapToInt(OrderItem::getQuantity).sum();
         return (totalImport - totalSale >0)?totalImport - totalSale:0;
+    }
+    public double getPrice(Product product, ProductSize size, ProductColor productColor){
+        if(size != null && productColor != null){
+            return getDetailsByProductAndColorAndSize(product.getId(), productColor.getId(), size.getId()).getPrice();
+        }else{
+            if(size != null){
+                return getDetailsByProductAndSize(product.getId(), size.getId()).get(0).getPrice();
+            }else{
+                return getDetailsByProductAndColor(product.getId(), productColor.getId()).get(0).getPrice();
+            }
+        }
+    }
+    public int getDiscount(Product product, ProductSize size, ProductColor productColor){
+        if(size != null && productColor != null){
+            return getDetailsByProductAndColorAndSize(product.getId(), productColor.getId(), size.getId()).getDiscount();
+        }else{
+            if(size != null){
+                return getDetailsByProductAndSize(product.getId(), size.getId()).get(0).getDiscount();
+            }else{
+                return getDetailsByProductAndColor(product.getId(), productColor.getId()).get(0).getDiscount();
+            }
+        }
+    }
+    public int getRemainingQuantity(Product product, ProductSize size, ProductColor productColor){
+        if(size != null && productColor != null){
+            return getRemainingQuantityByAllInfo(product.getId(), size.getId(), productColor.getId());
+        }else{
+            if(size != null){
+                return getRemainingQuantityWithoutColor(product.getId(), size.getId());
+            }else{
+                return getRemainingQuantityWithoutSize(product.getId(), productColor.getId());
+            }
+        }
     }
 }

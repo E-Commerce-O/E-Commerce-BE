@@ -20,17 +20,16 @@ public class CartItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
     @ManyToOne
-    @JoinColumn(name = "cart_id", nullable = false)
     Cart cart;
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
     Product product;
     @ManyToOne
     @JoinColumn(name = "size_id")
-    Size size;
+    ProductSize size;
     @ManyToOne
     @JoinColumn(name = "color_id")
-    Color color;
+    ProductColor color;
     int quantity;
     Timestamp createdAt;
     Timestamp updatedAt;

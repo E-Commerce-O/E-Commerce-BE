@@ -14,7 +14,7 @@ public interface ProductImportRepository extends JpaRepository<ProductImport, Lo
     List<ProductImport> findByProductId(long productId);
     List<ProductImport> findByUserId(long userId);
     @Query("select pi from ProductImport pi where pi.product.id = :productId " +
-            "and pi.size.id = :sizeId and pi.color.id = :colorId")
+            "and pi.size.id = :sizeId and pi.productColor.id = :colorId")
     List<ProductImport> findByProductAndColorAndSize(@Param("productId") long productId
             , @Param("colorId") long colorId, @Param("sizeId") long sizeId);
     @Query("select pi from ProductImport pi where pi.product.id = :productId " +
@@ -22,7 +22,7 @@ public interface ProductImportRepository extends JpaRepository<ProductImport, Lo
     List<ProductImport> findByProductAndSize(@Param("productId") long productId
             , @Param("sizeId") long sizeId);
     @Query("select pi from ProductImport pi where pi.product.id = :productId " +
-            "and pi.color.id = :colorId")
+            "and pi.productColor.id = :colorId")
     List<ProductImport> findByProductAndColor(@Param("productId") long productId
             , @Param("colorId") long colorId);
 

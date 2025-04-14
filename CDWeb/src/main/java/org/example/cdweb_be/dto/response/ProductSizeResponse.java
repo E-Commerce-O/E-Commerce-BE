@@ -1,9 +1,9 @@
-package org.example.cdweb_be.entity;
-import jakarta.persistence.*;
+package org.example.cdweb_be.dto.response;
+
+import jakarta.persistence.ManyToOne;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-// annotation tạo getter và setter cho các field private
+import org.example.cdweb_be.entity.Product;
 @Data
 // annotation giúp khởi tại đối tượng
 @Builder
@@ -12,11 +12,8 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 // annotation định nghĩa field mặc định của biến
 @FieldDefaults(level = AccessLevel.PRIVATE) // mặc định là private nếu k tự định nghĩa
-// annotation thể hiện là 1 bảng trong db
-@Entity
-public class Image {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class ProductSizeResponse {
     long id;
-    String imagePath;
+    String size;
+    String description;
 }

@@ -28,20 +28,26 @@ public class Product {
     boolean published;
     @ManyToOne
     Category category;
-    @OneToMany
-    List<Color> colors;
-    @OneToMany
-    List<Size> sizes;
-    @OneToMany
-    List<Image> images;
+//    @OneToMany
+//    List<Color> colors;
+//    @OneToMany
+//    List<ProductSize> sizes;
+//    @OneToMany
+//    List<Image> images;
     String description;
     String brand;
     Timestamp createdAt;
     Timestamp updatedAt;
-    public boolean isExistedColor(String colorName){
-        return colors.stream().anyMatch(color -> color.getColorName().equalsIgnoreCase(colorName));
-    }
-    public boolean isExistedSize(String sizeName){
-        return sizes.stream().anyMatch(size -> size.getSize().equalsIgnoreCase(sizeName));
-    }
+//    public boolean isExistedColor(String colorName){
+//        return colors.stream().anyMatch(color -> color.getColorName().equalsIgnoreCase(colorName));
+//    }
+//    public boolean isExistedSize(String sizeName){
+//        return sizes.stream().anyMatch(size -> size.getSize().equalsIgnoreCase(sizeName));
+//    }
+//    public Color getColorById(long colorId){
+//        return colors.stream().filter(color -> color.getId() == colorId).findFirst().orElse(null);
+//    }
+//    public ProductSize getSizeById(long sizeId){
+//        return sizes.stream().filter(size -> size.getId() == sizeId).findFirst().orElse(null);
+//    }
 }

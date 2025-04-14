@@ -8,7 +8,8 @@ import org.springframework.http.HttpStatusCode;
 @Getter
 
 public enum ErrorCode {
-    TAG_EXISTED(4001, "Tag name existed!", HttpStatus.BAD_REQUEST),
+    UNAUTHENTICATED(4001, "Unauthenticated!", HttpStatus.UNAUTHORIZED),//401,
+    TAG_EXISTED(4000, "Tag name existed!", HttpStatus.BAD_REQUEST),
     IMAGE_REQUIRED(4002, "Image file is required!", HttpStatus.BAD_REQUEST),
     CATEGORY_EXISTED(4003, "Category name existed!", HttpStatus.BAD_REQUEST),
     NOT_FOUND(4004, "Not found!", HttpStatus.BAD_REQUEST),
@@ -63,7 +64,6 @@ public enum ErrorCode {
     INVALID_KEY(400, "Invalid message key!", HttpStatus.BAD_REQUEST),
     INVALID_DOB(400, "Invalid date of birth!", HttpStatus.BAD_REQUEST),
     INVALID_TOKEN(400, "Invalid token!", HttpStatus.BAD_REQUEST),
-    UNAUTHENTICATED(400, "Unauthenticated!", HttpStatus.UNAUTHORIZED),//401,
     UNCATEGORIZED_EXCEPTION(400, "Uncategorized error!", HttpStatus.INTERNAL_SERVER_ERROR),// 500
     SERVER_ERROR(5001, "There is an error from the server, please try again later!", HttpStatus.INTERNAL_SERVER_ERROR)// 500
      ,UNAUTHORIZED(400, "You do not have permission", HttpStatus.FORBIDDEN) //403

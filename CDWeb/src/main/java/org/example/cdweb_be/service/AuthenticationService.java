@@ -75,11 +75,11 @@ public class AuthenticationService {
                 JWTClaimsSet claims = JWTClaimsSet.parse(jwsObject.getPayload().toJSONObject());
                 return claims;
             } else {
-                throw new AppException(ErrorCode.INVALID_TOKEN);
+                throw new AppException(ErrorCode.ACCESS_TOKEN_INVALID);
             }
 
         } catch (Exception e) {
-            throw new AppException(ErrorCode.INVALID_TOKEN);
+            throw new AppException(ErrorCode.ACCESS_TOKEN_INVALID);
         }
     }
 }

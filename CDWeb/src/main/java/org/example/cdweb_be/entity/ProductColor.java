@@ -1,4 +1,5 @@
 package org.example.cdweb_be.entity;
+
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -14,10 +15,12 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE) // mặc định là private nếu k tự định nghĩa
 // annotation thể hiện là 1 bảng trong db
 @Entity
-public class Size {
+public class ProductColor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
-    String size;
-    String description;
+    @ManyToOne
+    Product product;
+    String colorCode;
+    String colorName;
 }

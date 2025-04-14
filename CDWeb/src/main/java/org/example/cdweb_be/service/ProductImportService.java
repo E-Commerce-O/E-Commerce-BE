@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,12 +45,12 @@ public class ProductImportService {
         Product product = productRepository.findById(request.getProductId()).orElseThrow(
                 () -> new AppException(ErrorCode.PRODUCT_NOT_EXISTS)
         );
-        Color color = productColorRepository.findById(request.getColorId()).orElseThrow(() ->
+        ProductColor productColor = productColorRepository.findById(request.getColorId()).orElseThrow(() ->
                 new AppException(ErrorCode.PRODUCT_COLOR_NOT_EXISTS));
-        if(!product.getColors().contains(color)) throw new AppException(ErrorCode.PRODUCT_COLOR_INVALID);
-        Size size = productSizeRepository.findById(request.getSizeId()).orElseThrow(() ->
+        if(productColorRepository.findByIdAndProductId(productColor.getId(), product.getId()).isEmpty()) throw new AppException(ErrorCode.PRODUCT_COLOR_INVALID);
+        ProductSize size = productSizeRepository.findById(request.getSizeId()).orElseThrow(() ->
                 new AppException(ErrorCode.PRODUCT_SIZE_NOT_EXISTS));
-        if(!product.getSizes().contains(size)) throw new AppException(ErrorCode.PRODUCT_SIZE_INVALID);
+        if(size.getProduct().getId() != product.getId()) throw new AppException(ErrorCode.PRODUCT_SIZE_INVALID);
         if(request.getQuantity() <=0) throw new AppException(ErrorCode.QUANTITY_INVALID);
         if(request.getPrice() <=0) throw new AppException(ErrorCode.PRICE_INVALID);
         long userId = authenticationService.getUserId(token);
@@ -61,7 +60,7 @@ public class ProductImportService {
         ProductImport newProductImport = ProductImport.builder()
                 .user(user)
                 .product(product)
-                .color(color)
+                .productColor(productColor)
                 .size(size)
                 .price(request.getPrice())
                 .quantity(request.getQuantity())
@@ -77,12 +76,12 @@ public class ProductImportService {
         Product product = productRepository.findById(request.getProductId()).orElseThrow(
                 () -> new AppException(ErrorCode.PRODUCT_NOT_EXISTS)
         );
-        Color color = productColorRepository.findById(request.getColorId()).orElseThrow(() ->
+        ProductColor productColor = productColorRepository.findById(request.getColorId()).orElseThrow(() ->
                 new AppException(ErrorCode.PRODUCT_COLOR_NOT_EXISTS));
-        if(!product.getColors().contains(color)) throw new AppException(ErrorCode.PRODUCT_COLOR_INVALID);
-        Size size = productSizeRepository.findById(request.getSizeId()).orElseThrow(() ->
+        if(productColorRepository.findByIdAndProductId(productColor.getId(), product.getId()).isEmpty()) throw new AppException(ErrorCode.PRODUCT_COLOR_INVALID);
+        ProductSize size = productSizeRepository.findById(request.getSizeId()).orElseThrow(() ->
                 new AppException(ErrorCode.PRODUCT_SIZE_NOT_EXISTS));
-        if(!product.getSizes().contains(size)) throw new AppException(ErrorCode.PRODUCT_SIZE_INVALID);
+        if(size.getProduct().getId() != product.getId()) throw new AppException(ErrorCode.PRODUCT_SIZE_INVALID);
         if(request.getQuantity() <=0) throw new AppException(ErrorCode.QUANTITY_INVALID);
         if(request.getPrice() <=0) throw new AppException(ErrorCode.PRICE_INVALID);
         long userId = authenticationService.getUserId(token);
@@ -95,8 +94,8 @@ public class ProductImportService {
             change = true;
             log.info("Change productId");
         }
-        if (request.getColorId()!= productImport.getColor().getId()) {
-            productImport.setColor(color);
+        if (request.getColorId()!= productImport.getProductColor().getId()) {
+            productImport.setProductColor(productColor);
             change = true;
             log.info("Change colorId");
         }
@@ -149,7 +148,7 @@ public class ProductImportService {
                         .build())
                 .productId(productImport.getProduct().getId())
                 .productName(productImport.getProduct().getName())
-                .productColor(productImport.getColor())
+                .productColor(productImport.getProductColor())
                 .productSize(productImport.getSize())
                 .priceImport(productImport.getPrice())
                 .quantityImport(productImport.getQuantity())

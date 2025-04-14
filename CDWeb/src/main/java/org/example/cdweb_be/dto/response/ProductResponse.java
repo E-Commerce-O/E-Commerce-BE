@@ -24,9 +24,9 @@ public class ProductResponse {
     boolean published;
     Category category;
     String description;
-    List<Image> images;
-    List<Color> colors;
-    List<Size> sizes;
+    List<ProductImageResponse> images;
+    List<ProductColorResponse> colors;
+    List<ProductSizeResponse> sizes;
     List<String> tags;
     int totalSale;
     int quantity;
