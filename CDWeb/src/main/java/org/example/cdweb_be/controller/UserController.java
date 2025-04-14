@@ -4,10 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.example.cdweb_be.dto.request.LoginRequest;
-import org.example.cdweb_be.dto.request.RefreshTokenRequest;
-import org.example.cdweb_be.dto.request.UserCreateRequest;
-import org.example.cdweb_be.dto.request.UserUpdateRequest;
+import org.example.cdweb_be.dto.request.*;
 import org.example.cdweb_be.dto.response.ApiResponse;
 import org.example.cdweb_be.entity.Cart;
 import org.example.cdweb_be.entity.CartItem;
@@ -41,7 +38,10 @@ public class UserController {
     ApiResponse getAllUsers(){
         return new ApiResponse(userService.getAllUsers());
     }
-
+    @PostMapping("/validToken")
+    ApiResponse validToken(@RequestBody ValidTokenRequest accessToken){
+        return new ApiResponse(userService.validToken(accessToken));
+    }
     @PostMapping("/register")
     ApiResponse registerUser(@RequestBody UserCreateRequest request){
         return new ApiResponse(userService.addUser(request));

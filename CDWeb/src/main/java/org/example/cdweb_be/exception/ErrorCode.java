@@ -56,7 +56,10 @@ public enum ErrorCode {
     QUANTITY_INVALID(4043, "Quantity must be greater than 0!", HttpStatus.BAD_REQUEST),//400
     PRICE_INVALID(4044, "Price must be greater than 0!", HttpStatus.BAD_REQUEST),//400
     PRODUCT_IMPORT_NOT_EXISTS(4045, "ImportId not exists!", HttpStatus.BAD_REQUEST),//400
-    CANT_UPDATE_IMPORT(4045, "Cannot update because there are no changes!", HttpStatus.BAD_REQUEST),//400
+    CANT_UPDATE_IMPORT(4046, "Cannot update because there are no changes!", HttpStatus.BAD_REQUEST),//400
+    CARTITEM_INVAID_SIZE(4047, "SizeId not exists or sizeId not in list size of product!", HttpStatus.BAD_REQUEST),//400
+    CARTITEM_INVAID_COLOR(4048, "ColorId not exists or colorId not in list size of product!", HttpStatus.BAD_REQUEST),//400
+    TOKEN_EXPIRED(4049, "AccessToken has expired, please refresh accessToken or log in again!", HttpStatus.BAD_REQUEST),//400
     INVALID_KEY(400, "Invalid message key!", HttpStatus.BAD_REQUEST),
     INVALID_DOB(400, "Invalid date of birth!", HttpStatus.BAD_REQUEST),
     INVALID_TOKEN(400, "Invalid token!", HttpStatus.BAD_REQUEST),

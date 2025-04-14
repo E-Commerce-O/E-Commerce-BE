@@ -1,12 +1,10 @@
 package org.example.cdweb_be.service;
 
+import com.nimbusds.jwt.JWTClaimsSet;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.example.cdweb_be.dto.request.LoginRequest;
-import org.example.cdweb_be.dto.request.RefreshTokenRequest;
-import org.example.cdweb_be.dto.request.UserCreateRequest;
-import org.example.cdweb_be.dto.request.UserUpdateRequest;
+import org.example.cdweb_be.dto.request.*;
 import org.example.cdweb_be.dto.response.LoginResponse;
 import org.example.cdweb_be.dto.response.UserResponse;
 import org.example.cdweb_be.entity.RefreshToken;
@@ -28,10 +26,7 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -152,6 +147,17 @@ public class UserService {
                 userMapper.toUserResponse(user)
         ).collect(Collectors.toList());
         return result;
+
+    }
+    public String validToken(ValidTokenRequest accessToken){
+        JWTClaimsSet claimsSet = authenticationService.getClaimsSet("Bearer "+accessToken.getAccessToken());
+        Date expireAt =  claimsSet.getExpirationTime();
+        if (expireAt.before(new Date(System.currentTimeMillis()))){
+            throw new AppException(ErrorCode.TOKEN_EXPIRED);
+        }else{
+
+            return "AccessToken is still valid";
+        }
 
     }
 
