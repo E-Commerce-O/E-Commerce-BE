@@ -15,13 +15,15 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.crypto.spec.SecretKeySpec;
 
 @Configuration // Đánh dấu lớp này là nguồn cấu hình cho Spring
 @EnableWebSecurity // Kích hoạt các tính năng bảo mật của Spring Security
 @EnableMethodSecurity
-public class SecurityConfig {
+public class SecurityConfig implements WebMvcConfigurer {
 
     // Mảng chứa các endpoint công khai không yêu cầu xác thực
     private static final String[] PUBLIC_POST_ENDPOINTS = {"/user", "/auth/login", "/auth/introspect", "/upload"};
@@ -31,7 +33,13 @@ public class SecurityConfig {
     // Lấy giá trị của "jwt.signerKey" từ tệp cấu hình
     @Value("${jwt.signerKey}")
     private String signerKey;
-
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")  // Allow CORS for all endpoints
+                .allowedOrigins("*")  // Allow requests from all origins
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")  // Allowed HTTP methods
+                .allowedHeaders("*");  // Allow all headers
+    }
     // Phương thức cấu hình SecurityFilterChain
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
