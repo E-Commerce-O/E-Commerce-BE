@@ -40,12 +40,15 @@ public class CartItemResponse {
 //        this.price = cartItem.get
         this.published = cartItem.getProduct().isPublished();
         this.category = cartItem.getProduct().getCategory();
-        this.color = ProductColorResponse.builder()
+        if(cartItem.getColor() != null)
+            this.color = ProductColorResponse.builder()
                 .colorCode(cartItem.getColor().getColorCode())
                 .colorName(cartItem.getColor().getColorName())
                 .id(cartItem.getColor().getId())
                 .build();
-        this.size = ProductSizeResponse.builder()
+
+        if(cartItem.getSize() != null)
+            this.size = ProductSizeResponse.builder()
                 .id(cartItem.getSize().getId())
                 .size(cartItem.getSize().getSize())
                 .description(cartItem.getSize().getDescription())

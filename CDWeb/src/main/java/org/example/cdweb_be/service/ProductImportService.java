@@ -45,12 +45,18 @@ public class ProductImportService {
         Product product = productRepository.findById(request.getProductId()).orElseThrow(
                 () -> new AppException(ErrorCode.PRODUCT_NOT_EXISTS)
         );
-        ProductColor productColor = productColorRepository.findById(request.getColorId()).orElseThrow(() ->
-                new AppException(ErrorCode.PRODUCT_COLOR_NOT_EXISTS));
-        if(productColorRepository.findByIdAndProductId(productColor.getId(), product.getId()).isEmpty()) throw new AppException(ErrorCode.PRODUCT_COLOR_INVALID);
-        ProductSize size = productSizeRepository.findById(request.getSizeId()).orElseThrow(() ->
-                new AppException(ErrorCode.PRODUCT_SIZE_NOT_EXISTS));
-        if(size.getProduct().getId() != product.getId()) throw new AppException(ErrorCode.PRODUCT_SIZE_INVALID);
+        ProductColor productColor = null;
+        if(!productColorRepository.findByProductId(product.getId()).isEmpty()){
+            productColor = productColorRepository.findById(request.getColorId()).orElseThrow(() ->
+                    new AppException(ErrorCode.PRODUCT_COLOR_NOT_EXISTS));
+            if(productColorRepository.findByIdAndProductId(productColor.getId(), product.getId()).isEmpty()) throw new AppException(ErrorCode.PRODUCT_COLOR_INVALID);
+        }
+        ProductSize size = null;
+        if(!productSizeRepository.findByProductId(product.getId()).isEmpty()){
+            size = productSizeRepository.findById(request.getSizeId()).orElseThrow(() ->
+                    new AppException(ErrorCode.PRODUCT_SIZE_NOT_EXISTS));
+            if(size.getProduct().getId() != product.getId()) throw new AppException(ErrorCode.PRODUCT_SIZE_INVALID);
+        }
         if(request.getQuantity() <=0) throw new AppException(ErrorCode.QUANTITY_INVALID);
         if(request.getPrice() <=0) throw new AppException(ErrorCode.PRICE_INVALID);
         long userId = authenticationService.getUserId(token);
@@ -60,7 +66,7 @@ public class ProductImportService {
         ProductImport newProductImport = ProductImport.builder()
                 .user(user)
                 .product(product)
-                .productColor(productColor)
+                .color(productColor)
                 .size(size)
                 .price(request.getPrice())
                 .quantity(request.getQuantity())
@@ -92,32 +98,26 @@ public class ProductImportService {
         if (request.getProductId()!=productImport.getProduct().getId()) {
             productImport.setProduct(product);
             change = true;
-            log.info("Change productId");
         }
-        if (request.getColorId()!= productImport.getProductColor().getId()) {
-            productImport.setProductColor(productColor);
+        if (request.getColorId()!= productImport.getColor().getId()) {
+            productImport.setColor(productColor);
             change = true;
-            log.info("Change colorId");
         }
         if (request.getSizeId()!= productImport.getSize().getId()) {
             productImport.setSize(size);
             change = true;
-            log.info("Change sizeId");
         }
         if (user.getId()!= productImport.getUser().getId()) {
             productImport.setUser(user);
             change = true;
-            log.info("Change userid");
         }
         if (request.getPrice()!= productImport.getPrice()) {
             productImport.setPrice(request.getPrice());
             change = true;
-            log.info("Change price");
         }
         if (request.getQuantity()!= productImport.getQuantity()) {
             productImport.setQuantity(request.getQuantity());
             change = true;
-            log.info("Change quantity");
         }
         if (request.getImportedAt() != null && productImport.getImportedAt() != null) {
             if (request.getImportedAt().getDay() != productImport.getImportedAt().getDay() ||
@@ -148,7 +148,7 @@ public class ProductImportService {
                         .build())
                 .productId(productImport.getProduct().getId())
                 .productName(productImport.getProduct().getName())
-                .productColor(productImport.getProductColor())
+                .color(productImport.getColor())
                 .productSize(productImport.getSize())
                 .priceImport(productImport.getPrice())
                 .quantityImport(productImport.getQuantity())

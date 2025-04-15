@@ -30,8 +30,6 @@ public class ProductDetailService {
     ProductImportRepository productImportRepository;
 
     public void initDetail(Product product, List<ProductColor> colors, List<ProductSize> sizes) {
-        log.info("colors size "+ colors.size());
-        log.info("sizes size "+ sizes.size());
         if (colors.isEmpty()) colors.add(new ProductColor());
         if (sizes.isEmpty()) sizes.add(new ProductSize());
         for (ProductColor color : colors) {
@@ -139,9 +137,9 @@ public class ProductDetailService {
                 productId, colorId, sizeId, OrderStatus.DA_HUY);
         List<ProductImport> productImports = productImportRepository.findByProductAndColorAndSize(
                 productId, colorId, sizeId);
-        log.info(productImports.size()+"");
+//        log.info(productImports.size()+"");
         for(ProductImport productImport: productImports){
-            log.info(productImport.toString());
+//            log.info(productImport.toString());
         }
         int totalImport = productImports.stream().mapToInt(
                 ProductImport::getQuantity
@@ -181,36 +179,36 @@ public class ProductDetailService {
         int totalSale = orderItems.stream().mapToInt(OrderItem::getQuantity).sum();
         return (totalImport - totalSale >0)?totalImport - totalSale:0;
     }
-    public double getPrice(Product product, ProductSize size, ProductColor productColor){
-        if(size != null && productColor != null){
-            return getDetailsByProductAndColorAndSize(product.getId(), productColor.getId(), size.getId()).getPrice();
+    public double getPrice(Product product, ProductSize size, ProductColor color){
+        if(size != null && color != null){
+            return getDetailsByProductAndColorAndSize(product.getId(), color.getId(), size.getId()).getPrice();
         }else{
             if(size != null){
                 return getDetailsByProductAndSize(product.getId(), size.getId()).get(0).getPrice();
             }else{
-                return getDetailsByProductAndColor(product.getId(), productColor.getId()).get(0).getPrice();
+                return getDetailsByProductAndColor(product.getId(), color.getId()).get(0).getPrice();
             }
         }
     }
-    public int getDiscount(Product product, ProductSize size, ProductColor productColor){
-        if(size != null && productColor != null){
-            return getDetailsByProductAndColorAndSize(product.getId(), productColor.getId(), size.getId()).getDiscount();
+    public int getDiscount(Product product, ProductSize size, ProductColor color){
+        if(size != null && color != null){
+            return getDetailsByProductAndColorAndSize(product.getId(), color.getId(), size.getId()).getDiscount();
         }else{
             if(size != null){
                 return getDetailsByProductAndSize(product.getId(), size.getId()).get(0).getDiscount();
             }else{
-                return getDetailsByProductAndColor(product.getId(), productColor.getId()).get(0).getDiscount();
+                return getDetailsByProductAndColor(product.getId(), color.getId()).get(0).getDiscount();
             }
         }
     }
-    public int getRemainingQuantity(Product product, ProductSize size, ProductColor productColor){
-        if(size != null && productColor != null){
-            return getRemainingQuantityByAllInfo(product.getId(), size.getId(), productColor.getId());
+    public int getRemainingQuantity(Product product, ProductSize size, ProductColor color){
+        if(size != null && color != null){
+            return getRemainingQuantityByAllInfo(product.getId(), size.getId(), color.getId());
         }else{
             if(size != null){
                 return getRemainingQuantityWithoutColor(product.getId(), size.getId());
             }else{
-                return getRemainingQuantityWithoutSize(product.getId(), productColor.getId());
+                return getRemainingQuantityWithoutSize(product.getId(), color.getId());
             }
         }
     }

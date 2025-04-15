@@ -22,4 +22,20 @@ public class CartController {
     public ApiResponse addItem(@RequestHeader("Authorization") String token, @RequestBody CartItemRequest request){
         return new ApiResponse(cartService.addItem(token, request));
     }
+    @PutMapping("/increaseQuantity/{cartItemId}")
+    public ApiResponse increaseQuantity(@RequestHeader("Authorization") String token, @PathVariable long cartItemId){
+        return new ApiResponse(cartService.increaseQuantity(token, cartItemId));
+    }
+    @PutMapping("/decreaseQuantity/{cartItemId}")
+    public ApiResponse decreaseQuantity(@RequestHeader("Authorization") String token, @PathVariable long cartItemId){
+        return new ApiResponse(cartService.decreaseQuantity(token, cartItemId));
+    }
+    @PutMapping("/updateQuantity")
+    public ApiResponse updateQuantity(@RequestHeader("Authorization") String token, @RequestParam long cartItemId, @RequestParam int quantity){
+        return new ApiResponse(cartService.updateQuantity(token, cartItemId, quantity));
+    }
+    @DeleteMapping("/deleteItem/{cartItemId}")
+    public ApiResponse deleteItem(@RequestHeader("Authorization") String token, @PathVariable long cartItemId){
+        return new ApiResponse(cartService.delete(token, cartItemId));
+    }
 }

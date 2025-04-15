@@ -18,7 +18,7 @@ public class ProductImportResponse {
     UserImportProduct userImported;
     long productId;
     String productName;
-    ProductColor productColor;
+    ProductColor color;
     ProductSize productSize;
     int quantityImport;
     double priceImport;

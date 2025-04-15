@@ -75,13 +75,13 @@ CREATE TABLE IF NOT EXISTS `cart_item` (
   CONSTRAINT `FK7efcv6f1jpjksufhxm6klklr5` FOREIGN KEY (`size_id`) REFERENCES `product_size` (`id`),
   CONSTRAINT `FKjcyd5wv4igqnw413rgxbfu4nv` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`),
   CONSTRAINT `FKrgbw6vdh8jqbrmplf0g4u1eep` FOREIGN KEY (`color_id`) REFERENCES `product_color` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.cart_item: ~0 rows (approximately)
+-- Dumping data for table cdweb.cart_item: ~3 rows (approximately)
 INSERT INTO `cart_item` (`id`, `cart_id`, `product_id`, `color_id`, `size_id`, `quantity`, `created_at`, `updated_at`) VALUES
 	(5, 1, 11, 22, 13, 15, '2025-04-14 18:43:51.000000', NULL),
 	(6, 1, 11, 21, 13, 15, '2025-04-14 18:44:23.000000', NULL),
-	(7, 1, 11, 22, 14, 15, '2025-04-14 18:47:02.000000', NULL);
+	(7, 1, 11, 22, 14, 30, '2025-04-14 18:47:02.000000', '2025-04-14 18:51:15.000000');
 
 -- Dumping structure for table cdweb.category
 CREATE TABLE IF NOT EXISTS `category` (
@@ -871,7 +871,7 @@ CREATE TABLE IF NOT EXISTS `orders` (
   CONSTRAINT `FKel9kyl84ego2otj2accfd8mr7` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.orders: ~1 rows (approximately)
+-- Dumping data for table cdweb.orders: ~0 rows (approximately)
 INSERT INTO `orders` (`id`, `user_id`, `delivery_method`, `delivery_price`, `status`, `order_detail_id`, `created_at`, `updated_at`) VALUES
 	(1, NULL, NULL, 0, 1, NULL, NULL, NULL);
 
@@ -941,13 +941,14 @@ CREATE TABLE IF NOT EXISTS `product` (
   PRIMARY KEY (`id`),
   KEY `FK1mtsbur82frn64de7balymq9s` (`category_id`),
   CONSTRAINT `FK1mtsbur82frn64de7balymq9s` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.product: ~2 rows (approximately)
+-- Dumping data for table cdweb.product: ~4 rows (approximately)
 INSERT INTO `product` (`id`, `name`, `slug`, `default_discount`, `default_price`, `description`, `published`, `category_id`, `brand`, `created_at`, `updated_at`) VALUES
 	(8, 'Áo sơ mi nam', 'ao_so_mi_nam', 15, 150000, 'Áo sơ mi dành cho nam', b'0', 2, 'CornQH', '2025-04-14 18:20:17.000000', NULL),
 	(9, 'Áo thun nữ', 'ao_so_thun_nu', 15, 100000, 'Áo thun nữ kiểu mới', b'0', 7, 'CornQH', '2025-04-14 18:22:50.000000', NULL),
-	(11, 'Áo thun nữ tay dài', 'ao_so_thun_nu', 15, 100000, 'Áo thun nữ kiểu mới', b'0', 7, 'CornQH', '2025-04-14 18:31:30.000000', NULL);
+	(11, 'Áo thun nữ tay dài', 'ao_so_thun_nu', 15, 100000, 'Áo thun nữ kiểu mới', b'0', 7, 'CornQH', '2025-04-14 18:31:30.000000', NULL),
+	(12, 'Áo đá bóng', 'ao_da_bong', 22, 130000, 'Áo đá bóng cho nam', b'0', 19, 'CornQH', '2025-04-15 21:55:38.000000', NULL);
 
 -- Dumping structure for table cdweb.product_color
 CREATE TABLE IF NOT EXISTS `product_color` (
@@ -960,7 +961,7 @@ CREATE TABLE IF NOT EXISTS `product_color` (
   CONSTRAINT `FKqb6lncpndi0w5po3rr5r9up5e` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.product_color: ~4 rows (approximately)
+-- Dumping data for table cdweb.product_color: ~6 rows (approximately)
 INSERT INTO `product_color` (`id`, `color_name`, `color_code`, `product_id`) VALUES
 	(15, 'Đen', '#ddd', 8),
 	(16, 'Trắng', '#fff', 8),
@@ -977,30 +978,29 @@ CREATE TABLE IF NOT EXISTS `product_detail` (
   `size_id` bigint(20) DEFAULT NULL,
   `discount` int(11) NOT NULL,
   `price` double NOT NULL,
-  `product_color_id` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FKilxoi77ctyin6jn9robktb16c` (`product_id`),
   KEY `FK99vj2np1gk1robp8n6htiweii` (`color_id`),
   KEY `FKcum8u2vfvebmmc4xo8de3k35s` (`size_id`),
-  KEY `FKqvxhhk9dsfufrdslh3dj416pw` (`product_color_id`),
   CONSTRAINT `FK99vj2np1gk1robp8n6htiweii` FOREIGN KEY (`color_id`) REFERENCES `product_color` (`id`),
   CONSTRAINT `FKcum8u2vfvebmmc4xo8de3k35s` FOREIGN KEY (`size_id`) REFERENCES `product_size` (`id`),
-  CONSTRAINT `FKilxoi77ctyin6jn9robktb16c` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`),
-  CONSTRAINT `FKqvxhhk9dsfufrdslh3dj416pw` FOREIGN KEY (`product_color_id`) REFERENCES `product_color` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  CONSTRAINT `FKilxoi77ctyin6jn9robktb16c` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.product_detail: ~4 rows (approximately)
-INSERT INTO `product_detail` (`id`, `product_id`, `color_id`, `size_id`, `discount`, `price`, `product_color_id`) VALUES
-	(28, 9, 17, 10, 15, 100000, NULL),
-	(29, 9, 17, 11, 15, 100000, NULL),
-	(30, 9, 18, 10, 15, 100000, NULL),
-	(31, 9, 18, 11, 15, 100000, NULL),
-	(34, 11, 21, 12, 15, 100000, NULL),
-	(35, 11, 21, 13, 15, 100000, NULL),
-	(36, 11, 22, 12, 15, 100000, NULL),
-	(37, 11, 22, 13, 15, 100000, NULL),
-	(38, 11, 21, 14, 15, 100000, NULL),
-	(39, 11, 22, 14, 15, 100000, NULL);
+-- Dumping data for table cdweb.product_detail: ~11 rows (approximately)
+INSERT INTO `product_detail` (`id`, `product_id`, `color_id`, `size_id`, `discount`, `price`) VALUES
+	(28, 9, 17, 10, 15, 100000),
+	(29, 9, 17, 11, 15, 100000),
+	(30, 9, 18, 10, 15, 100000),
+	(31, 9, 18, 11, 15, 100000),
+	(34, 11, 21, 12, 15, 100000),
+	(35, 11, 21, 13, 15, 100000),
+	(36, 11, 22, 12, 15, 100000),
+	(37, 11, 22, 13, 15, 100000),
+	(38, 11, 21, 14, 15, 100000),
+	(39, 11, 22, 14, 15, 100000),
+	(40, 12, NULL, 15, 22, 130000),
+	(41, 12, NULL, 16, 22, 130000);
 
 -- Dumping structure for table cdweb.product_history
 CREATE TABLE IF NOT EXISTS `product_history` (
@@ -1033,16 +1033,18 @@ CREATE TABLE IF NOT EXISTS `product_image` (
   PRIMARY KEY (`id`),
   KEY `FK6oo0cvcdtb6qmwsga468uuukk` (`product_id`),
   CONSTRAINT `FK6oo0cvcdtb6qmwsga468uuukk` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.product_image: ~4 rows (approximately)
+-- Dumping data for table cdweb.product_image: ~8 rows (approximately)
 INSERT INTO `product_image` (`id`, `image_path`, `product_id`) VALUES
 	(8, 'image1', 8),
 	(9, 'image2', 8),
 	(10, 'image1', 9),
 	(11, 'image2', 9),
 	(14, 'image1', 11),
-	(15, 'image2', 11);
+	(15, 'image2', 11),
+	(16, 'image1', 12),
+	(17, 'image2', 12);
 
 -- Dumping structure for table cdweb.product_import
 CREATE TABLE IF NOT EXISTS `product_import` (
@@ -1056,21 +1058,23 @@ CREATE TABLE IF NOT EXISTS `product_import` (
   `created_at` datetime(6) DEFAULT NULL,
   `imported_at` date DEFAULT NULL,
   `updated_at` datetime(6) DEFAULT NULL,
-  `product_color_id` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FKludugctmrtqoopcsb8jpqpsea` (`product_id`),
   KEY `FKdhvthjfn2m3bgcy4l2lrk5d06` (`user_id`),
   KEY `FK6ylwolc6yh5llx7i68mklnk1r` (`color_id`),
   KEY `FKagfgu72k94l7wkabsc5h1eacj` (`size_id`),
-  KEY `FK9lavd38gy63bqs6tevdjl2oci` (`product_color_id`),
   CONSTRAINT `FK6ylwolc6yh5llx7i68mklnk1r` FOREIGN KEY (`color_id`) REFERENCES `product_color` (`id`),
-  CONSTRAINT `FK9lavd38gy63bqs6tevdjl2oci` FOREIGN KEY (`product_color_id`) REFERENCES `product_color` (`id`),
   CONSTRAINT `FKagfgu72k94l7wkabsc5h1eacj` FOREIGN KEY (`size_id`) REFERENCES `product_size` (`id`),
   CONSTRAINT `FKdhvthjfn2m3bgcy4l2lrk5d06` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),
   CONSTRAINT `FKludugctmrtqoopcsb8jpqpsea` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.product_import: ~0 rows (approximately)
+-- Dumping data for table cdweb.product_import: ~4 rows (approximately)
+INSERT INTO `product_import` (`id`, `product_id`, `user_id`, `color_id`, `size_id`, `price`, `quantity`, `created_at`, `imported_at`, `updated_at`) VALUES
+	(7, 11, 2, 21, 13, 120000, 50, '2025-04-15 21:39:57.000000', '2025-04-15', NULL),
+	(8, 11, 2, 21, 13, 120000, 50, '2025-04-15 21:40:00.000000', '2025-04-15', NULL),
+	(9, 11, 2, 22, 13, 120000, 50, '2025-04-15 21:40:08.000000', '2025-04-15', NULL),
+	(10, 12, 2, NULL, 15, 120000, 50, '2025-04-15 22:03:45.000000', '2025-04-15', NULL);
 
 -- Dumping structure for table cdweb.product_review
 CREATE TABLE IF NOT EXISTS `product_review` (
@@ -1100,15 +1104,17 @@ CREATE TABLE IF NOT EXISTS `product_size` (
   PRIMARY KEY (`id`),
   KEY `FK8i3jm2ctt0lsyeik2wt76yvv0` (`product_id`),
   CONSTRAINT `FK8i3jm2ctt0lsyeik2wt76yvv0` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.product_size: ~5 rows (approximately)
+-- Dumping data for table cdweb.product_size: ~7 rows (approximately)
 INSERT INTO `product_size` (`id`, `description`, `size`, `product_id`) VALUES
 	(10, 'dành cho nữ từ 45 - 55kg', 'L', 9),
 	(11, 'dành cho nữ từ 55 - 70kg', 'XL', 9),
 	(12, 'Dành cho nữ cao dưới m6 và nặng từ 50 - 60kg', 'L', 11),
 	(13, 'Dành cho nữ cao dưới m7 và nặng từ 60 - 75kg', 'XL', 11),
-	(14, 'Dành cho nữ cao dưới m7 và nặng từ 60 - 75kg', 'XXL', 11);
+	(14, 'Dành cho nữ cao dưới m7 và nặng từ 60 - 75kg', 'XXL', 11),
+	(15, 'Dành cho nam nặng 55-65kg', 'L', 12),
+	(16, 'Dành cho nam nặng 65-75', 'XL', 12);
 
 -- Dumping structure for table cdweb.product_tag
 CREATE TABLE IF NOT EXISTS `product_tag` (
@@ -1120,9 +1126,9 @@ CREATE TABLE IF NOT EXISTS `product_tag` (
   KEY `FKmkwenho1ceh0xlwoq9e5xdmhe` (`tag_name`),
   CONSTRAINT `FK2rf7w3d88x20p7vuc2m9mvv91` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`),
   CONSTRAINT `FKmkwenho1ceh0xlwoq9e5xdmhe` FOREIGN KEY (`tag_name`) REFERENCES `tag` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.product_tag: ~6 rows (approximately)
+-- Dumping data for table cdweb.product_tag: ~11 rows (approximately)
 INSERT INTO `product_tag` (`id`, `product_id`, `tag_name`) VALUES
 	(13, 8, 'Áo sơ mi (Shirt)'),
 	(14, 8, 'Bán chạy nhất'),
@@ -1132,7 +1138,9 @@ INSERT INTO `product_tag` (`id`, `product_id`, `tag_name`) VALUES
 	(18, 9, 'Ưu đãi đặc biệt'),
 	(22, 11, 'Áo thun'),
 	(23, 11, 'Bán chạy nhất'),
-	(24, 11, 'Ưu đãi đặc biệt');
+	(24, 11, 'Ưu đãi đặc biệt'),
+	(25, 12, 'Dành cho bạn'),
+	(26, 12, 'Ưu đãi đặc biệt');
 
 -- Dumping structure for table cdweb.province
 CREATE TABLE IF NOT EXISTS `province` (
@@ -1218,7 +1226,7 @@ CREATE TABLE IF NOT EXISTS `refresh_token` (
 
 -- Dumping data for table cdweb.refresh_token: ~1 rows (approximately)
 INSERT INTO `refresh_token` (`refresh_token`, `created_at`, `exprired_at`, `user_id`) VALUES
-	('300370d7-714c-442a-99ad-db345ead859f', '2025-04-14 17:59:52.000000', '2025-04-28 17:59:52.000000', 2);
+	('c1810188-d4b1-4791-baeb-3ce267ceb28e', '2025-04-15 21:32:27.000000', '2025-04-29 21:32:27.000000', 2);
 
 -- Dumping structure for table cdweb.tag
 CREATE TABLE IF NOT EXISTS `tag` (

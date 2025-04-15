@@ -26,10 +26,10 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class CartService {
-    private final ProductSizeRepository productSizeRepository;
-    private final ProductColorRepository productColorRepository;
-    private final ProductMapper productMapper;
-    private final ProductImageRepository productImageRepository;
+    ProductSizeRepository productSizeRepository;
+    ProductColorRepository productColorRepository;
+    ProductMapper productMapper;
+    ProductImageRepository productImageRepository;
     CartRepository cartRepository;
     AuthenticationService authenticationService;
     UserRepository userRepository;
@@ -52,10 +52,8 @@ public class CartService {
             List<CartItem> cartItems = cartItemRepository.findByCartId(cartOptional.get().getId());
             List<CartItemResponse> cartItemResponses = new ArrayList<>();
             for(CartItem ci : cartItems){
-                CartItemResponse cartItemResponse = new CartItemResponse(ci);
-                cartItemResponse.setPrice(productService.getPrice(ci.getProduct(), ci.getSize(), ci.getColor()));
-                cartItemResponse.setDiscount(productService.getDiscount(ci.getProduct(), ci.getSize(), ci.getColor()));
-                cartItemResponse.setImages(productImageRepository.findByProductId(ci.getProduct().getId()).stream().map(productImage -> productImage.getImagePath()).collect(Collectors.toList()));
+                CartItemResponse cartItemResponse = convertToCartItemResponse(ci);
+                cartItemResponse.setProductQuantity(productService.getRemainingQuantity(ci.getProduct(), ci.getSize(), ci.getColor()));
                 cartItemResponses.add(cartItemResponse);
 
             }
@@ -78,6 +76,8 @@ public class CartService {
         Optional<ProductColor> color = productColorRepository.findByIdAndProductId(request.getProductColor(), request.getProductId());
         Optional<ProductSize> size = productSizeRepository.findByIdAndProductId(request.getProductSize(), request.getProductId());
         if (!productSizeRepository.findByProductId(request.getProductId()).isEmpty() && size.isEmpty()) {
+//            log.info(!productSizeRepository.findByProductId(request.getProductId()).isEmpty()+"");
+//            log.info(size.isEmpty()+"");
             throw new AppException(ErrorCode.CARTITEM_INVAID_SIZE);
         }
         if (!productColorRepository.findByProductId(request.getProductId()).isEmpty() && color.isEmpty()) {
@@ -105,20 +105,87 @@ public class CartService {
             cartItem = CartItem.builder()
                     .cart(cart)
                     .product(product)
-                    .color(color.get())
-                    .size(size.get())
                     .quantity(request.getQuantity())
                     .createdAt(new Timestamp(System.currentTimeMillis()))
                     .build();
+            if(color.isPresent()) cartItem.setColor(color.get());
+            if(size.isPresent()) cartItem.setSize(size.get());
+        }
+        int remainingQuantity =productService.getRemainingQuantity(cartItem.getProduct(), cartItem.getSize(), cartItem.getColor());
+        if(cartItem.getQuantity() > remainingQuantity){
+            throw new AppException(ErrorCode.QUANTYTI_INSUFFICIENT);
         }
         cartItem = cartItemRepository.save(cartItem);
+        CartItemResponse cartItemResponse = convertToCartItemResponse(cartItem);
+        cartItemResponse.setProductQuantity(remainingQuantity);
+
+        return cartItemResponse;
+    }
+    public CartItemResponse increaseQuantity(String token, long cartItemId){
+        long userId = authenticationService.getUserId(token);
+        CartItem cartItem = cartItemRepository.findById(cartItemId).orElseThrow(() ->
+                new AppException(ErrorCode.CART_ITEM_NOT_EXISTS));
+        Cart cart = cartRepository.findById(cartItem.getCart().getId()).get();
+        if(cart.getUser().getId() != userId) throw new AppException(ErrorCode.CART_ITEM_UNAUTH);
+        cartItem.setQuantity(cartItem.getQuantity()+1);
+        int remainingQuantity =productService.getRemainingQuantity(cartItem.getProduct(), cartItem.getSize(), cartItem.getColor());
+        if(cartItem.getQuantity() > remainingQuantity){
+            throw new AppException(ErrorCode.QUANTYTI_INSUFFICIENT);
+        }
+        cartItem = cartItemRepository.save(cartItem);
+        CartItemResponse cartItemResponse = convertToCartItemResponse(cartItem);
+        cartItemResponse.setProductQuantity(remainingQuantity);
+        return cartItemResponse;
+
+    }
+    public CartItemResponse decreaseQuantity(String token, long cartItemId){
+        long userId = authenticationService.getUserId(token);
+        CartItem cartItem = cartItemRepository.findById(cartItemId).orElseThrow(() ->
+                new AppException(ErrorCode.CART_ITEM_NOT_EXISTS));
+        Cart cart = cartRepository.findById(cartItem.getCart().getId()).get();
+        if(cart.getUser().getId() != userId) throw new AppException(ErrorCode.CART_ITEM_UNAUTH);
+        cartItem.setQuantity(cartItem.getQuantity()-1);
+        int remainingQuantity =productService.getRemainingQuantity(cartItem.getProduct(), cartItem.getSize(), cartItem.getColor());
+        cartItem = cartItemRepository.save(cartItem);
+        CartItemResponse cartItemResponse = convertToCartItemResponse(cartItem);
+        cartItemResponse.setProductQuantity(remainingQuantity);
+        return cartItemResponse;
+    }
+    public CartItemResponse updateQuantity(String token, long cartItemId, int quantity){
+        long userId = authenticationService.getUserId(token);
+        CartItem cartItem = cartItemRepository.findById(cartItemId).orElseThrow(() ->
+                new AppException(ErrorCode.CART_ITEM_NOT_EXISTS));
+        Cart cart = cartRepository.findById(cartItem.getCart().getId()).get();
+        if(cart.getUser().getId() != userId) throw new AppException(ErrorCode.CART_ITEM_UNAUTH);
+        int remainingQuantity =productService.getRemainingQuantity(cartItem.getProduct(), cartItem.getSize(), cartItem.getColor());
+        if(cartItem.getQuantity() < quantity && quantity > remainingQuantity){
+            throw new AppException(ErrorCode.QUANTYTI_INSUFFICIENT);
+        }
+        cartItem.setQuantity(quantity);
+        cartItem = cartItemRepository.save(cartItem);
+        CartItemResponse cartItemResponse = convertToCartItemResponse(cartItem);
+        cartItemResponse.setProductQuantity(remainingQuantity);
+        return cartItemResponse;
+    }
+    public String delete(String token, long cartItemId){
+        long userId = authenticationService.getUserId(token);
+        CartItem cartItem = cartItemRepository.findById(cartItemId).orElseThrow(() ->
+                new AppException(ErrorCode.CART_ITEM_NOT_EXISTS));
+        Cart cart = cartRepository.findById(cartItem.getCart().getId()).get();
+        if(cart.getUser().getId() != userId) throw new AppException(ErrorCode.CART_ITEM_UNAUTH);
+        cartItemRepository.delete(cartItem);
+        return "Delete cartItem: "+cartItemId+" successfully!";
+    }
+
+
+    public CartItemResponse convertToCartItemResponse(CartItem cartItem){
+//        int remainingQuantity =productService.getRemainingQuantity(cartItem.getProduct(), cartItem.getSize(), cartItem.getColor());
         CartItemResponse cartItemResponse = new CartItemResponse(cartItem);
         cartItemResponse.setPrice(productService.getPrice(cartItem.getProduct(), cartItem.getSize(), cartItem.getColor()));
         cartItemResponse.setDiscount(productService.getDiscount(cartItem.getProduct(), cartItem.getSize(), cartItem.getColor()));
         cartItemResponse.setImages(productImageRepository.findByProductId(cartItem.getProduct().getId()).stream().map(productImage -> productImage.getImagePath()).collect(Collectors.toList()));
+//        cartItemResponse.setProductQuantity(remainingQuantity);
+
         return cartItemResponse;
-
-
     }
-
 }

@@ -443,29 +443,30 @@ public class ProductService {
         return (totalImport - totalSale > 0) ? totalImport - totalSale : 0;
     }
 
-    public double getPrice(Product product, ProductSize size, ProductColor productColor) {
-        if (size == null || productColor == null) {
+    public double getPrice(Product product, ProductSize size, ProductColor color) {
+        if (size == null && color == null) {
             return product.getDefaultPrice();
         } else {
-            return productDetailService.getPrice(product, size, productColor);
+            return productDetailService.getPrice(product, size, color);
         }
 
     }
 
-    public int getDiscount(Product product, ProductSize size, ProductColor productColor) {
-        if (size == null || productColor == null) {
+    public int getDiscount(Product product, ProductSize size, ProductColor color) {
+        if (size == null && color == null) {
             return product.getDefaultDiscount();
         } else {
-            return productDetailService.getDiscount(product, size, productColor);
+            return productDetailService.getDiscount(product, size, color);
         }
 
     }
 
-    public int getRemainingQuantity(Product product, ProductSize size, ProductColor productColor) {
-        if (size == null || productColor == null) {
-            return product.getDefaultDiscount();
+    public int getRemainingQuantity(Product product, ProductSize size, ProductColor color) {
+        if (size == null && color == null) {
+
+            return productDetailService.getRemainingQuantity(product.getId());
         } else {
-            return productDetailService.getRemainingQuantity(product, size, productColor);
+            return productDetailService.getRemainingQuantity(product, size, color);
         }
 
     }
