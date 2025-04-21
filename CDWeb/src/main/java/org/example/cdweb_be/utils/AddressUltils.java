@@ -13,6 +13,8 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.example.cdweb_be.exception.AppException;
+import org.example.cdweb_be.exception.ErrorCode;
 import org.example.cdweb_be.utils.responseUtilsAPI.DistrictUtil;
 import org.example.cdweb_be.utils.responseUtilsAPI.InfoShipUtil;
 import org.example.cdweb_be.utils.responseUtilsAPI.ProvinceUtil;
@@ -187,15 +189,12 @@ public class AddressUltils {
                 // Xử lý jsonArray ở đây
             } else {
                 System.out.println("Error: " + responseCode);
-                return null;
+                throw new AppException(ErrorCode.SERVER_ERROR);
             }
 
-
-
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new AppException(ErrorCode.SERVER_ERROR);
         }
-
     }
 
     }
