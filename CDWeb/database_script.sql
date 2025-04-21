@@ -23,11 +23,11 @@ USE `cdweb`;
 -- Dumping structure for table cdweb.address
 CREATE TABLE IF NOT EXISTS `address` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) DEFAULT NULL,
   `house_number` varchar(255) DEFAULT NULL,
+  `ward_id` bigint(20) DEFAULT NULL,
   `district_id` bigint(20) DEFAULT NULL,
   `province_id` bigint(20) DEFAULT NULL,
-  `user_id` bigint(20) DEFAULT NULL,
-  `ward_id` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FKqbjwfi50pdenou8j14knnffrh` (`district_id`),
   KEY `FKf8x0jfwoo94op8u88og1ohdcn` (`province_id`),
@@ -37,9 +37,11 @@ CREATE TABLE IF NOT EXISTS `address` (
   CONSTRAINT `FKf8x0jfwoo94op8u88og1ohdcn` FOREIGN KEY (`province_id`) REFERENCES `province` (`id`),
   CONSTRAINT `FKq7vspx6bqxq5lawbv2calw5lb` FOREIGN KEY (`ward_id`) REFERENCES `ward` (`id`),
   CONSTRAINT `FKqbjwfi50pdenou8j14knnffrh` FOREIGN KEY (`district_id`) REFERENCES `district` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.address: ~0 rows (approximately)
+-- Dumping data for table cdweb.address: ~1 rows (approximately)
+INSERT INTO `address` (`id`, `user_id`, `house_number`, `ward_id`, `district_id`, `province_id`) VALUES
+	(1, 2, '123', 1, 8, 1);
 
 -- Dumping structure for table cdweb.cart
 CREATE TABLE IF NOT EXISTS `cart` (
@@ -878,8 +880,8 @@ INSERT INTO `orders` (`id`, `user_id`, `delivery_method`, `delivery_price`, `sta
 -- Dumping structure for table cdweb.order_detail
 CREATE TABLE IF NOT EXISTS `order_detail` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `address_id` bigint(20) DEFAULT NULL,
   `order_id` bigint(20) DEFAULT NULL,
+  `address_id` bigint(20) DEFAULT NULL,
   `product_voucher_id` bigint(20) DEFAULT NULL,
   `ship_voucher_id` bigint(20) DEFAULT NULL,
   `product_decrease` double NOT NULL,
@@ -904,12 +906,12 @@ CREATE TABLE IF NOT EXISTS `order_item` (
   `product_id` bigint(20) DEFAULT NULL,
   `color_id` bigint(20) DEFAULT NULL,
   `size_id` bigint(20) DEFAULT NULL,
+  `product_color_id` bigint(20) DEFAULT NULL,
   `original_price` double NOT NULL,
   `discount` int(11) NOT NULL,
   `quantity` int(11) NOT NULL,
   `created_at` datetime(6) DEFAULT NULL,
   `updated_at` datetime(6) DEFAULT NULL,
-  `product_color_id` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FKt4dc2r9nbvbujrljv3e23iibt` (`order_id`),
   KEY `FK551losx9j75ss5d6bfsqvijna` (`product_id`),
@@ -1098,29 +1100,29 @@ CREATE TABLE IF NOT EXISTS `product_review` (
 -- Dumping structure for table cdweb.product_size
 CREATE TABLE IF NOT EXISTS `product_size` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `description` varchar(255) DEFAULT NULL,
   `size` varchar(255) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
   `product_id` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FK8i3jm2ctt0lsyeik2wt76yvv0` (`product_id`),
   CONSTRAINT `FK8i3jm2ctt0lsyeik2wt76yvv0` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.product_size: ~7 rows (approximately)
-INSERT INTO `product_size` (`id`, `description`, `size`, `product_id`) VALUES
-	(10, 'dành cho nữ từ 45 - 55kg', 'L', 9),
-	(11, 'dành cho nữ từ 55 - 70kg', 'XL', 9),
-	(12, 'Dành cho nữ cao dưới m6 và nặng từ 50 - 60kg', 'L', 11),
-	(13, 'Dành cho nữ cao dưới m7 và nặng từ 60 - 75kg', 'XL', 11),
-	(14, 'Dành cho nữ cao dưới m7 và nặng từ 60 - 75kg', 'XXL', 11),
-	(15, 'Dành cho nam nặng 55-65kg', 'L', 12),
-	(16, 'Dành cho nam nặng 65-75', 'XL', 12);
+-- Dumping data for table cdweb.product_size: ~6 rows (approximately)
+INSERT INTO `product_size` (`id`, `size`, `description`, `product_id`) VALUES
+	(10, 'L', 'dành cho nữ từ 45 - 55kg', 9),
+	(11, 'XL', 'dành cho nữ từ 55 - 70kg', 9),
+	(12, 'L', 'Dành cho nữ cao dưới m6 và nặng từ 50 - 60kg', 11),
+	(13, 'XL', 'Dành cho nữ cao dưới m7 và nặng từ 60 - 75kg', 11),
+	(14, 'XXL', 'Dành cho nữ cao dưới m7 và nặng từ 60 - 75kg', 11),
+	(15, 'L', 'Dành cho nam nặng 55-65kg', 12),
+	(16, 'XL', 'Dành cho nam nặng 65-75', 12);
 
 -- Dumping structure for table cdweb.product_tag
 CREATE TABLE IF NOT EXISTS `product_tag` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `product_id` bigint(20) DEFAULT NULL,
   `tag_name` varchar(255) DEFAULT NULL,
+  `product_id` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FK2rf7w3d88x20p7vuc2m9mvv91` (`product_id`),
   KEY `FKmkwenho1ceh0xlwoq9e5xdmhe` (`tag_name`),
@@ -1129,18 +1131,18 @@ CREATE TABLE IF NOT EXISTS `product_tag` (
 ) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Dumping data for table cdweb.product_tag: ~11 rows (approximately)
-INSERT INTO `product_tag` (`id`, `product_id`, `tag_name`) VALUES
-	(13, 8, 'Áo sơ mi (Shirt)'),
-	(14, 8, 'Bán chạy nhất'),
-	(15, 8, 'Ưu đãi đặc biệt'),
-	(16, 9, 'Áo thun'),
-	(17, 9, 'Bán chạy nhất'),
-	(18, 9, 'Ưu đãi đặc biệt'),
-	(22, 11, 'Áo thun'),
-	(23, 11, 'Bán chạy nhất'),
-	(24, 11, 'Ưu đãi đặc biệt'),
-	(25, 12, 'Dành cho bạn'),
-	(26, 12, 'Ưu đãi đặc biệt');
+INSERT INTO `product_tag` (`id`, `tag_name`, `product_id`) VALUES
+	(13, 'Áo sơ mi (Shirt)', 8),
+	(14, 'Bán chạy nhất', 8),
+	(15, 'Ưu đãi đặc biệt', 8),
+	(16, 'Áo thun', 9),
+	(17, 'Bán chạy nhất', 9),
+	(18, 'Ưu đãi đặc biệt', 9),
+	(22, 'Áo thun', 11),
+	(23, 'Bán chạy nhất', 11),
+	(24, 'Ưu đãi đặc biệt', 11),
+	(25, 'Dành cho bạn', 12),
+	(26, 'Ưu đãi đặc biệt', 12);
 
 -- Dumping structure for table cdweb.province
 CREATE TABLE IF NOT EXISTS `province` (
@@ -1253,40 +1255,40 @@ INSERT INTO `tag` (`name`, `description`) VALUES
 -- Dumping structure for table cdweb.user
 CREATE TABLE IF NOT EXISTS `user` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `avt_path` varchar(255) DEFAULT NULL,
-  `created_at` datetime(6) DEFAULT NULL,
-  `date_of_birth` date DEFAULT NULL,
-  `email` varchar(255) DEFAULT NULL,
-  `full_name` varchar(255) DEFAULT NULL,
-  `gender` int(11) NOT NULL,
-  `password` varchar(255) DEFAULT NULL,
-  `phone_number` varchar(255) DEFAULT NULL,
-  `role` varchar(255) DEFAULT NULL,
-  `updated_at` datetime(6) DEFAULT NULL,
   `username` varchar(255) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  `full_name` varchar(255) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `phone_number` varchar(255) DEFAULT NULL,
+  `avt_path` varchar(255) DEFAULT NULL,
+  `date_of_birth` date DEFAULT NULL,
+  `gender` int(11) NOT NULL,
+  `role` varchar(255) DEFAULT NULL,
+  `created_at` datetime(6) DEFAULT NULL,
+  `updated_at` datetime(6) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UKko17hhca8tc1abp8so09fsygo` (`username`,`email`,`phone_number`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.user: ~1 rows (approximately)
-INSERT INTO `user` (`id`, `avt_path`, `created_at`, `date_of_birth`, `email`, `full_name`, `gender`, `password`, `phone_number`, `role`, `updated_at`, `username`) VALUES
-	(2, 'https://i.imgur.com/W60xqJf.png', NULL, NULL, 'admin@min.ad', 'At Van Min', 0, '$2a$10$k5X09dALn8GAH30EpJHtQ.KSCzbbuBq5Qq29IwqpOUgUIDi6cpbnq', NULL, 'ADMIN', NULL, 'admin');
+-- Dumping data for table cdweb.user: ~0 rows (approximately)
+INSERT INTO `user` (`id`, `username`, `password`, `full_name`, `email`, `phone_number`, `avt_path`, `date_of_birth`, `gender`, `role`, `created_at`, `updated_at`) VALUES
+	(2, 'admin', '$2a$10$k5X09dALn8GAH30EpJHtQ.KSCzbbuBq5Qq29IwqpOUgUIDi6cpbnq', 'At Van Min', 'admin@min.ad', NULL, 'https://i.imgur.com/W60xqJf.png', NULL, 0, 'ADMIN', NULL, NULL);
 
 -- Dumping structure for table cdweb.voucher
 CREATE TABLE IF NOT EXISTS `voucher` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
   `code` varchar(255) DEFAULT NULL,
-  `created_at` datetime(6) DEFAULT NULL,
+  `type` int(11) NOT NULL,
   `description` varchar(255) DEFAULT NULL,
-  `end_at` datetime(6) DEFAULT NULL,
   `image_path` varchar(255) DEFAULT NULL,
   `max_decrease` int(11) NOT NULL,
   `min_price` int(11) NOT NULL,
-  `name` varchar(255) DEFAULT NULL,
   `percent_decrease` double NOT NULL,
   `quantity` int(11) NOT NULL,
   `start_at` datetime(6) DEFAULT NULL,
-  `type` int(11) NOT NULL,
+  `end_at` datetime(6) DEFAULT NULL,
+  `created_at` datetime(6) DEFAULT NULL,
   `updated_at` datetime(6) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

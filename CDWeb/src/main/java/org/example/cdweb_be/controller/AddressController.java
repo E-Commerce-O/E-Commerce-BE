@@ -1,5 +1,6 @@
 package org.example.cdweb_be.controller;
 
+import io.swagger.annotations.Api;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -20,6 +21,10 @@ public class AddressController {
     public ApiResponse getMyAddresses(@RequestHeader("Authorization") String token){
         return new ApiResponse(addressService.getAll(token));
     }
+    @GetMapping("/getInfoShips/{addressId}")
+    public ApiResponse getInfoShips(@PathVariable long addressId){
+        return new ApiResponse(addressService.getInfoShip(addressId));
+    }
     @PostMapping("/add")
     public ApiResponse addAddress(@RequestHeader("Authorization") String token,@RequestBody AddressRequest request){
         return new ApiResponse(addressService.addAddress(token, request));
@@ -32,4 +37,5 @@ public class AddressController {
     public ApiResponse deleteAddress(@RequestHeader("Authorization") String token, @PathVariable("addressId") long addressId){
         return new ApiResponse(addressService.deleteAddress(token, addressId));
     }
+
 }

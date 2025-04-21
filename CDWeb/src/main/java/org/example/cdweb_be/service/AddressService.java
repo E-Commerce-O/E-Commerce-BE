@@ -16,6 +16,8 @@ import org.example.cdweb_be.exception.AppException;
 import org.example.cdweb_be.exception.ErrorCode;
 import org.example.cdweb_be.mapper.AddressMapper;
 import org.example.cdweb_be.respository.*;
+import org.example.cdweb_be.utils.AddressUltils;
+import org.example.cdweb_be.utils.responseUtilsAPI.InfoShipUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,6 +36,8 @@ public class AddressService {
     DistrictRepository districtRepository;
     WardRepository wardRepository;
     UserRepository userRepository;
+    int sendProvinceId =2;
+    int sendDistrictId = 1231;
 
     public List<AddressResponse> getAll(String token) {
         long userId = authenticationService.getUserId(token);
@@ -108,4 +112,11 @@ public class AddressService {
                 .build();
         return address;
     }
+    public List<InfoShipUtil> getInfoShip(long addressId){
+        Address address = addressRepository.findById(addressId).orElseThrow(() ->
+                new AppException(ErrorCode.ADDRESS_NOT_EXISTS));
+        List<InfoShipUtil> infoShipUtils = AddressUltils.getInfoShips(sendProvinceId+"", sendDistrictId+"", address.getProvince().getId()+"", address.getDistrict().getId()+"");
+        return infoShipUtils;
+    }
+
 }

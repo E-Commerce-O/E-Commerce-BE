@@ -29,7 +29,7 @@ public class LocationController {
     public ApiResponse getDistrictsByProvince(@PathVariable long provinceId){
         return new ApiResponse(locationService.getDistrictsByProvince(provinceId));
     }
-    @GetMapping("/getDistrictsByProvince")
+    @GetMapping("/getDistrictsByProvinceAndDistrictName")
     public ApiResponse getDistrictsByProvinceAndName(@RequestParam long provinceId, @RequestParam String districtName){
         return new ApiResponse(locationService.getDistrictsByProvinceAndName(provinceId, districtName));
     }
@@ -41,7 +41,7 @@ public class LocationController {
     public ApiResponse getWardsByDistrict(@PathVariable long districtId){
         return new ApiResponse(locationService.getWardsByDistrict(districtId));
     }
-    @GetMapping("/getWardsByDistrictAndName")
+    @GetMapping("/getWardsByDistrictAndWardName")
     public ApiResponse getWardsByDistrictAndName(@RequestParam long districtId, @RequestParam String wardName){
         return new ApiResponse(locationService.getWardsByDistrictAndName(districtId, wardName));
     }
