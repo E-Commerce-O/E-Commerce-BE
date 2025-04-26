@@ -149,6 +149,7 @@ public class VoucherService {
         List<CategoryVoucher> categoryVouchers = categoryApplyOfVouhcers.stream().map(categoryApplyOfVouhcer ->
                 categoryMapper.toCategoryVoucher(categoryApplyOfVouhcer.getCategory())).collect(Collectors.toList());
         voucherResponse.setCategoriesApply(categoryVouchers);
+        voucherResponse.setQuantity(getRemainingQuantity(voucher));
         return voucherResponse;
     }
 
