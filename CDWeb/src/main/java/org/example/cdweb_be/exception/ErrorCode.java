@@ -1,8 +1,7 @@
 package org.example.cdweb_be.exception;
 
 import lombok.Getter;
-import lombok.Setter;
-import org.mapstruct.Builder;
+import org.example.cdweb_be.enums.VoucherType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 @Getter
@@ -64,6 +63,21 @@ public enum ErrorCode {
     QUANTYTI_INSUFFICIENT(4050, "The remaining quantity of products by size and color is not enough!", HttpStatus.BAD_REQUEST),//400
     CART_ITEM_NOT_EXISTS(4051, "CartItemId not exists!", HttpStatus.BAD_REQUEST),//400
     CART_ITEM_UNAUTH(4052, "You do not have permission to update this cartItem!", HttpStatus.BAD_REQUEST),//400
+    VOUCHER_TYPE_INVALID(4053, VoucherType.getError(), HttpStatus.BAD_REQUEST),//400
+    VOUCHER_CODE_EXISTED(4054, "Voucher code existed!", HttpStatus.BAD_REQUEST),//400
+    VOUCHER_CODE_INVALD(4055, "Voucher code must be at least 6 characters!", HttpStatus.BAD_REQUEST),//400
+    VOUCHER_PERCENT_DECREASE_INVALD(4056, "Percent decrease must be between 0 and 100!", HttpStatus.BAD_REQUEST),//400
+    VOUCHER_MIN_PRICE_INVALD(4057, "Min price must be greater than or equal to 0!", HttpStatus.BAD_REQUEST),//400
+    VOUCHER_QUANTITY_INVALD(4058, "Quantity must be greater than or equal to 0!", HttpStatus.BAD_REQUEST),//400
+    VOUCHER_END_AT_INVALD(4059, "EndAt must come after (>=) StartAt!", HttpStatus.BAD_REQUEST),//400
+    VOUCHER_CODE_NOT_EXISTS(4060, "Voucher code not exists or expired!", HttpStatus.BAD_REQUEST),//400
+    VOUCHER_NOT_EXISTS(4061, "VoucherId not exists!", HttpStatus.BAD_REQUEST),//400
+    CANT_DUPLICATE_CATEGORYID(4062, "CategoryId cannot be duplicated!", HttpStatus.BAD_REQUEST),//400
+    VOUCHER_EXPIRED_QUANTITY(4063, "Voucher quantity has expired!", HttpStatus.BAD_REQUEST),//400
+    VOUCHER_CANT_APPLY(4064, "Not eligible to apply voucher!", HttpStatus.BAD_REQUEST),//400
+    VOUCHER_EXPIRED(4065, "Voucher has expired!", HttpStatus.BAD_REQUEST),//400
+    VOUCHER_REQUIRED_CART_ITEMS(4066, "CartItemIds is required!", HttpStatus.BAD_REQUEST),//400
+    SHIPPING_COST_REQUIRED(4067, "Shipping cost is required!", HttpStatus.BAD_REQUEST),//400
     INVALID_KEY(400, "Invalid message key!", HttpStatus.BAD_REQUEST),
     INVALID_DOB(400, "Invalid date of birth!", HttpStatus.BAD_REQUEST),
     INVALID_TOKEN(400, "Invalid token!", HttpStatus.BAD_REQUEST),

@@ -28,7 +28,7 @@ public class Voucher {
     String imagePath;
     String description;
     int quantity;
-    double percentDecrease;
+    int percentDecrease;
     int maxDecrease;
     int minPrice;
     int type;
