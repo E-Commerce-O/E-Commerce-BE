@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.weaver.ast.Or;
 import org.example.cdweb_be.dto.request.ApplyVoucherRequest;
 import org.example.cdweb_be.dto.request.OrderCreateRequest;
 import org.example.cdweb_be.dto.response.OrderItemResponse;
@@ -87,8 +86,8 @@ public class OrderService {
 
         double shipDecrease = (shipVC == null)?0:voucherService.applyVouhcer(applyVoucherRequest);
         Voucher productVC = null;
-        if(request.getShopVcId() >0){
-            productVC = voucherRepository.findById(request.getShopVcId()).orElseThrow(() ->
+        if(request.getProductVcId() >0){
+            productVC = voucherRepository.findById(request.getProductVcId()).orElseThrow(() ->
                     new AppException(ErrorCode.VOUCHER_NOT_EXISTS));
             if(productVC.getType() == VoucherType.FREESHIP.getType()) throw new AppException(ErrorCode.VOUCHER_SHOP_INVALID);
             applyVoucherRequest.setVoucherId(productVC.getId());

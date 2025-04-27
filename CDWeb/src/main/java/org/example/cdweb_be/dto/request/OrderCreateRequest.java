@@ -19,6 +19,6 @@ public class OrderCreateRequest {
     long addressId;
     DeliveryMethodUtil deliveryMethod;
     long freeshipVcId;
-    long shopVcId;
+    long productVcId;
 
 }
