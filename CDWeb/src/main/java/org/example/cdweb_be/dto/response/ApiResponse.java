@@ -15,7 +15,7 @@ import lombok.experimental.FieldDefaults;
 // annotation định nghĩa field mặc định của biến
 @FieldDefaults(level = AccessLevel.PRIVATE) // mặc định là private nếu k tự định nghĩa
 // annotation thể hiện là 1 bảng trong db
-@JsonInclude(JsonInclude.Include.NON_NULL)
+//@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({ "code", "success", "data" }) // Đặt thứ tự các trường
 public class ApiResponse<T> {
     int code = 200;

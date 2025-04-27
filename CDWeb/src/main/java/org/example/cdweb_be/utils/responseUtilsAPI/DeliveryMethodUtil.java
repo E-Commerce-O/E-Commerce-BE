@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class InfoShipUtil {
+public class DeliveryMethodUtil {
     @SerializedName("TEN_DICHVU")
     String ten_dichvu;
     @SerializedName("THOI_GIAN")

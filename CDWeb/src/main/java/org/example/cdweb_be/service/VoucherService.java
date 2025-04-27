@@ -45,7 +45,7 @@ public class VoucherService {
             categories.add(category);
         }
         if (categories.size() != request.getCategoryIds().size()) {
-            throw new AppException(ErrorCode.CANT_DUPLICATE_CATEGORYID);
+            throw new AppException(ErrorCode.CATEGORY_DUPLICATE);
         }
         Voucher voucher = voucherMapper.toVoucber(request);
         voucher.setCreatedAt(new Timestamp(System.currentTimeMillis()));
@@ -79,7 +79,7 @@ public class VoucherService {
             categories.add(category);
         }
         if (categories.size() != request.getCategoryIds().size()) {
-            throw new AppException(ErrorCode.CANT_DUPLICATE_CATEGORYID);
+            throw new AppException(ErrorCode.CATEGORY_DUPLICATE);
         }
         for (Category category : categories) {
             categoryApplyOfVoucherRepository.save(CategoryApplyOfVouhcer.builder()
@@ -98,7 +98,7 @@ public class VoucherService {
         if (quantity <= 0) throw new AppException(ErrorCode.VOUCHER_EXPIRED_QUANTITY);
         if (voucher.getEndAt().before(new Timestamp(System.currentTimeMillis())))
             throw new AppException(ErrorCode.VOUCHER_EXPIRED);
-        if(request.getCartItemIds().size() ==0) throw new AppException(ErrorCode.VOUCHER_REQUIRED_CART_ITEMS);
+        if(request.getCartItemIds().size() ==0) throw new AppException(ErrorCode.CART_ITEM_REQUIRED);
         List<CartItem> cartItems = new ArrayList<>();
         List<Category> categoriesOfVoucher = categoryApplyOfVoucherRepository.findByVoucherId(voucher.getId())
                 .stream().map(categoryApplyOfVouhcer -> categoryApplyOfVouhcer.getCategory()).collect(Collectors.toList());

@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.example.cdweb_be.dto.request.AddressCreateRequest;
 import org.example.cdweb_be.dto.request.AddressRequest;
 import org.example.cdweb_be.dto.request.AddressUpdateRequest;
 import org.example.cdweb_be.dto.response.AddressResponse;
@@ -17,7 +16,7 @@ import org.example.cdweb_be.exception.ErrorCode;
 import org.example.cdweb_be.mapper.AddressMapper;
 import org.example.cdweb_be.respository.*;
 import org.example.cdweb_be.utils.AddressUltils;
-import org.example.cdweb_be.utils.responseUtilsAPI.InfoShipUtil;
+import org.example.cdweb_be.utils.responseUtilsAPI.DeliveryMethodUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -112,11 +111,11 @@ public class AddressService {
                 .build();
         return address;
     }
-    public List<InfoShipUtil> getInfoShip(long addressId){
+    public List<DeliveryMethodUtil> getInfoShip(long addressId){
         Address address = addressRepository.findById(addressId).orElseThrow(() ->
                 new AppException(ErrorCode.ADDRESS_NOT_EXISTS));
-        List<InfoShipUtil> infoShipUtils = AddressUltils.getInfoShips(sendProvinceId+"", sendDistrictId+"", address.getProvince().getId()+"", address.getDistrict().getId()+"");
-        return infoShipUtils;
+        List<DeliveryMethodUtil> deliveryMethodUtils = AddressUltils.getInfoShips(sendProvinceId+"", sendDistrictId+"", address.getProvince().getId()+"", address.getDistrict().getId()+"");
+        return deliveryMethodUtils;
     }
 
 }

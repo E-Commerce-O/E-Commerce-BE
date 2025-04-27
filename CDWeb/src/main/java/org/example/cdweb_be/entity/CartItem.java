@@ -33,4 +33,12 @@ public class CartItem {
     int quantity;
     Timestamp createdAt;
     Timestamp updatedAt;
+    public String getErrorCodeMessage(){
+        String result = "Remaining quantity of product "+this.getProduct().getName();
+        if(this.getSize() != null || this.getColor() != null) result += " with ";
+        if(this.getSize() != null) result +="Size: "+ this.getSize().getSize()+" ";
+        if(this.getColor() != null) result += "Color: "+this.getColor().getColorName()+" ";
+        result += "not enought!";
+        return result;
+    }
 }

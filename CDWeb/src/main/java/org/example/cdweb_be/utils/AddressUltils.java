@@ -16,7 +16,7 @@ import org.apache.http.util.EntityUtils;
 import org.example.cdweb_be.exception.AppException;
 import org.example.cdweb_be.exception.ErrorCode;
 import org.example.cdweb_be.utils.responseUtilsAPI.DistrictUtil;
-import org.example.cdweb_be.utils.responseUtilsAPI.InfoShipUtil;
+import org.example.cdweb_be.utils.responseUtilsAPI.DeliveryMethodUtil;
 import org.example.cdweb_be.utils.responseUtilsAPI.ProvinceUtil;
 import org.example.cdweb_be.utils.responseUtilsAPI.WardUtil;
 import org.json.JSONArray;
@@ -153,7 +153,7 @@ public class AddressUltils {
             throw new RuntimeException(e);
         }
     }
-    public static List<InfoShipUtil> getInfoShips(String senderProvince, String senderDistrict, String receiverProvince, String receiverDistrict) {
+    public static List<DeliveryMethodUtil> getInfoShips(String senderProvince, String senderDistrict, String receiverProvince, String receiverDistrict) {
         try {
 //            URL url = new URL(BASE_URL_FEE);
 //            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -185,7 +185,7 @@ public class AddressUltils {
             if (responseCode == 200) { // Kiểm tra mã phản hồi
                 String response = EntityUtils.toString(httpResponse.getEntity());
                 JSONArray jsonArray = new JSONArray(response);
-                return Arrays.asList(new Gson().fromJson(jsonArray.toString(), InfoShipUtil[].class));
+                return Arrays.asList(new Gson().fromJson(jsonArray.toString(), DeliveryMethodUtil[].class));
                 // Xử lý jsonArray ở đây
             } else {
                 System.out.println("Error: " + responseCode);

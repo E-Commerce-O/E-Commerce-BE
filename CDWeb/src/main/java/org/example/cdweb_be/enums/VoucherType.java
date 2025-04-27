@@ -1,6 +1,5 @@
 package org.example.cdweb_be.enums;
 
-import lombok.Data;
 import lombok.Getter;
 
 import java.util.Arrays;
@@ -8,7 +7,7 @@ import java.util.Arrays;
 
 public enum VoucherType {
     FREESHIP(0, "FREESHIP"),
-    SHOPVC(1, "SHOPVC")
+    PRODUCT(1, "PRODUCT")
     ;
 //    public static final int FREESHIP = 0, SHOPVC =1;
     int type;

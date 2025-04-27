@@ -38,7 +38,7 @@ public enum ErrorCode {
     WARD_NOT_EXISTS(4027, "WardId not exists!", HttpStatus.BAD_REQUEST),//400
     ADDRESS_EXISTED(4028, "Address already exists!", HttpStatus.BAD_REQUEST),//400
     ADDRESS_NOT_EXISTS(4029, "AddressId not exists!", HttpStatus.BAD_REQUEST),//400
-    ADDRESS_UNAUTHORIZED(4030, "You do not have permission to operate on this addressId!", HttpStatus.BAD_REQUEST),//400
+    ADDRESS_UNAUTHORIZED(4030, "You do not have permission to operate on this addressId because this address not yours!", HttpStatus.BAD_REQUEST),//400
     WHISTLIST_EXISTED(4031, "ProductId already exists in your wishlist!", HttpStatus.BAD_REQUEST),//400
     WHISTLIST_NOT_EXISTS(4032, "ProductId not in your wishlist!", HttpStatus.BAD_REQUEST),//400
     PRODUCT_SIZE_NOT_EXISTS(4033, "SizeId not exists!", HttpStatus.BAD_REQUEST),//400
@@ -57,12 +57,12 @@ public enum ErrorCode {
     PRICE_INVALID(4044, "Price must be greater than 0!", HttpStatus.BAD_REQUEST),//400
     PRODUCT_IMPORT_NOT_EXISTS(4045, "ImportId not exists!", HttpStatus.BAD_REQUEST),//400
     CANT_UPDATE_IMPORT(4046, "Cannot update because there are no changes!", HttpStatus.BAD_REQUEST),//400
-    CARTITEM_INVAID_SIZE(4047, "SizeId not exists or sizeId not in list size of product!", HttpStatus.BAD_REQUEST),//400
-    CARTITEM_INVAID_COLOR(4048, "ColorId not exists or colorId not in list size of product!", HttpStatus.BAD_REQUEST),//400
+    CART_ITEM_INVAID_SIZE(4047, "SizeId not exists or sizeId not in list size of product!", HttpStatus.BAD_REQUEST),//400
+    CART_ITEM_INVAID_COLOR(4048, "ColorId not exists or colorId not in list size of product!", HttpStatus.BAD_REQUEST),//400
     TOKEN_EXPIRED(4049, "AccessToken has expired, please refresh accessToken or log in again!", HttpStatus.BAD_REQUEST),//400
     QUANTYTI_INSUFFICIENT(4050, "The remaining quantity of products by size and color is not enough!", HttpStatus.BAD_REQUEST),//400
     CART_ITEM_NOT_EXISTS(4051, "CartItemId not exists!", HttpStatus.BAD_REQUEST),//400
-    CART_ITEM_UNAUTH(4052, "You do not have permission to update this cartItem!", HttpStatus.BAD_REQUEST),//400
+    CART_ITEM_UNAUTH(4052, "You do not have permission to operate on this cartItem because this cartItem not yours!", HttpStatus.BAD_REQUEST),//400
     VOUCHER_TYPE_INVALID(4053, VoucherType.getError(), HttpStatus.BAD_REQUEST),//400
     VOUCHER_CODE_EXISTED(4054, "Voucher code existed!", HttpStatus.BAD_REQUEST),//400
     VOUCHER_CODE_INVALD(4055, "Voucher code must be at least 6 characters!", HttpStatus.BAD_REQUEST),//400
@@ -72,12 +72,19 @@ public enum ErrorCode {
     VOUCHER_END_AT_INVALD(4059, "EndAt must come after (>=) StartAt!", HttpStatus.BAD_REQUEST),//400
     VOUCHER_CODE_NOT_EXISTS(4060, "Voucher code not exists or expired!", HttpStatus.BAD_REQUEST),//400
     VOUCHER_NOT_EXISTS(4061, "VoucherId not exists!", HttpStatus.BAD_REQUEST),//400
-    CANT_DUPLICATE_CATEGORYID(4062, "CategoryId cannot be duplicated!", HttpStatus.BAD_REQUEST),//400
+    CATEGORY_DUPLICATE(4062, "CategoryId cannot be duplicated!", HttpStatus.BAD_REQUEST),//400
     VOUCHER_EXPIRED_QUANTITY(4063, "Voucher quantity has expired!", HttpStatus.BAD_REQUEST),//400
     VOUCHER_CANT_APPLY(4064, "Not eligible to apply voucher!", HttpStatus.BAD_REQUEST),//400
     VOUCHER_EXPIRED(4065, "Voucher has expired!", HttpStatus.BAD_REQUEST),//400
-    VOUCHER_REQUIRED_CART_ITEMS(4066, "CartItemIds is required!", HttpStatus.BAD_REQUEST),//400
+    CART_ITEM_REQUIRED(4066, "CartItemIds cannot empty!", HttpStatus.BAD_REQUEST),//400
     SHIPPING_COST_REQUIRED(4067, "Shipping cost is required!", HttpStatus.BAD_REQUEST),//400
+    DELIVERY_METHOD_INVALID(4068, "Delivery method invalid!", HttpStatus.BAD_REQUEST),//400
+    VOUCHER_SHIP_INVALID(4069, "Cannot use ShopVoucher for ShipVoucher!", HttpStatus.BAD_REQUEST),//400
+    VOUCHER_SHOP_INVALID(4069, "Cannot use ShipVoucher for ShopVoucher!", HttpStatus.BAD_REQUEST),//400
+    CART_IS_EMPTY(4070, "There are no products in the cart!", HttpStatus.BAD_REQUEST),//400
+    CART_ITEM_DUPLICATED(4071, "CartItemId cannot duplicated!", HttpStatus.BAD_REQUEST),//400
+    PRODUCT_QUANTITY_NOT_ENOUGH(4072, "Product quantity not enough!", HttpStatus.BAD_REQUEST),//400
+    ORDER_NOT_EXISTS(4072, "OrderId not exists!", HttpStatus.BAD_REQUEST),//400
     INVALID_KEY(400, "Invalid message key!", HttpStatus.BAD_REQUEST),
     INVALID_DOB(400, "Invalid date of birth!", HttpStatus.BAD_REQUEST),
     INVALID_TOKEN(400, "Invalid token!", HttpStatus.BAD_REQUEST),

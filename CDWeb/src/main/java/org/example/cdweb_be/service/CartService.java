@@ -78,10 +78,10 @@ public class CartService {
         if (!productSizeRepository.findByProductId(request.getProductId()).isEmpty() && size.isEmpty()) {
 //            log.info(!productSizeRepository.findByProductId(request.getProductId()).isEmpty()+"");
 //            log.info(size.isEmpty()+"");
-            throw new AppException(ErrorCode.CARTITEM_INVAID_SIZE);
+            throw new AppException(ErrorCode.CART_ITEM_INVAID_SIZE);
         }
         if (!productColorRepository.findByProductId(request.getProductId()).isEmpty() && color.isEmpty()) {
-            throw new AppException(ErrorCode.CARTITEM_INVAID_COLOR);
+            throw new AppException(ErrorCode.CART_ITEM_INVAID_COLOR);
         }
         Optional<CartItem> cartItemOptional = null;
         if (color.isPresent() && size.isPresent()) {

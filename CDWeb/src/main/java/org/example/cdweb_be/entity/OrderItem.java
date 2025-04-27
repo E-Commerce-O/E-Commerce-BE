@@ -26,10 +26,18 @@ public class OrderItem {
     @ManyToOne
     ProductSize size;
     @ManyToOne
-    ProductColor productColor;
+    ProductColor color;
     int quantity;
     double originalPrice;
     int discount;
     Timestamp createdAt;
     Timestamp updatedAt;
+
+    public OrderItem(CartItem cartItem){
+        this.product = cartItem.getProduct();
+        this.size = cartItem.getSize();
+        this.color = cartItem.getColor();
+        this.quantity = cartItem.getQuantity();
+        this.createdAt = new Timestamp(System.currentTimeMillis());
+    }
 }

@@ -1,5 +1,6 @@
 package org.example.cdweb_be.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -19,6 +20,7 @@ public class ProductColor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
+    @JsonIgnore
     @ManyToOne
     Product product;
     String colorCode;

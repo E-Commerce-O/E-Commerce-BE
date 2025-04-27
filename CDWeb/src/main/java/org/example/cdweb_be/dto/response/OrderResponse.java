@@ -1,13 +1,15 @@
-package org.example.cdweb_be.entity;
-import jakarta.persistence.*;
+package org.example.cdweb_be.dto.response;
+
+import jakarta.persistence.ManyToOne;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.example.cdweb_be.entity.Address;
+import org.example.cdweb_be.entity.DeliveryMethod;
+import org.example.cdweb_be.entity.User;
 
-import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.List;
 
-// annotation tạo getter và setter cho các field private
 @Data
 // annotation giúp khởi tại đối tượng
 @Builder
@@ -16,16 +18,15 @@ import java.util.List;
 @AllArgsConstructor
 // annotation định nghĩa field mặc định của biến
 @FieldDefaults(level = AccessLevel.PRIVATE) // mặc định là private nếu k tự định nghĩa
-// annotation thể hiện là 1 bảng trong db
-@Entity
-@Table(name = "orders")
-public class Order {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id;
-    @ManyToOne
-    User user;
+public class OrderResponse {
+    long orderId;
+    OrderUser orderUser;
+    Address receiverAddress;
+    DeliveryMethod deliveryMethod;
+    List<OrderItemResponse> orderItems;
     int status;
+    double productDecrease;
+    double shipDecrease;
     Timestamp createdAt;
     Timestamp updatedAt;
 }
