@@ -179,13 +179,24 @@ public class CartService {
 
 
     public CartItemResponse convertToCartItemResponse(CartItem cartItem){
-//        int remainingQuantity =productService.getRemainingQuantity(cartItem.getProduct(), cartItem.getSize(), cartItem.getColor());
         CartItemResponse cartItemResponse = new CartItemResponse(cartItem);
         cartItemResponse.setPrice(productService.getPrice(cartItem.getProduct(), cartItem.getSize(), cartItem.getColor()));
         cartItemResponse.setDiscount(productService.getDiscount(cartItem.getProduct(), cartItem.getSize(), cartItem.getColor()));
         cartItemResponse.setImages(productImageRepository.findByProductId(cartItem.getProduct().getId()).stream().map(productImage -> productImage.getImagePath()).collect(Collectors.toList()));
-//        cartItemResponse.setProductQuantity(remainingQuantity);
 
         return cartItemResponse;
+    }
+    public Cart getByUser(long userId){
+        Optional<Cart> cartOptional = cartRepository.findByUserId(userId);
+        Cart cart = null;
+        if(cartOptional.isEmpty()){
+            cart = Cart.builder()
+                    .user(User.builder().id(userId).build())
+                    .createdAt(new Timestamp(System.currentTimeMillis()))
+                    .build();
+            cartRepository.save(cart);
+            throw new AppException(ErrorCode.CART_IS_EMPTY);
+        }
+        return cartOptional.get();
     }
 }

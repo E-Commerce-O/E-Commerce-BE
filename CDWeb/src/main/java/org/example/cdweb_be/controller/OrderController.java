@@ -26,9 +26,27 @@ public class OrderController {
     public ApiResponse getMyOrders(@RequestHeader("Authorization") String token){
         return new ApiResponse(orderService.getMyOrders(token));
     }
+    @GetMapping("/getById/{orderId}")
+    public ApiResponse getById(@PathVariable long orderId){
+        return new ApiResponse(orderService.getById(orderId));
+    }
+
     @PostMapping("/add")
     public ApiResponse add(@RequestHeader("Authorization") String token, @RequestBody OrderCreateRequest request){
         return new ApiResponse(orderService.add(token, request));
+    }
+
+    @PutMapping("/updateStatus")
+    public ApiResponse updateStatus(@RequestParam long orderId, @RequestParam int status){
+        return new ApiResponse(orderService.updateStatus(orderId, status));
+    }
+    @PutMapping("/cancelOrder/{orderId}")
+    public ApiResponse cancelOrder(@RequestHeader("Authorization") String token, @PathVariable long orderId){
+        return new ApiResponse(orderService.cancelOrder(token, orderId));
+    }
+    @PutMapping("/returnOrder/{orderId}")
+    public ApiResponse returnOrder(@RequestHeader("Authorization") String token, @PathVariable long orderId){
+        return new ApiResponse(orderService.returnOrder(token, orderId));
     }
 
 }

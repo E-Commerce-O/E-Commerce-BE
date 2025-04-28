@@ -167,7 +167,7 @@ public class VoucherService {
     }
 
     public int getRemainingQuantity(Voucher voucher) {
-        List<OrderDetail> orderDetails = orderDetailRepository.getByVoucherExceptStatus(voucher.getId(), OrderStatus.DA_HUY);
+        List<OrderDetail> orderDetails = orderDetailRepository.getByVoucherExceptStatus(voucher.getId(), OrderStatus.ST_DA_HUY);
         return Math.max(0, voucher.getQuantity() - orderDetails.size());
     }
 

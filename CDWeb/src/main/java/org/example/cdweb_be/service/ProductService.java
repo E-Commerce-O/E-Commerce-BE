@@ -192,7 +192,7 @@ public class ProductService {
 
 
     public int getTotalSale(long productId) {
-        List<OrderItem> orderItems = orderItemRepository.findByProductIdAndExceptStatus(productId, OrderStatus.DA_HUY);
+        List<OrderItem> orderItems = orderItemRepository.findByProductIdAndExceptStatus(productId, OrderStatus.ST_DA_HUY);
         int totalSale = 0;
         for (OrderItem orderItem : orderItems) {
             totalSale += orderItem.getQuantity();
@@ -394,7 +394,7 @@ public class ProductService {
 
     public int getRemainingQuantityByAllInfo(long productId, long sizeId, long colorId) {
         List<OrderItem> orderItems = orderItemRepository.findByProductAndColorAndSizeAndExceptStatus(
-                productId, colorId, sizeId, OrderStatus.DA_HUY);
+                productId, colorId, sizeId, OrderStatus.ST_DA_HUY);
         List<ProductImport> productImports = productImportRepository.findByProductAndColorAndSize(
                 productId, colorId, sizeId);
         log.info(productImports.size() + "");
@@ -409,7 +409,7 @@ public class ProductService {
     }
 
     public int getRemainingQuantity(long productId) {
-        List<OrderItem> orderItems = orderItemRepository.findByProductIdAndExceptStatus(productId, OrderStatus.DA_HUY);
+        List<OrderItem> orderItems = orderItemRepository.findByProductIdAndExceptStatus(productId, OrderStatus.ST_DA_HUY);
         List<ProductImport> productImports = productImportRepository.findByProductId(
                 productId);
         int totalImport = productImports.stream().mapToInt(
@@ -421,7 +421,7 @@ public class ProductService {
 
     public int getRemainingQuantityWithoutColor(long productId, long sizeId) {
         List<OrderItem> orderItems = orderItemRepository.findByProductAndSizeAndExceptStatus(
-                productId, sizeId, OrderStatus.DA_HUY);
+                productId, sizeId, OrderStatus.ST_DA_HUY);
         List<ProductImport> productImports = productImportRepository.findByProductAndSize(
                 productId, sizeId);
         int totalImport = productImports.stream().mapToInt(
@@ -433,7 +433,7 @@ public class ProductService {
 
     public int getRemainingQuantityWithoutSize(long productId, long colorId) {
         List<OrderItem> orderItems = orderItemRepository.findByProductAndColorAndExceptStatus(
-                productId, colorId, OrderStatus.DA_HUY);
+                productId, colorId, OrderStatus.ST_DA_HUY);
         List<ProductImport> productImports = productImportRepository.findByProductAndColor(
                 productId, colorId);
         int totalImport = productImports.stream().mapToInt(

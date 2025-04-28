@@ -1,6 +1,7 @@
 package org.example.cdweb_be.exception;
 
 import lombok.Getter;
+import org.example.cdweb_be.enums.OrderStatus;
 import org.example.cdweb_be.enums.VoucherType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -84,7 +85,11 @@ public enum ErrorCode {
     CART_IS_EMPTY(4070, "There are no products in the cart!", HttpStatus.BAD_REQUEST),//400
     CART_ITEM_DUPLICATED(4071, "CartItemId cannot duplicated!", HttpStatus.BAD_REQUEST),//400
     PRODUCT_QUANTITY_NOT_ENOUGH(4072, "Product quantity not enough!", HttpStatus.BAD_REQUEST),//400
-    ORDER_NOT_EXISTS(4072, "OrderId not exists!", HttpStatus.BAD_REQUEST),//400
+    ORDER_NOT_EXISTS(4073, "OrderId not exists!", HttpStatus.BAD_REQUEST),//400
+    ORDER_CANT_CANCEL(4074, "Cannot cancel this order!", HttpStatus.BAD_REQUEST),//400
+    ORDER_UPDATE_UNAUTH(4075, "You do not have permission to update this order!", HttpStatus.BAD_REQUEST),//400
+    ORDER_CANT_UPDATE(4076, "Cannot update this order status!", HttpStatus.BAD_REQUEST),//400
+    ORDER_STATUS_INVALID(4077, "Order status invalid, order status must in: "+ OrderStatus.getAllStatus(), HttpStatus.BAD_REQUEST),//400
     INVALID_KEY(400, "Invalid message key!", HttpStatus.BAD_REQUEST),
     INVALID_DOB(400, "Invalid date of birth!", HttpStatus.BAD_REQUEST),
     INVALID_TOKEN(400, "Invalid token!", HttpStatus.BAD_REQUEST),

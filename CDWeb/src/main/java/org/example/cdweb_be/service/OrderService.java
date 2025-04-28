@@ -27,10 +27,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class OrderService {
-    private final ProductImageRepository productImageRepository;
-    private final CartItemRepository cartItemRepository;
-    private final CartRepository cartRepository;
-    private final DeliveryMethodRepository deliveryMethodRepository;
+    ProductImageRepository productImageRepository;
+    CartItemRepository cartItemRepository;
+    CartRepository cartRepository;
+    CartService cartService;
+    DeliveryMethodRepository deliveryMethodRepository;
     UserRepository userRepository;
     VoucherRepository voucherRepository;
     OrderRepository orderRepository;
@@ -45,17 +46,7 @@ public class OrderService {
     public OrderResponse add(String token, OrderCreateRequest request) {
         long userId = authenticationService.getUserId(token);
         User user = userRepository.findById(userId).get();
-        Optional<Cart> cartOptional = cartRepository.findByUserId(userId);
-        Cart cart = null;
-        if(cartOptional.isEmpty()){
-            cart = Cart.builder()
-                    .user(user)
-                    .createdAt(new Timestamp(System.currentTimeMillis()))
-                    .build();
-            cartRepository.save(cart);
-            throw new AppException(ErrorCode.CART_IS_EMPTY);
-        }
-        cart = cartOptional.get();
+        Cart cart = cartService.getByUser(userId);
         Set<CartItem> cartItems = new HashSet<>();
         for(long cartItemId: request.getCartItemIds()){
             CartItem cartItem = cartItemRepository.findById(cartItemId).orElseThrow(() ->
@@ -96,7 +87,7 @@ public class OrderService {
         double productDecrease = (productVC == null)?0:voucherService.applyVouhcer(applyVoucherRequest);
         Order order = Order.builder()
                 .user(user)
-                .status(OrderStatus.DAT_HANG_TC)
+                .status(OrderStatus.ST_DAT_HANG_TC)
                 .createdAt(new Timestamp(System.currentTimeMillis()))
                 .build();
         order = orderRepository.save(order);
@@ -166,10 +157,98 @@ public class OrderService {
                 .map(order -> convertToOrderResponse(order)).collect(Collectors.toList());
         return result;
     }
+    public String cancelOrder(String token, long orderId){
+        long userId = authenticationService.getUserId(token);
+        Order order = orderRepository.findById(orderId).orElseThrow(() ->
+                new AppException(ErrorCode.ORDER_NOT_EXISTS));
+        if(order.getUser().getId() != userId) throw new AppException(ErrorCode.ORDER_UPDATE_UNAUTH);
+        if(order.getStatus() > OrderStatus.ST_DANG_CBI_HANG){
+            throw new AppException(ErrorCode.ORDER_CANT_CANCEL.setMessage("Cannot cancel this order because this order is "+OrderStatus.getByStatusCode(order.getStatus()).getStatusName()));
+        }
+        updateStatus(order, OrderStatus.ST_DA_HUY);
+        return "Cancel order: "+orderId+" successful";
+    }
+
+    public String returnOrder(String token, long orderId){
+        long userId = authenticationService.getUserId(token);
+        Order order = orderRepository.findById(orderId).orElseThrow(() ->
+                new AppException(ErrorCode.ORDER_NOT_EXISTS));
+        if(order.getUser().getId() != userId) throw new AppException(ErrorCode.ORDER_UPDATE_UNAUTH);
+        if(order.getStatus() != OrderStatus.ST_GIAO_THANH_CONG){
+            throw new AppException(ErrorCode.ORDER_CANT_CANCEL.setMessage("Cannot return this order because this order is "+OrderStatus.getByStatusCode(order.getStatus()).getStatusName()));
+        }
+        updateStatus(order, OrderStatus.ST_TRA_HANG);
+        return "Return order: "+orderId+" successful. The carrier will pick up the goods soon and the money will be refunded afterwards.";
+    }
+    public String updateStatus(long orderId, int status){
+        Order order = orderRepository.findById(orderId).orElseThrow(() ->
+                new AppException(ErrorCode.ORDER_NOT_EXISTS));
+        if(OrderStatus.getByStatusCode(status) == null) throw new AppException(ErrorCode.ORDER_STATUS_INVALID);
+        if(order.getStatus() == status) throw new AppException(ErrorCode.ORDER_CANT_UPDATE.setMessage("Cannot update because new status duplicates old status"));
+        switch (order.getStatus()){
+            case OrderStatus.ST_DAT_HANG_TC:{
+                if(status == OrderStatus.ST_DANG_CBI_HANG || status == OrderStatus.ST_DA_HUY){
+                    updateStatus(order, status);
+                }else{
+                    break;
+                }
+                return "Update status of order: "+orderId+" successful!";
+            }
+            case OrderStatus.ST_DANG_CBI_HANG:{
+                if(status == OrderStatus.ST_DVVC_LAY_HANG || status == OrderStatus.ST_DA_HUY){
+                    updateStatus(order, status);
+                }else{
+                    break;
+                }
+                return "Update status of order: "+orderId+" successful!";
+            }
+            case OrderStatus.ST_DVVC_LAY_HANG:{
+                if(status == OrderStatus.ST_DANG_VAN_CHUYEN){
+                    updateStatus(order, status);
+                }else{
+                    break;
+                }
+                return "Update status of order: "+orderId+" successful!";
+            }
+            case OrderStatus.ST_DANG_VAN_CHUYEN:{
+                if(status == OrderStatus.ST_DANG_GIAO){
+                    updateStatus(order, status);
+                }else{
+                    break;
+                }
+                return "Update status of order: "+orderId+" successful!";
+            }
+            case OrderStatus.ST_DANG_GIAO:{
+                if(status == OrderStatus.ST_GIAO_THANH_CONG){
+                    updateStatus(order, status);
+                }else{
+                    break;
+                }
+                return "Update status of order: "+orderId+" successful!";
+            }
+            case OrderStatus.ST_GIAO_THANH_CONG:{
+                if(status == OrderStatus.ST_TRA_HANG){
+                    updateStatus(order, status);
+                }else{
+                    break;
+                }
+                return "Update status of order: "+orderId+" successful!";
+            }
+
+        }
+        String errorMessage = "Cannot update status of order: "+orderId+" to '"+OrderStatus.getByStatusCode(status).getStatusName()+
+                "' because current status is '"+OrderStatus.getByStatusCode(order.getStatus()).getStatusName()+"'";
+       throw new AppException(ErrorCode.ORDER_CANT_UPDATE.setMessage(errorMessage));
+    }
     public OrderResponse getById(long orderId){
         Order order = orderRepository.findById(orderId).orElseThrow(() ->
                 new AppException(ErrorCode.ORDER_NOT_EXISTS));
         return convertToOrderResponse(order);
+    }
+    public void updateStatus(Order order, int status){
+        order.setStatus(status);
+        order.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        orderRepository.save(order);
     }
     public OrderResponse convertToOrderResponse(Order order){
         if(order == null) return null;
