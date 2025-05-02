@@ -90,6 +90,18 @@ public enum ErrorCode {
     ORDER_UPDATE_UNAUTH(4075, "You do not have permission to update this order!", HttpStatus.BAD_REQUEST),//400
     ORDER_CANT_UPDATE(4076, "Cannot update this order status!", HttpStatus.BAD_REQUEST),//400
     ORDER_STATUS_INVALID(4077, "Order status invalid, order status must in: "+ OrderStatus.getAllStatus(), HttpStatus.BAD_REQUEST),//400
+    PRODUCT_REVIEW_EXISTED(4078, "Product review with orderId and productId existed", HttpStatus.BAD_REQUEST),//400
+    PRODUCT_REVIEW_NOT_EXIST(4079, "Order not contain productId", HttpStatus.BAD_REQUEST),//400
+    PRODUCT_REVIEW_UNAUTH(4080, "You do not have permision to review with this orderId and productId", HttpStatus.BAD_REQUEST),//400
+    RATING_SCORE_INVALID(4081, "Rating score must between 1 and 5", HttpStatus.BAD_REQUEST),//400
+    PRODUCT_REVIEW_STATUS_INVALID(4082, "Orders must have been successfully delivered to be review!", HttpStatus.BAD_REQUEST),//400
+    EMAIL_NOT_EXISTS(4083, "Email not exists!", HttpStatus.BAD_REQUEST),//400
+    USERNAME_OR_EMAIL_NOT_EXISTS(4084, "Username or Email not exists!", HttpStatus.BAD_REQUEST),//400
+    USERNAME_OR_EMAIL_INVALID_OTP(4085, "OTP for this Username or Email not exists!", HttpStatus.BAD_REQUEST),//400
+    OTP_INCORRECT(4086, "OTP is incorrect!", HttpStatus.BAD_REQUEST),//400
+    OTP_EXPIRED(4086, "OTP has expired!", HttpStatus.BAD_REQUEST),//400
+    OTP_VERIFIED(4086, "OTP has verified, please reset password!", HttpStatus.BAD_REQUEST),//400
+    RESET_TOKEN_INVALID(4087, "Reset passowd token invalid!", HttpStatus.BAD_REQUEST),//400
     INVALID_KEY(400, "Invalid message key!", HttpStatus.BAD_REQUEST),
     INVALID_DOB(400, "Invalid date of birth!", HttpStatus.BAD_REQUEST),
     INVALID_TOKEN(400, "Invalid token!", HttpStatus.BAD_REQUEST),

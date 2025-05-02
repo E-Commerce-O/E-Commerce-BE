@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 import org.example.cdweb_be.dto.request.OrderCreateRequest;
 import org.example.cdweb_be.dto.response.ApiResponse;
 import org.example.cdweb_be.service.OrderService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,10 +15,12 @@ import org.springframework.web.bind.annotation.*;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class OrderController {
     OrderService orderService;
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     @GetMapping("/getAll")
     public ApiResponse getAll(){
         return new ApiResponse(orderService.getAll());
     }
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     @GetMapping("/getByStatus/{status}")
     public ApiResponse getByType(@PathVariable int status){
         return new ApiResponse(orderService.getAllByStatus(status));
@@ -36,6 +39,7 @@ public class OrderController {
         return new ApiResponse(orderService.add(token, request));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     @PutMapping("/updateStatus")
     public ApiResponse updateStatus(@RequestParam long orderId, @RequestParam int status){
         return new ApiResponse(orderService.updateStatus(orderId, status));
@@ -48,5 +52,4 @@ public class OrderController {
     public ApiResponse returnOrder(@RequestHeader("Authorization") String token, @PathVariable long orderId){
         return new ApiResponse(orderService.returnOrder(token, orderId));
     }
-
 }

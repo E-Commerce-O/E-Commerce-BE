@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS `cart` (
   CONSTRAINT `FKl70asp4l4w0jmbm1tqyofho4o` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.cart: ~1 rows (approximately)
+-- Dumping data for table cdweb.cart: ~0 rows (approximately)
 INSERT INTO `cart` (`id`, `user_id`, `created_at`, `updated_at`) VALUES
 	(1, 2, '2025-04-13 22:55:45.000000', NULL);
 
@@ -888,7 +888,7 @@ CREATE TABLE IF NOT EXISTS `orders` (
 
 -- Dumping data for table cdweb.orders: ~1 rows (approximately)
 INSERT INTO `orders` (`id`, `user_id`, `status`, `created_at`, `updated_at`) VALUES
-	(5, 2, 0, '2025-04-27 21:04:13.000000', NULL);
+	(5, 2, 3, '2025-04-27 21:04:13.000000', NULL);
 
 -- Dumping structure for table cdweb.order_detail
 CREATE TABLE IF NOT EXISTS `order_detail` (
@@ -942,6 +942,20 @@ INSERT INTO `order_item` (`id`, `order_id`, `product_id`, `color_id`, `size_id`,
 	(2, 5, 11, 22, 13, 100000, 15, 2, '2025-04-27 21:04:13.000000', NULL),
 	(3, 5, 11, 21, 13, 100000, 15, 2, '2025-04-27 21:04:13.000000', NULL);
 
+-- Dumping structure for table cdweb.otp
+CREATE TABLE IF NOT EXISTS `otp` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(6) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `expire_at` datetime(6) DEFAULT NULL,
+  `otp` varchar(255) DEFAULT NULL,
+  `verified` varchar(255) DEFAULT NULL,
+  `username` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Dumping data for table cdweb.otp: ~1 rows (approximately)
+
 -- Dumping structure for table cdweb.product
 CREATE TABLE IF NOT EXISTS `product` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -963,8 +977,8 @@ CREATE TABLE IF NOT EXISTS `product` (
 -- Dumping data for table cdweb.product: ~4 rows (approximately)
 INSERT INTO `product` (`id`, `name`, `slug`, `default_discount`, `default_price`, `description`, `published`, `category_id`, `brand`, `created_at`, `updated_at`) VALUES
 	(8, 'Áo sơ mi nam', 'ao_so_mi_nam', 15, 150000, 'Áo sơ mi dành cho nam', b'0', 2, 'CornQH', '2025-04-14 18:20:17.000000', NULL),
-	(9, 'Áo thun nữ', 'ao_so_thun_nu', 15, 100000, 'Áo thun nữ kiểu mới', b'0', 7, 'CornQH', '2025-04-14 18:22:50.000000', NULL),
-	(11, 'Áo thun nữ tay dài', 'ao_so_thun_nu', 15, 100000, 'Áo thun nữ kiểu mới', b'0', 7, 'CornQH', '2025-04-14 18:31:30.000000', NULL),
+	(9, 'Áo thun nữ', 'ao_thun_nu', 15, 100000, 'Áo thun nữ kiểu mới', b'0', 7, 'CornQH', '2025-04-14 18:22:50.000000', NULL),
+	(11, 'Áo thun nữ tay dài', 'ao_thun_nu', 15, 100000, 'Áo thun nữ kiểu mới', b'0', 7, 'CornQH', '2025-04-14 18:31:30.000000', NULL),
 	(12, 'Áo đá bóng', 'ao_da_bong', 22, 130000, 'Áo đá bóng cho nam', b'0', 19, 'CornQH', '2025-04-15 21:55:38.000000', NULL);
 
 -- Dumping structure for table cdweb.product_color
@@ -1004,7 +1018,7 @@ CREATE TABLE IF NOT EXISTS `product_detail` (
   CONSTRAINT `FKilxoi77ctyin6jn9robktb16c` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.product_detail: ~12 rows (approximately)
+-- Dumping data for table cdweb.product_detail: ~11 rows (approximately)
 INSERT INTO `product_detail` (`id`, `product_id`, `color_id`, `size_id`, `discount`, `price`) VALUES
 	(28, 9, 17, 10, 15, 100000),
 	(29, 9, 17, 11, 15, 100000),
@@ -1021,26 +1035,20 @@ INSERT INTO `product_detail` (`id`, `product_id`, `color_id`, `size_id`, `discou
 
 -- Dumping structure for table cdweb.product_history
 CREATE TABLE IF NOT EXISTS `product_history` (
-  `ip` varchar(255) NOT NULL,
-  PRIMARY KEY (`ip`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `ip` varchar(255) DEFAULT NULL,
+  `view_at` datetime(6) DEFAULT NULL,
+  `product_id` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKo2q0glrylscui2ltp7ayu6ssg` (`product_id`),
+  CONSTRAINT `FKo2q0glrylscui2ltp7ayu6ssg` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.product_history: ~2 rows (approximately)
-INSERT INTO `product_history` (`ip`) VALUES
-	('1.53.52.67'),
-	('1.53.52.77');
-
--- Dumping structure for table cdweb.product_history_products
-CREATE TABLE IF NOT EXISTS `product_history_products` (
-  `product_history_ip` varchar(255) NOT NULL,
-  `products_id` bigint(20) NOT NULL,
-  PRIMARY KEY (`product_history_ip`,`products_id`),
-  KEY `FKjy64ag2b2i541pij0tnqqehr5` (`products_id`),
-  CONSTRAINT `FKi77w2bi8woninkf1oh6wx6ewn` FOREIGN KEY (`product_history_ip`) REFERENCES `product_history` (`ip`),
-  CONSTRAINT `FKjy64ag2b2i541pij0tnqqehr5` FOREIGN KEY (`products_id`) REFERENCES `product` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- Dumping data for table cdweb.product_history_products: ~0 rows (approximately)
+-- Dumping data for table cdweb.product_history: ~3 rows (approximately)
+INSERT INTO `product_history` (`id`, `ip`, `view_at`, `product_id`) VALUES
+	(1, '113.23.108.174', '2025-04-28 18:27:58.000000', 8),
+	(2, '113.23.108.174', '2025-04-28 18:27:20.000000', 9),
+	(3, '113.23.108.174', '2025-04-28 18:27:49.000000', 11);
 
 -- Dumping structure for table cdweb.product_image
 CREATE TABLE IF NOT EXISTS `product_image` (
@@ -1096,21 +1104,31 @@ INSERT INTO `product_import` (`id`, `product_id`, `user_id`, `color_id`, `size_i
 -- Dumping structure for table cdweb.product_review
 CREATE TABLE IF NOT EXISTS `product_review` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `user_id` bigint(20) DEFAULT NULL,
-  `product_id` bigint(20) DEFAULT NULL,
   `content` varchar(255) DEFAULT NULL,
-  `is_show` int(11) NOT NULL,
-  `rating_score` int(11) NOT NULL,
   `created_at` datetime(6) DEFAULT NULL,
+  `is_show` bit(1) NOT NULL,
+  `rating_score` int(11) NOT NULL,
   `updated_at` datetime(6) DEFAULT NULL,
+  `order_id` bigint(20) DEFAULT NULL,
+  `product_id` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`id`),
+  KEY `FKr5w0yn6mt6yrvf3t9fgcflro8` (`order_id`),
   KEY `FKkaqmhakwt05p3n0px81b9pdya` (`product_id`),
-  KEY `FK78cdr7qgrm9sp9igada7vk4xp` (`user_id`),
-  CONSTRAINT `FK78cdr7qgrm9sp9igada7vk4xp` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),
-  CONSTRAINT `FKkaqmhakwt05p3n0px81b9pdya` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`)
+  CONSTRAINT `FKkaqmhakwt05p3n0px81b9pdya` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`),
+  CONSTRAINT `FKr5w0yn6mt6yrvf3t9fgcflro8` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Dumping data for table cdweb.product_review: ~0 rows (approximately)
+
+-- Dumping structure for table cdweb.product_review_images
+CREATE TABLE IF NOT EXISTS `product_review_images` (
+  `product_review_id` bigint(20) NOT NULL,
+  `images` varchar(255) DEFAULT NULL,
+  KEY `FKi7leruep8difnar2gol45pjdo` (`product_review_id`),
+  CONSTRAINT `FKi7leruep8difnar2gol45pjdo` FOREIGN KEY (`product_review_id`) REFERENCES `product_review` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Dumping data for table cdweb.product_review_images: ~0 rows (approximately)
 
 -- Dumping structure for table cdweb.product_size
 CREATE TABLE IF NOT EXISTS `product_size` (
@@ -1123,7 +1141,7 @@ CREATE TABLE IF NOT EXISTS `product_size` (
   CONSTRAINT `FK8i3jm2ctt0lsyeik2wt76yvv0` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.product_size: ~7 rows (approximately)
+-- Dumping data for table cdweb.product_size: ~6 rows (approximately)
 INSERT INTO `product_size` (`id`, `size`, `description`, `product_id`) VALUES
 	(10, 'L', 'dành cho nữ từ 45 - 55kg', 9),
 	(11, 'XL', 'dành cho nữ từ 55 - 70kg', 9),
@@ -1243,7 +1261,7 @@ CREATE TABLE IF NOT EXISTS `refresh_token` (
 
 -- Dumping data for table cdweb.refresh_token: ~1 rows (approximately)
 INSERT INTO `refresh_token` (`refresh_token`, `created_at`, `exprired_at`, `user_id`) VALUES
-	('e203f2b1-f233-4710-8ba7-79dfe4f89929', '2025-04-27 20:54:55.000000', '2025-05-11 20:54:55.000000', 2);
+	('6246b724-9042-416f-8556-5f5b3dd13165', '2025-05-02 14:28:38.000000', '2025-05-16 14:28:38.000000', 2);
 
 -- Dumping structure for table cdweb.tag
 CREATE TABLE IF NOT EXISTS `tag` (
@@ -1252,7 +1270,7 @@ CREATE TABLE IF NOT EXISTS `tag` (
   PRIMARY KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.tag: ~12 rows (approximately)
+-- Dumping data for table cdweb.tag: ~10 rows (approximately)
 INSERT INTO `tag` (`name`, `description`) VALUES
 	('Áo sơ mi (Shirt)', NULL),
 	('Áo thun', NULL),
@@ -1285,9 +1303,9 @@ CREATE TABLE IF NOT EXISTS `user` (
   UNIQUE KEY `UKko17hhca8tc1abp8so09fsygo` (`username`,`email`,`phone_number`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.user: ~1 rows (approximately)
+-- Dumping data for table cdweb.user: ~0 rows (approximately)
 INSERT INTO `user` (`id`, `username`, `password`, `full_name`, `email`, `phone_number`, `avt_path`, `date_of_birth`, `gender`, `role`, `created_at`, `updated_at`) VALUES
-	(2, 'admin', '$2a$10$k5X09dALn8GAH30EpJHtQ.KSCzbbuBq5Qq29IwqpOUgUIDi6cpbnq', 'At Van Min', 'admin@min.ad', NULL, 'https://i.imgur.com/W60xqJf.png', NULL, 0, 'ADMIN', NULL, NULL);
+	(2, 'admin', '$2a$10$1.uL9ZrndWr8NVX7L5qgZ.IL7uSFLzspR0fFrWFtdfpK992hIdPbq', 'At Van Min', '21130356@st.hcmuaf.edu.vn', NULL, 'https://i.imgur.com/W60xqJf.png', NULL, 0, 'ADMIN', NULL, NULL);
 
 -- Dumping structure for table cdweb.voucher
 CREATE TABLE IF NOT EXISTS `voucher` (
@@ -1322,7 +1340,7 @@ CREATE TABLE IF NOT EXISTS `ward` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table cdweb.ward: ~12.326 rows (approximately)
+-- Dumping data for table cdweb.ward: ~11.712 rows (approximately)
 INSERT INTO `ward` (`id`, `district_id`, `name`) VALUES
 	(1, 1, 'Phường Hàng Buồm'),
 	(2, 1, 'Phường Hàng Đào'),

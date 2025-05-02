@@ -54,8 +54,21 @@ public class UserController {
     ApiResponse refreshToken( @RequestBody RefreshTokenRequest request){
         return new ApiResponse(userService.refreshToken( request));
     }
+
+    @PostMapping("/sendOTP/{usernameOrEmail}")
+    public ApiResponse sendMail(@PathVariable String usernameOrEmail){
+        return new ApiResponse(userService.sendOTP(usernameOrEmail));
+    }
+    @PostMapping("/verifyOTP")
+    public ApiResponse verifyOTP(@RequestBody VerifyOtpRequest request){
+        return new ApiResponse(userService.verifyOTP(request));
+    }
     @PutMapping("/changeInfo")
-    ApiResponse changeInfo(@RequestHeader("Authorization") String token,@RequestBody UserUpdateRequest request){
+    public ApiResponse changeInfo(@RequestHeader("Authorization") String token,@RequestBody UserUpdateRequest request){
         return new ApiResponse(userService.updateUser(token, request));
+    }
+    @PutMapping("/resetPassword")
+    public ApiResponse resetPassword(@RequestBody ResetPasswordRequest request){
+        return new ApiResponse(userService.resetPassword(request));
     }
 }

@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.weaver.ast.Or;
 import org.example.cdweb_be.dto.request.*;
 import org.example.cdweb_be.dto.response.ProductResponse;
 import org.example.cdweb_be.entity.*;
@@ -35,7 +36,7 @@ public class ProductService {
     ProductSizeRepository productSizeRepository;
     ProductColorRepository productColorRepository;
     ProductMapper productMapper;
-    ProductSizeMapper productSizeMapper;
+    ProductReviewService productReviewService;
     ProductImageRepository productImageRepository;
     ProductDetailRepository productDetailRepository;
     ProductTagRepository productTagRepository;
@@ -115,10 +116,6 @@ public class ProductService {
                         .product(product)
                         .imagePath(imagePath)
                         .build())).collect(Collectors.toList());
-//        productImage = productImageRepository.save(productImage);
-//        if (product.getImages() == null)
-//            product.setImages(new ArrayList<>());
-//        product.getImages().addAll(images);
         productRepository.save(product);
         return images;
     }
@@ -129,20 +126,19 @@ public class ProductService {
             throw new AppException(ErrorCode.PRODUCT_NOT_EXISTS);
         } else {
             String ip = IPUtils.getIP(request);
-            Optional<ProductHistory> productHistoryOptional = productHistoryRepository.findById(ip);
+            Optional<ProductHistory> productHistoryOptional = productHistoryRepository.findByIpAndProductId(ip, productId);
             ProductHistory productHistory;
             if (productHistoryOptional.isEmpty()) {
                 productHistory = ProductHistory.builder()
                         .ip(ip)
-                        .products(new HashSet<Product>())
+                        .product(productOptional.get())
+                        .viewAt(new Timestamp(System.currentTimeMillis()))
                         .build();
 
             } else {
                 productHistory = productHistoryOptional.get();
+                productHistory.setViewAt(new Timestamp(System.currentTimeMillis()));
             }
-            productHistory.getProducts().remove(productOptional.get());
-            productHistoryRepository.save(productHistory);
-            productHistory.getProducts().add(productOptional.get());
             productHistoryRepository.save(productHistory);
             return converToProductResponse(productOptional.get());
         }
@@ -151,14 +147,11 @@ public class ProductService {
 
     public List<ProductResponse> getHistory(HttpServletRequest request) {
         String ip = IPUtils.getIP(request);
-        Optional<ProductHistory> productHistoryOptional = productHistoryRepository.findById(ip);
-        if (productHistoryOptional.isEmpty()) {
-            return new ArrayList<>();
-        } else {
-            List<ProductResponse> productResponses = productHistoryOptional.get().getProducts().stream()
-                    .map(product -> converToProductResponse(product)).collect(Collectors.toList());
-            return productResponses;
-        }
+
+        List<ProductResponse> productResponses = productHistoryRepository.findByIp(ip).stream()
+                .map(product -> converToProductResponse(product)).collect(Collectors.toList());
+        return productResponses;
+
     }
 
     public List<ProductResponse> getAll() {

@@ -1,31 +1,33 @@
 package org.example.cdweb_be.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jwt.JWTClaimsSet;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.example.cdweb_be.dto.request.*;
 import org.example.cdweb_be.dto.response.LoginResponse;
 import org.example.cdweb_be.dto.response.UserResponse;
+import org.example.cdweb_be.entity.OTP;
 import org.example.cdweb_be.entity.RefreshToken;
 import org.example.cdweb_be.entity.User;
 import org.example.cdweb_be.enums.Role;
 import org.example.cdweb_be.exception.AppException;
 import org.example.cdweb_be.exception.ErrorCode;
 import org.example.cdweb_be.mapper.UserMapper;
+import org.example.cdweb_be.respository.OtpRepository;
 import org.example.cdweb_be.respository.RefreshTokenRepository;
 import org.example.cdweb_be.respository.UserRepository;
-import org.springframework.context.annotation.Bean;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.json.JSONObject;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,6 +35,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserService {
     UserRepository userRepository;
@@ -40,6 +43,9 @@ public class UserService {
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
     RefreshTokenRepository refreshTokenRepository;
+    EmailService emailService;
+    OtpRepository otpRepository;
+    ObjectMapper objectMapper;
     String DEFAULT_IMAGE_PATH = "https://i.imgur.com/W60xqJf.png";
     public UserResponse addUser(UserCreateRequest request){
         Optional<User> userOptional = null;
@@ -160,5 +166,69 @@ public class UserService {
         }
 
     }
+    @Transactional
+    public String sendOTP(String userNameOrEmail){
+        Optional<User> userOptional = userRepository.findByEmail(userNameOrEmail);
+        if(userOptional.isEmpty()) userOptional = userRepository.findByUsername(userNameOrEmail);
+        if(userOptional.isEmpty()) throw new AppException(ErrorCode.USERNAME_OR_EMAIL_NOT_EXISTS);
+        User user = userOptional.get();
+        String otp = "";
+        Random rd = new Random();
+        while(otp.length() <6){
+            otp += rd.nextInt(10);
+        }
 
+        otpRepository.deleteByEmail(user.getEmail());
+        OTP otpEntity = OTP.builder()
+                .otp(otp)
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .createdAt(new Timestamp(System.currentTimeMillis()))
+                .expireAt(new Timestamp(Instant.now().plus(5, ChronoUnit.MINUTES).toEpochMilli()))
+                .build();
+        boolean success = emailService.sendEmailResetPassword(otpEntity);
+        if(!success){
+            throw new AppException(ErrorCode.SERVER_ERROR);
+        }
+        otpEntity = otpRepository.save(otpEntity);
+
+        return "OTP has been sent to email "+otpEntity.getEmail();
+    }
+    public JsonNode verifyOTP(VerifyOtpRequest request){
+        Optional<User> userOptional = userRepository.findByEmail(request.getUsernameOrEmail());
+        if(userOptional.isEmpty()) userOptional = userRepository.findByUsername(request.getUsernameOrEmail());
+        if(userOptional.isEmpty()) throw new AppException(ErrorCode.USERNAME_OR_EMAIL_NOT_EXISTS);
+
+        Optional<OTP> otpOptional = otpRepository.findByEmail(request.getUsernameOrEmail());
+        if(otpOptional.isEmpty()) otpOptional = otpRepository.findByUsername(request.getUsernameOrEmail());
+        if(otpOptional.isEmpty()) throw new AppException(ErrorCode.USERNAME_OR_EMAIL_INVALID_OTP);
+
+        OTP otp = otpOptional.get();
+        if(otp.getVerified() != null && !otp.getVerified().isEmpty() ) throw new AppException(ErrorCode.OTP_VERIFIED);
+        if(otp.getExpireAt().before(new Timestamp(System.currentTimeMillis()))) throw new AppException(ErrorCode.OTP_EXPIRED);
+        if(!otp.getOtp().equals(request.getOtp())) throw new AppException(ErrorCode.OTP_INCORRECT);
+        String verified = UUID.randomUUID().toString();
+        while (otpRepository.findByVerified(verified).isPresent()){
+            verified = UUID.randomUUID().toString();
+        }
+        otp.setVerified(verified);
+        otpRepository.save(otp);
+        JsonNode response = objectMapper.createObjectNode()
+                .put("resetPasswordToken", verified);
+        return response;
+    }
+    public String resetPassword(ResetPasswordRequest request){
+        OTP otp = otpRepository.findByVerified(request.getResetPasswordToken()).orElseThrow(() ->
+                new AppException(ErrorCode.RESET_TOKEN_INVALID));
+        if(request.getNewPassword().length()<6) throw new AppException(ErrorCode.PASSWORD_INVALID);
+        Optional<User> userOptional = userRepository.findByUsername(otp.getUsername());
+        if(userOptional.isEmpty()) userOptional = userRepository.findByEmail(otp.getEmail());
+        if(userOptional.isEmpty()) throw new AppException(ErrorCode.SERVER_ERROR);
+        User user = userOptional.get();
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+        otpRepository.delete(otp);
+        return "Reset pasword successful";
+
+    }
 }

@@ -2,8 +2,10 @@ package org.example.cdweb_be.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CollectionType;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 // annotation tạo getter và setter cho các field private
 @Data
@@ -23,10 +25,12 @@ public class ProductReview {
     @ManyToOne
     Product product;
     @ManyToOne
-    User user;
+    Order order;
+    @ElementCollection
+    List<String> images;
     int ratingScore;
     String content;
-    int isShow;
+    boolean isShow;
     Timestamp createdAt;
     Timestamp updatedAt;
 

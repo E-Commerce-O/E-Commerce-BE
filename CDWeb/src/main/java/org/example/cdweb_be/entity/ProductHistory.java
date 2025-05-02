@@ -1,11 +1,10 @@
 package org.example.cdweb_be.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.sql.Timestamp;
 import java.util.Set;
 
 // annotation tạo getter và setter cho các field private
@@ -21,8 +20,10 @@ import java.util.Set;
 @Entity
 public class ProductHistory {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    long id;
     String ip;
-    @ManyToMany
-    Set<Product> products;
-
+    @ManyToOne
+    Product product;
+    Timestamp viewAt;
 }

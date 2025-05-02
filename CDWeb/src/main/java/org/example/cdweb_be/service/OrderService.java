@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
 public class OrderService {
     ProductImageRepository productImageRepository;
     CartItemRepository cartItemRepository;
-    CartRepository cartRepository;
     CartService cartService;
     DeliveryMethodRepository deliveryMethodRepository;
     UserRepository userRepository;
@@ -64,7 +63,6 @@ public class OrderService {
             throw new AppException(ErrorCode.DELIVERY_METHOD_INVALID);
         Voucher shipVC = null;
         ApplyVoucherRequest applyVoucherRequest = ApplyVoucherRequest.builder()
-//                .voucherId(shipVC.getId())
                 .cartItemIds(request.getCartItemIds())
                 .shippingCost(Double.parseDouble(request.getDeliveryMethod().getGia_cuoc()))
                 .build();
@@ -250,6 +248,7 @@ public class OrderService {
         order.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         orderRepository.save(order);
     }
+
     public OrderResponse convertToOrderResponse(Order order){
         if(order == null) return null;
         OrderDetail orderDetail = orderDetailRepository.findByOrderId(order.getId()).get();
