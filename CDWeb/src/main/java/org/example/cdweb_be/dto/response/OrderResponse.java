@@ -27,6 +27,8 @@ public class OrderResponse {
     int status;
     double productDecrease;
     double shipDecrease;
+    double totalPrice;
+    double totalPayment;
     Timestamp createdAt;
     Timestamp updatedAt;
 }

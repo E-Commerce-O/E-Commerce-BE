@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class OrderController {
     OrderService orderService;
-    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
+//    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     @GetMapping("/getAll")
     public ApiResponse getAll(){
         return new ApiResponse(orderService.getAll());

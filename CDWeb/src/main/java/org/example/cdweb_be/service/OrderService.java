@@ -255,13 +255,19 @@ public class OrderService {
         User user = order.getUser();
         Address address = orderDetail.getAddress();
         DeliveryMethod deliveryMethod = deliveryMethodRepository.findByOrderId(order.getId()).get();
+        double totalPrice =0;
         List<OrderItem> orderItems = orderItemRepository.findByOrderId(order.getId());
         List<OrderItemResponse> itemResponses = new ArrayList<>();
         for(OrderItem orderItem: orderItems){
             OrderItemResponse itemResponse = new OrderItemResponse(orderItem);
             itemResponse.setProductImages(productImageRepository.findImagePathByProduct(orderItem.getProduct().getId()));
             itemResponses.add(itemResponse);
+            totalPrice += orderItem.getQuantity() * orderItem.getOriginalPrice() * (1 - (double)orderItem.getDiscount()/100);
+            log.info("totalPrice: "+totalPrice);
         }
+        totalPrice += deliveryMethod.getGia_cuoc();
+        log.info("totalPrice: "+totalPrice);
+
         OrderResponse orderResponse = OrderResponse.builder()
                 .orderId(order.getId())
                 .receiverAddress(address)
@@ -274,7 +280,13 @@ public class OrderService {
                 .createdAt(order.getCreatedAt())
                 .updatedAt(order.getUpdatedAt())
                 .build();
+        totalPrice -= orderResponse.getProductDecrease();
+        log.info("totalPrice: "+totalPrice);
 
+        totalPrice -= orderResponse.getShipDecrease();
+        log.info("totalPrice: "+totalPrice);
+        orderResponse.setTotalPrice(totalPrice);
+        orderResponse.setTotalPayment(totalPrice);
         return orderResponse;
     }
 }
