@@ -19,22 +19,22 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/product")
+@RequestMapping("/products")
 @RequiredArgsConstructor
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ProductController {
     ProductService productService;
 
-    @GetMapping("/getALl")
+    @GetMapping
     public ApiResponse getAllProduct() {
         return new ApiResponse(productService.getAll());
     }
-    @GetMapping("/getById/{productId}")
+    @GetMapping("/{productId}")
     public ApiResponse getProductById(@PathVariable long productId, HttpServletRequest request){
         return new ApiResponse(productService.getByProductId(productId, request));
     }
-    @GetMapping("/getByName/{productName}")
+    @GetMapping("/{productName}")
     public ApiResponse getByName(@PathVariable String productName){
         return new ApiResponse(productService.getByName(productName));
     }

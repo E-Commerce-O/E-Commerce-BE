@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.*;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ProductReviewController {
     ProductReviewService productReviewService;
-    @GetMapping("/getByProduct/{productId}")
+    @GetMapping("/product/{productId}")
     public ApiResponse getByProduct(@PathVariable long productId){
         return new ApiResponse(productReviewService.getByProductId(productId));
     }
-    @PostMapping("/add")
+    @PostMapping
     public ApiResponse add(@RequestBody ProductReviewCreateRequest request){
         return new ApiResponse();
     }

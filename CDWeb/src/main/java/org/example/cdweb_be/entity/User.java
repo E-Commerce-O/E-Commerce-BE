@@ -1,8 +1,11 @@
 package org.example.cdweb_be.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.example.cdweb_be.validator.PhoneNumberConstraint;
 
 import java.sql.Date;
 import java.sql.Timestamp;

@@ -175,7 +175,7 @@ public class OrderService {
         if(order.getStatus() != OrderStatus.ST_GIAO_THANH_CONG){
             throw new AppException(ErrorCode.ORDER_CANT_CANCEL.setMessage("Cannot return this order because this order is "+OrderStatus.getByStatusCode(order.getStatus()).getStatusName()));
         }
-        updateStatus(order, OrderStatus.ST_TRA_HANG);
+        updateStatus(order, OrderStatus.ST_YC_TRA_HANG);
         return "Return order: "+orderId+" successful. The carrier will pick up the goods soon and the money will be refunded afterwards.";
     }
     public String updateStatus(long orderId, int status){
@@ -224,8 +224,8 @@ public class OrderService {
                 }
                 return "Update status of order: "+orderId+" successful!";
             }
-            case OrderStatus.ST_GIAO_THANH_CONG:{
-                if(status == OrderStatus.ST_TRA_HANG){
+            case OrderStatus.ST_YC_TRA_HANG:{
+                if(status == OrderStatus.ST_DA_TRA_HANG){
                     updateStatus(order, status);
                 }else{
                     break;
@@ -263,10 +263,8 @@ public class OrderService {
             itemResponse.setProductImages(productImageRepository.findImagePathByProduct(orderItem.getProduct().getId()));
             itemResponses.add(itemResponse);
             totalPrice += orderItem.getQuantity() * orderItem.getOriginalPrice() * (1 - (double)orderItem.getDiscount()/100);
-            log.info("totalPrice: "+totalPrice);
         }
         totalPrice += deliveryMethod.getGia_cuoc();
-        log.info("totalPrice: "+totalPrice);
 
         OrderResponse orderResponse = OrderResponse.builder()
                 .orderId(order.getId())
@@ -281,10 +279,8 @@ public class OrderService {
                 .updatedAt(order.getUpdatedAt())
                 .build();
         totalPrice -= orderResponse.getProductDecrease();
-        log.info("totalPrice: "+totalPrice);
 
         totalPrice -= orderResponse.getShipDecrease();
-        log.info("totalPrice: "+totalPrice);
         orderResponse.setTotalPrice(totalPrice);
         orderResponse.setTotalPayment(totalPrice);
         return orderResponse;

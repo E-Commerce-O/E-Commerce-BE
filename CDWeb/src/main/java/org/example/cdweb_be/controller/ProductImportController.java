@@ -11,28 +11,28 @@ import org.example.cdweb_be.service.ProductImportService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/importProduct")
+@RequestMapping("/productImports")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 public class ProductImportController {
     ProductImportService productImportService;
-    @GetMapping("/getAll")
+    @GetMapping
     public ApiResponse getAll(){
         return new ApiResponse(productImportService.getAllProductImports());
     }
-    @GetMapping("/getByProduct/{productId}")
+    @GetMapping("product/{productId}")
     public ApiResponse getByProduct(@PathVariable long productId) {
         return new ApiResponse(productImportService.getProductImportByProduct(productId));
     }
-    @PostMapping("/add")
+    @PostMapping
     public ApiResponse add(@RequestHeader("Authorization") String token, @RequestBody ProductImportCreateRequest request){
         return new ApiResponse(productImportService.add(token, request));
     }
-    @PutMapping("/update")
+    @PutMapping
     public ApiResponse update(@RequestHeader("Authorization") String token, @RequestBody ProductImportUpdateRequest request){
         return new ApiResponse(productImportService.update(token, request));
     }
-    @DeleteMapping("/delete/{importId}")
+    @DeleteMapping("/{importId}")
     public ApiResponse delete(@PathVariable long importId){
         return new ApiResponse(productImportService.delete(importId));
     }

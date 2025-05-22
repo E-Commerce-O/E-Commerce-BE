@@ -21,8 +21,8 @@ public class UserUpdateRequest {
     @Size(min = 6, message = "PASSWORD_INVALID")
     @NotNull
     String password;
-    @Email(message = "EMAIL_INVALID")
-    @NotNull
+//    @Email(message = "EMAIL_INVALID")
+//    @NotNull
     String email;
     @PhoneNumberConstraint(message = "PHONENUMER_INVALID")
     @NotNull

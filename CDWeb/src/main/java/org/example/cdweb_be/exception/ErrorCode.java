@@ -17,7 +17,7 @@ public enum ErrorCode {
     USERNAME_INVALID(4006, "Username must be at least 6 characters!", HttpStatus.BAD_REQUEST),
     PASSWORD_INVALID(4007, "Password must be at least 6 characters!", HttpStatus.BAD_REQUEST),
     EMAIL_INVALID(4008, "Email invalid!", HttpStatus.BAD_REQUEST),
-    PHONENUMER_INVALID(4009, "Email invalid!", HttpStatus.BAD_REQUEST),
+    PHONENUMER_INVALID(4009, "Phone number invalid!", HttpStatus.BAD_REQUEST),
     USERNAME_EXISTED(4010, "Username existed!", HttpStatus.BAD_REQUEST), //400
     EMAIL_EXISTED(4011, "Email existed!", HttpStatus.BAD_REQUEST), //400
     PHONE_NUMBER_EXISTED(4012, "Phone number existed!", HttpStatus.BAD_REQUEST), //400

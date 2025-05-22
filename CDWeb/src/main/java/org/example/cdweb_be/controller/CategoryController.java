@@ -15,37 +15,28 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/category")
+@RequestMapping("/categories")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j // annotation để sử dụng log
 public class CategoryController {
     CategoryService categoryService;
-    @PostMapping("/add")
+    @PostMapping
     ApiResponse addCategory(CategoryCreateRequest request){
         return new ApiResponse(categoryService.addCategory(request));
     }
-//    @GetMapping("/{name}")
-//    ApiResponse getTag(@PathVariable String name) {
-//        return new ApiResponse(tagService.getTagByName(name));
-//    }
-    @GetMapping("/getAll")
-    ApiResponse getAllTags(){
+    @GetMapping
+    ApiResponse getAll(){
         return new ApiResponse(categoryService.getAll());
     }
-//    @GetMapping("/getAllByNames")
-//    ApiResponse getAllTagsById(@RequestBody List<String> tagNames){
-//        return new ApiResponse(tagService.getAllByid(tagNames));
-//    }
-    @PutMapping("/update")
-    ApiResponse updateTag(@RequestBody Category request){
+    @PutMapping
+    ApiResponse update(@RequestBody Category request){
 
         return new ApiResponse(categoryService.updateCategory(request));
     }
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     ApiResponse deleteTag(@PathVariable long id){
-        categoryService.deleteCategory(id);
-        return new ApiResponse<>("Category deleted successfully");
+        return new ApiResponse(categoryService.deleteCategory(id));
     }
 
 }

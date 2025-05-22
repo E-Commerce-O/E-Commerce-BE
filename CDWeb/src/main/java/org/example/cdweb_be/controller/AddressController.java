@@ -12,28 +12,28 @@ import org.example.cdweb_be.service.AddressService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/address")
+@RequestMapping("/addresses")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AddressController {
     AddressService addressService;
-    @GetMapping("/getMyAddesses")
+    @GetMapping("/myAddesses")
     public ApiResponse getMyAddresses(@RequestHeader("Authorization") String token){
         return new ApiResponse(addressService.getAll(token));
     }
-    @GetMapping("/getInfoShips/{addressId}")
+    @GetMapping("/infoShips/{addressId}")
     public ApiResponse getInfoShips(@PathVariable long addressId){
         return new ApiResponse(addressService.getInfoShip(addressId));
     }
-    @PostMapping("/add")
+    @PostMapping
     public ApiResponse addAddress(@RequestHeader("Authorization") String token,@RequestBody AddressRequest request){
         return new ApiResponse(addressService.addAddress(token, request));
     }
-    @PutMapping("/update")
+    @PutMapping
     public ApiResponse addAddress(@RequestHeader("Authorization") String token,@RequestBody AddressUpdateRequest request){
         return new ApiResponse(addressService.updateAddress(token, request));
     }
-    @DeleteMapping("/delete/{addressId}")
+    @DeleteMapping("/{addressId}")
     public ApiResponse deleteAddress(@RequestHeader("Authorization") String token, @PathVariable("addressId") long addressId){
         return new ApiResponse(addressService.deleteAddress(token, addressId));
     }

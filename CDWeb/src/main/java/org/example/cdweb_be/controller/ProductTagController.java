@@ -21,12 +21,12 @@ import java.util.List;
 @Slf4j // annotation để sử dụng log
 public class ProductTagController {
     ProductTagService productTagService;
-    @GetMapping("/all")
+    @GetMapping
     public List<ProductTag> getAll(){
         return productTagService.getAll();
     }
 
-    @GetMapping("/getByProduct/{productId}")
+    @GetMapping("/product/{productId}")
     public ApiResponse getByProductId(@PathVariable long productId){
         return new ApiResponse( productTagService.getByProductId(productId));
     }

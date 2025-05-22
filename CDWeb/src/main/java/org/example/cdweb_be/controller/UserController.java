@@ -1,40 +1,35 @@
 package org.example.cdweb_be.controller;
 
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.example.cdweb_be.dto.request.*;
 import org.example.cdweb_be.dto.response.ApiResponse;
-import org.example.cdweb_be.entity.Cart;
-import org.example.cdweb_be.entity.CartItem;
-import org.example.cdweb_be.entity.User;
-import org.example.cdweb_be.entity.WishlistItem;
-import org.example.cdweb_be.respository.CartRepository;
-import org.example.cdweb_be.respository.UserRepository;
-import org.example.cdweb_be.respository.WishlistItemRepository;
 import org.example.cdweb_be.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashSet;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j // annotation để sử dụng log
+//@Validated
 public class UserController {
     UserService userService;
     @GetMapping("/validEmail/{email}")
     ApiResponse validEmail(@PathVariable String email){
         return new ApiResponse(userService.validEmail(email));
     }
-    @GetMapping("/getInfo")
+    @GetMapping("/myInfo")
     ApiResponse getMyInfo(@RequestHeader("Authorization") String token){
         return new ApiResponse(userService.getMyInfo(token));
     }
-    @GetMapping("/getAllUsers")
+    @GetMapping
     ApiResponse getAllUsers(){
         return new ApiResponse(userService.getAllUsers());
     }
@@ -43,7 +38,7 @@ public class UserController {
         return new ApiResponse(userService.validToken(accessToken));
     }
     @PostMapping("/register")
-    ApiResponse registerUser(@RequestBody UserCreateRequest request){
+    ApiResponse registerUser(@Valid @RequestBody UserCreateRequest request){
         return new ApiResponse(userService.addUser(request));
     }
     @PostMapping("/login")
@@ -64,7 +59,7 @@ public class UserController {
         return new ApiResponse(userService.verifyOTP(request));
     }
     @PutMapping("/changeInfo")
-    public ApiResponse changeInfo(@RequestHeader("Authorization") String token,@RequestBody UserUpdateRequest request){
+    public ApiResponse changeInfo(@RequestHeader("Authorization") String token,@Valid @RequestBody UserUpdateRequest request){
         return new ApiResponse(userService.updateUser(token, request));
     }
     @PutMapping("/resetPassword")

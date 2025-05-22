@@ -19,7 +19,7 @@ import java.util.List;
 @Slf4j // annotation để sử dụng log
 public class TagController {
     TagService tagService;
-    @PostMapping("/add")
+    @PostMapping
     ApiResponse addTag(TagCreateRequest request){
         return new ApiResponse(tagService.addTag(request));
     }
@@ -27,19 +27,19 @@ public class TagController {
     ApiResponse getTag(@PathVariable String name) {
         return new ApiResponse(tagService.getTagByName(name));
     }
-    @GetMapping("/getAll")
+    @GetMapping
     ApiResponse getAllTags(){
         return new ApiResponse(tagService.getAll());
     }
-    @GetMapping("/getAllByNames")
-    ApiResponse getAllTagsById(@RequestBody List<String> tagNames){
-        return new ApiResponse(tagService.getAllByid(tagNames));
-    }
-    @PutMapping("/update")
+//    @GetMapping("/getAllByNames")
+//    ApiResponse getAllTagsById(@RequestBody List<String> tagNames){
+//        return new ApiResponse(tagService.getAllByid(tagNames));
+//    }
+    @PutMapping
     ApiResponse updateTag(@RequestBody TagCreateRequest request){
         return new ApiResponse(tagService.updateTag(request));
     }
-    @DeleteMapping("/delete/{tagName}")
+    @DeleteMapping("/{tagName}")
     ApiResponse deleteTag(@PathVariable String tagName){
         tagService.deleteTag(tagName);
         return new ApiResponse<>("Tag deleted successfully");

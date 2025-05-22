@@ -12,6 +12,7 @@ import org.json.JSONArray;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public enum OrderStatus {
+    CHO_THANH_TOAN(OrderStatus.ST_CHO_THANH_TOAN, "delay payment"),
     DAT_HANG_TC(OrderStatus.ST_DAT_HANG_TC, "Order successful"),
     DANG_CBI_HANG(OrderStatus.ST_DANG_CBI_HANG, "Preparing order"),
     DVVC_LAY_HANG(OrderStatus.ST_DVVC_LAY_HANG, "The shipping unit has received the order successfully"),
@@ -19,13 +20,22 @@ public enum OrderStatus {
     DANG_GIAO(OrderStatus.ST_DANG_GIAO, "Being delivered to you"),
     GIAO_THANH_CONG(OrderStatus.ST_GIAO_THANH_CONG, "Delivery successful"),
     DA_HUY(OrderStatus.ST_DA_HUY, "Canceled"),
-    TRA_HANG(OrderStatus.ST_TRA_HANG, "Returned")
+    TRA_HANG(OrderStatus.ST_YC_TRA_HANG, "Return Request"),
+    DA_TRA_HANG(OrderStatus.ST_DA_TRA_HANG, "Returned")
 
 
     ;
-    public static final int ST_DAT_HANG_TC = 0, ST_DANG_CBI_HANG = 1,
-    ST_DVVC_LAY_HANG = 2, ST_DANG_VAN_CHUYEN = 3, ST_DANG_GIAO = 4,
-    ST_GIAO_THANH_CONG = 5, ST_DA_HUY = 6, ST_TRA_HANG =7;
+    public static final int
+            ST_CHO_THANH_TOAN = -1,
+            ST_DAT_HANG_TC = 0,
+            ST_DANG_CBI_HANG = 1,
+            ST_DVVC_LAY_HANG = 2,
+            ST_DANG_VAN_CHUYEN = 3,
+            ST_DANG_GIAO = 4,
+            ST_GIAO_THANH_CONG = 5,
+            ST_DA_HUY = 6,
+            ST_YC_TRA_HANG =7,
+            ST_DA_TRA_HANG = 8;
     private int statusCode;
     private String statusName;
     public static OrderStatus getByStatusCode(int statusCode){

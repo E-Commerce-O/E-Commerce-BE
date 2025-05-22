@@ -49,6 +49,7 @@ public class UserService {
     String DEFAULT_IMAGE_PATH = "https://i.imgur.com/W60xqJf.png";
     public UserResponse addUser(UserCreateRequest request){
         Optional<User> userOptional = null;
+//        validEmail(request.getEmail());
         userOptional = userRepository.findByUsername(request.getUsername());
         if (userOptional.isPresent()) throw new AppException(ErrorCode.USERNAME_EXISTED);
         userOptional = userRepository.findByEmail(request.getEmail());
@@ -126,6 +127,7 @@ public class UserService {
         String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+(\\.[a-zA-Z]{2,})*\\.[a-zA-Z]{2,}$";
         Pattern pattern = Pattern.compile(emailRegex);
         Matcher matcher = pattern.matcher(email);
+        log.info("Valid email: "+matcher.matches());
         if(!matcher.matches()){
             return false;
         }

@@ -41,7 +41,7 @@ public class ProductReviewService {
         long userId = authenticationService.getUserId(token);
         Order order = orderRepository.findById(request.getOrderId()).orElseThrow(() ->
                 new AppException(ErrorCode.ORDER_NOT_EXISTS));
-        if(order.getStatus() != OrderStatus.ST_GIAO_THANH_CONG && order.getStatus() != OrderStatus.ST_TRA_HANG)
+        if(order.getStatus() != OrderStatus.ST_GIAO_THANH_CONG && order.getStatus() != OrderStatus.ST_YC_TRA_HANG&& order.getStatus() != OrderStatus.ST_DA_TRA_HANG)
             throw new AppException(ErrorCode.PRODUCT_REVIEW_STATUS_INVALID);
         Product product = productRepository.findById(request.getProductId()).orElseThrow(() ->
                 new AppException(ErrorCode.PRODUCT_NOT_EXISTS));

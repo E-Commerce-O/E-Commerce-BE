@@ -11,29 +11,29 @@ import org.example.cdweb_be.service.VoucherService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/voucher")
+@RequestMapping("/vouchers")
 @RequiredArgsConstructor
 @FieldDefaults(level =  AccessLevel.PRIVATE, makeFinal = true)
 public class VoucherController {
     VoucherService voucherService;
-    @GetMapping("/genVoucherCode")
+    @GetMapping("/genCode")
     public ApiResponse genVoucherCode(){
         return new ApiResponse(voucherService.genCode());
     }
-    @GetMapping("/getAll")
+    @GetMapping
     public ApiResponse getAll(){
         return new ApiResponse(voucherService.getAll());
     }
-    @GetMapping("/getByCode/{voucherCode}")
+    @GetMapping("/code/{voucherCode}")
     public ApiResponse getByCode(@PathVariable String voucherCode){
         return new ApiResponse(voucherService.getByCode(voucherCode));
     }
-    @GetMapping("/getByType/{type}")
+    @GetMapping("/type/{type}")
     public ApiResponse getByType(@PathVariable int type){
         return new ApiResponse(voucherService.getByType(type));
     }
 
-    @PostMapping("/add")
+    @PostMapping
     public ApiResponse add(@RequestBody VoucherRequest request){
         return new ApiResponse(voucherService.add(request));
     }
@@ -41,7 +41,7 @@ public class VoucherController {
     public ApiResponse applyVoucher(@RequestBody ApplyVoucherRequest request){
         return new ApiResponse(voucherService.applyVouhcer(request));
     }
-    @PutMapping("/update/{id}")
+    @PutMapping("/{id}")
     public ApiResponse update(@PathVariable long id, @RequestBody VoucherRequest request){
         return new ApiResponse(voucherService.update(id, request));
     }

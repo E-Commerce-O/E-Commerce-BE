@@ -34,8 +34,9 @@ public class CategoryService {
     public List<Category> getAll(){
         return categoryRepository.findAll();
     }
-    public void deleteCategory(long id){
+    public String deleteCategory(long id){
         categoryRepository.deleteById(id);
+        return "Delete category successful!";
     }
     public Category updateCategory(Category request){
         Optional<Category> categoryOptional = categoryRepository.findById(request.getId());

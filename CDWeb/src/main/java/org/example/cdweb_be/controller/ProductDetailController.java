@@ -10,30 +10,30 @@ import org.example.cdweb_be.service.ProductDetailService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/productDetail")
+@RequestMapping("/productDetails")
 @RequiredArgsConstructor
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ProductDetailController {
     ProductDetailService productDetailService;
 
-    @GetMapping("/getByProduct/{productId}")
+    @GetMapping("/product/{productId}")
     public ApiResponse getDetailsByProduct(@PathVariable long productId){
         return new ApiResponse(productDetailService.getDetailsByProduct(productId));
     }
-    @GetMapping("/getByProductAndColor")
-    public ApiResponse getDetailsByProductAndColor(@RequestParam long productId, @RequestParam long colorId){
+    @GetMapping("/product/{productId}/color/{colorId}")
+    public ApiResponse getDetailsByProductAndColor(@PathVariable long productId, @PathVariable long colorId){
         return new ApiResponse(productDetailService.getDetailsByProductAndColor(productId, colorId));
     }
-    @GetMapping("/getByProductAndColorAndSize")
-    public ApiResponse getDetailsByProductAndColorAndSize(@RequestParam long productId, @RequestParam long colorId, @RequestParam long sizeId){
+    @GetMapping("/product/{productId}/color/{colorId}/size/{sizeId}")
+    public ApiResponse getDetailsByProductAndColorAndSize(@PathVariable long productId, @PathVariable long colorId, @PathVariable long sizeId){
         return new ApiResponse(productDetailService.getDetailsByProductAndColorAndSize(productId, colorId, sizeId));
     }
-    @GetMapping("/getByProductAndSize")
-    public ApiResponse getDetailsByProductAndSize(@RequestParam long productId, @RequestParam long sizeId){
+    @GetMapping("/product/{productId}/size/{sizeId}")
+    public ApiResponse getDetailsByProductAndSize(@PathVariable long productId, @PathVariable long sizeId){
         return new ApiResponse(productDetailService.getDetailsByProductAndSize(productId, sizeId));
     }
-    @PutMapping("/update")
+    @PutMapping
     public ApiResponse update(@RequestBody ProductDetailUpdateRequest request){
         return new ApiResponse(productDetailService.update(request));
     }
