@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 import org.example.cdweb_be.entity.Address;
 import org.example.cdweb_be.entity.DeliveryMethod;
 import org.example.cdweb_be.entity.User;
+import org.example.cdweb_be.enums.OrderStatus;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -24,7 +25,7 @@ public class OrderResponse {
     Address receiverAddress;
     DeliveryMethod deliveryMethod;
     List<OrderItemResponse> orderItems;
-    int status;
+    OrderStatusResponse status;
     double productDecrease;
     double shipDecrease;
     double totalPrice;

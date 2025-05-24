@@ -8,6 +8,7 @@ import org.example.cdweb_be.dto.request.ApplyVoucherRequest;
 import org.example.cdweb_be.dto.request.OrderCreateRequest;
 import org.example.cdweb_be.dto.response.OrderItemResponse;
 import org.example.cdweb_be.dto.response.OrderResponse;
+import org.example.cdweb_be.dto.response.OrderStatusResponse;
 import org.example.cdweb_be.dto.response.OrderUser;
 import org.example.cdweb_be.entity.*;
 import org.example.cdweb_be.enums.OrderStatus;
@@ -132,7 +133,7 @@ public class OrderService {
                 .productDecrease(productDecrease)
                 .orderItems(itemResponses)
                 .shipDecrease(shipDecrease)
-                .status(order.getStatus())
+                .status(new OrderStatusResponse(OrderStatus.getByStatusCode(order.getStatus())))
                 .createdAt(order.getCreatedAt())
                 .updatedAt(order.getUpdatedAt())
                 .build();
@@ -274,7 +275,7 @@ public class OrderService {
                 .productDecrease(orderDetail.getProductDecrease())
                 .orderItems(itemResponses)
                 .shipDecrease(orderDetail.getShipDecrease())
-                .status(order.getStatus())
+                .status(new OrderStatusResponse(OrderStatus.getByStatusCode(order.getStatus())))
                 .createdAt(order.getCreatedAt())
                 .updatedAt(order.getUpdatedAt())
                 .build();
