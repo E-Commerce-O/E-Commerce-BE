@@ -15,6 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class OrderItemResponse {
+    long id;
     long productId;
     String productName;
     List<String> productImages;
@@ -26,6 +27,7 @@ public class OrderItemResponse {
     Timestamp createdAt;
     Timestamp updatedAt;
     public OrderItemResponse(OrderItem orderItem){
+        this.id = orderItem.getId();
         this.productId = orderItem.getProduct().getId();
         this.productName = orderItem.getProduct().getName();
        this.color = orderItem.getColor();
