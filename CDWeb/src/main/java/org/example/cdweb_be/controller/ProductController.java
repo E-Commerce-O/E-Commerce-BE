@@ -34,56 +34,56 @@ public class ProductController {
     public ApiResponse getProductById(@PathVariable long productId, HttpServletRequest request){
         return new ApiResponse(productService.getByProductId(productId, request));
     }
-    @GetMapping("/{productName}")
+    @GetMapping("/name/{productName}")
     public ApiResponse getByName(@PathVariable String productName){
         return new ApiResponse(productService.getByName(productName));
     }
-    @GetMapping("/getByCategory/{categoryId}")
+    @GetMapping("/category/{categoryId}")
     public ApiResponse getByCategory(@PathVariable long categoryId){
         return new ApiResponse(productService.getByCategory(categoryId));
 
     }
-    @GetMapping("/getSimilar/{productId}")
+    @GetMapping("/similar/{productId}")
     public ApiResponse getSimilar(@PathVariable long productId){
         return new ApiResponse(productService.getSimilar(productId));
     }
-    @GetMapping("/getHistory")
+    @GetMapping("/history")
     public ApiResponse getHistory(HttpServletRequest request){
         return new ApiResponse(productService.getHistory(request));
     }
-    @PostMapping("/add")
+    @PostMapping()
     public ApiResponse addProduct(@RequestBody ProductCreateRequest request){
         return new ApiResponse(productService.addProduct(request));
     }
-    @PostMapping("/addImage")
+    @PostMapping("/image")
     public ApiResponse addImage(@RequestBody AddProductImageRequest request) {
         return new ApiResponse(productService.addProductImages(request));
     }
-    @PostMapping("addColors/{productId}")
+    @PostMapping("colors/{productId}")
     public ApiResponse addColors(@PathVariable long productId, @RequestBody List<ColorRequest> requests){
         return new ApiResponse(productService.addColors(productId, requests));
     }
-    @PostMapping("/addSizes/{productId}")
+    @PostMapping("/sizes/{productId}")
     public ApiResponse addSizes(@PathVariable long productId, @RequestBody List<SizeCreateRequest> requests){
         return new ApiResponse(productService.addSizes(productId, requests));
     }
-    @PutMapping("/update")
+    @PutMapping()
     public ApiResponse updateProduct(@RequestBody ProductUpdateRequest request){
         return new ApiResponse(productService.updateProduct(request));
     }
-    @PutMapping("/addTags")
+    @PutMapping("/tags")
     public ApiResponse addTags(@RequestBody ProductTagRequest request){
         return new ApiResponse(productService.addTags(request));
     }
-    @DeleteMapping("/deleteImage")
+    @DeleteMapping("/image")
     public ApiResponse deleteImage(@RequestParam long productId, @RequestParam long imageId){
         return new ApiResponse(productService.deleteImage(productId, imageId));
     }
-    @DeleteMapping("/deleteTags")
+    @DeleteMapping("/tags")
     public ApiResponse deleteTags(@RequestBody ProductTagRequest request){
         return new ApiResponse(productService.deleteTags(request));
     }
-    @DeleteMapping("/deleteProduct/{productId}")
+    @DeleteMapping("/{productId}")
     public ApiResponse deleteProduct(@PathVariable long productId){
         return new ApiResponse(productService.deleteProduct(productId));
     }
