@@ -1,7 +1,7 @@
 package org.example.cdweb_be.configuration;
 
 import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
+
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.example.cdweb_be.entity.User;
