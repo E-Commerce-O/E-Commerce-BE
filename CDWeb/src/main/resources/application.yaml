@@ -3,7 +3,7 @@ server:
   servlet:
     context-path: /identity
   ssl:
-    key-store: "classpath:server.p12"
+    key-store: "classpath:be_cd-web_me.p12"
     key-store-password: "1"
     key-store-type: "PKCS12"
     enabled: true
