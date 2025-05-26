@@ -463,4 +463,9 @@ public class ProductService {
         }
 
     }
+    public List<ProductResponse> getProductByTag(String tagName){
+        Tag tag = tagRepository.findById(tagName).orElseThrow(() -> new AppException(ErrorCode.TAG_NOT_EXISTS));
+        List<Product> products = productTagRepository.findProductByTag(tagName);
+        return products.stream().map(product -> converToProductResponse(product)).collect(Collectors.toList());
+    }
 }
