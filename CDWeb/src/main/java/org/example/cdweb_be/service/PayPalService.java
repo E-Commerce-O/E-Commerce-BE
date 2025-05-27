@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 @Service
 public class PayPalService {
-    public String createOrder(String accessToken,double price) {
+    public String createOrder(String accessToken,double price, long orderId) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
@@ -25,7 +25,8 @@ public class PayPalService {
         );
 
         Map<String, Object> purchaseUnit = Map.of(
-                "amount", amount
+                "amount", amount,
+                "invoice_id", String.valueOf(orderId)
         );
 
         Map<String, Object> applicationContext = Map.of(
@@ -72,14 +73,13 @@ public class PayPalService {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
         headers.setContentType(MediaType.APPLICATION_JSON);
-
         HttpEntity<String> entity = new HttpEntity<>(null, headers);
 
-        ResponseEntity<Map> res = restTemplate.postForEntity(
+        ResponseEntity<String> res = restTemplate.postForEntity(
                 "https://api-m.sandbox.paypal.com/v2/checkout/orders/" + orderIdPayPal + "/capture",
                 entity,
-                Map.class
+                String.class
         );
-        return res.getBody().get("status").toString();
+        return res.getBody().toString();
     }
 }
