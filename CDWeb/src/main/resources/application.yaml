@@ -2,6 +2,9 @@ server:
   port: 8080
   servlet:
     context-path: /identity
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
 #spring:
 #  datasource:
 #    url: "jdbc:hsqldb:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE"
@@ -32,3 +35,5 @@ spring:
       mail.smtp.starttls.enable: true
 jwt:
   signerKey: "NL8FWNjikoVGaAOLuLfULIhWVIB8GFYqFzP5wSBFwbmFKI749VKfrwOJ5TwMdinN"
+file:
+  upload-dir: "/image"
