@@ -1,5 +1,10 @@
 package org.example.cdweb_be.service;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.example.cdweb_be.entity.PaymentMethod;
+import org.example.cdweb_be.respository.PaymentMethodRepository;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -13,7 +18,13 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 @Service
-public class PayPalService {
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+public class PaymentService {
+    PaymentMethodRepository paymentMethodRepository;
+    public List<PaymentMethod> getAllActive(){
+        return paymentMethodRepository.findAllActive();
+    }
     public String createOrder(String accessToken,double price, long orderId) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();

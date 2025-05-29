@@ -1,40 +1,44 @@
 package org.example.cdweb_be.controller;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.example.cdweb_be.dto.response.ApiResponse;
 import org.example.cdweb_be.dto.response.OrderResponse;
+import org.example.cdweb_be.enums.OrderStatus;
 import org.example.cdweb_be.service.OrderService;
-import org.example.cdweb_be.service.PayPalService;
+import org.example.cdweb_be.service.PaymentService;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
-public class PayPalController {
-    @Autowired
-    private PayPalService payPalService;
-    @Autowired
-    private OrderService orderService;
-
-    @PostMapping("/api/paypal/create-order")
+@RequestMapping("/payment")
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@RequiredArgsConstructor
+public class PaymentController {
+    PaymentService paymentService;
+    OrderService orderService;
+    @GetMapping()
+    public ApiResponse getAllActive(){
+        return new ApiResponse(paymentService.getAllActive());
+    }
+    @PostMapping("/paypal/create-order")
     public ResponseEntity<?> createOrder(@RequestParam long orderId) {
         OrderResponse order = orderService.getById(orderId);
-        String accessToken = payPalService.getAccessToken();
-        String orderIdPaypal = payPalService.createOrder(accessToken, order.getTotalPrice(), orderId);
+        String accessToken = paymentService.getAccessToken();
+        String orderIdPaypal = paymentService.createOrder(accessToken, order.getTotalPrice(), orderId);
         return ResponseEntity.ok(Map.of("orderId", orderIdPaypal));
     }
 
-    @PostMapping("/api/paypal/capture")
+    @PostMapping("/paypal/capture")
     public ResponseEntity<?> captureOrder(@RequestBody Map<String, String> body) {
         String orderIdPayPal = body.get("orderId");
-        String accessToken = payPalService.getAccessToken();
-        String captureResult = payPalService.captureOrder(accessToken, orderIdPayPal);
+        String accessToken = paymentService.getAccessToken();
+        String captureResult = paymentService.captureOrder(accessToken, orderIdPayPal);
         JSONObject jsonObject = new JSONObject(captureResult);
         JSONArray jsonArray = jsonObject.getJSONArray("purchase_units");
         if (jsonArray.length() == 0) {
@@ -45,7 +49,9 @@ public class PayPalController {
             String orderId = payments.getJSONArray("captures").getJSONObject(0).get("invoice_id").toString();
             try {
                 Long orderIdLong = Long.parseLong(orderId);
-                // update order status
+
+                // update order statusor
+                orderService.updateStatus(orderIdLong, OrderStatus.ST_DANG_CBI_HANG);
             }catch (Exception e) {
                 e.printStackTrace();
             }

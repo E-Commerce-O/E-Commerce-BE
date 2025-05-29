@@ -152,4 +152,18 @@ public class FileUploadController {
             return "File upload failed: " + e.getMessage();
         }
     }
+    @PostMapping("/db")
+    public ApiResponse uploadFileDB(@RequestParam("file") MultipartFile file) {
+
+        try {
+            Image imageEntity = new Image();
+            imageEntity.setImageData(file.getBytes());
+            imageEntity.setImageName(file.getOriginalFilename());
+            imageRepository.save(imageEntity);
+            return new ApiResponse("/identity/upload/"+imageEntity.getId());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ApiResponse("Image upload failed: " + e.getMessage());
+        }
+    }
 }

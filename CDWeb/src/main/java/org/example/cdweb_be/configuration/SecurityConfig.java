@@ -52,8 +52,8 @@ public class SecurityConfig implements WebMvcConfigurer {
                                 .requestMatchers("/swagger.html","/swagger-ui/**",
                                         "/swagger-ui.html", "/docs/**", "/v3/api-docs/**").permitAll()
                                 .requestMatchers("/*", "/*/**").permitAll()
-                                .requestMatchers("/category/*").permitAll()
-                                .requestMatchers(HttpMethod.GET,"/user/*").permitAll()
+//                                .requestMatchers("/category/*").permitAll()
+//                                .requestMatchers(HttpMethod.GET,"/user/*").permitAll()
                                 .anyRequest().authenticated()
         ); // Tất cả các yêu cầu khác đều cần xác thực
         httpSecurity.cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.disable());
