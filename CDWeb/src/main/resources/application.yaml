@@ -1,7 +1,10 @@
 server:
-  port: 443
+  port: 8080
   servlet:
     context-path: /identity
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
   ssl:
     key-store: "classpath:be_cd-web_me.p12"
     key-store-password: "1"
@@ -38,3 +41,5 @@ spring:
       mail.smtp.starttls.enable: true
 jwt:
   signerKey: "NL8FWNjikoVGaAOLuLfULIhWVIB8GFYqFzP5wSBFwbmFKI749VKfrwOJ5TwMdinN"
+file:
+  upload-dir: "/image"

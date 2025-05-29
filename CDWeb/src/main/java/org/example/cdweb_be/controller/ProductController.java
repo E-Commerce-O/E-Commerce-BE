@@ -51,6 +51,10 @@ public class ProductController {
     public ApiResponse getHistory(HttpServletRequest request){
         return new ApiResponse(productService.getHistory(request));
     }
+    @GetMapping("/tag/{tagName}")
+    public ApiResponse getProductsByTag(@PathVariable String tagName){
+        return new ApiResponse(productService.getProductByTag(tagName));
+    }
     @PostMapping()
     public ApiResponse addProduct(@RequestBody ProductCreateRequest request){
         return new ApiResponse(productService.addProduct(request));

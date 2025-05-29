@@ -1,7 +1,6 @@
 package org.example.cdweb_be.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,11 +9,11 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PaymentMethod {
+public class Image {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
-    String methodName;
-    String description;
-    boolean isActive;
-    double transactionFee;
+    String imageName;
+    @Lob
+    byte[] imageData;
 }
