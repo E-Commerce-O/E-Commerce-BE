@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Image {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    String id;
     String imageName;
     @Lob
     byte[] imageData;

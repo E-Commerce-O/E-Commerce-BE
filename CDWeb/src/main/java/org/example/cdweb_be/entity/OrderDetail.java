@@ -1,10 +1,13 @@
 package org.example.cdweb_be.entity;
+
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+
 import java.sql.Date;
 import java.sql.Timestamp;
+
 // annotation tạo getter và setter cho các field private
 @Data
 // annotation giúp khởi tại đối tượng
@@ -26,6 +29,8 @@ public class OrderDetail {
     Address address;
     @ManyToOne
     Voucher shipVoucher;
+    @ManyToOne
+    PaymentMethod paymentMethod;
     double shipDecrease;
     @ManyToOne
     Voucher productVoucher;

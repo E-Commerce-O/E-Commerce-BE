@@ -18,6 +18,7 @@ public class OrderCreateRequest {
     List<Long> cartItemIds;
     long addressId;
     DeliveryMethodUtil deliveryMethod;
+    long paymentMethodId;
     long freeshipVcId;
     long productVcId;
 

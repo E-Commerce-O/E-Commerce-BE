@@ -123,7 +123,7 @@ public class FileUploadController {
         return null;
     }
     @GetMapping("/{id}")
-    public ResponseEntity<byte[]> getImage(@PathVariable Long id) {
+    public ResponseEntity<byte[]> getImage(@PathVariable String id) {
         Image imageEntity = imageRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Image not found"));
 

@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.example.cdweb_be.entity.Address;
 import org.example.cdweb_be.entity.DeliveryMethod;
+import org.example.cdweb_be.entity.PaymentMethod;
 import org.example.cdweb_be.entity.User;
 import org.example.cdweb_be.enums.OrderStatus;
 
@@ -24,6 +25,7 @@ public class OrderResponse {
     OrderUser orderUser;
     Address receiverAddress;
     DeliveryMethod deliveryMethod;
+    PaymentMethod paymentMethod;
     List<OrderItemResponse> orderItems;
     OrderStatusResponse status;
     double productDecrease;

@@ -103,6 +103,7 @@ public enum ErrorCode {
     OTP_VERIFIED(4086, "OTP has verified, please reset password!", HttpStatus.BAD_REQUEST),//400
     RESET_TOKEN_INVALID(4087, "Reset passowd token invalid!", HttpStatus.BAD_REQUEST),//400
     TAG_NOT_EXISTS(4088, "TagName not exists!", HttpStatus.BAD_REQUEST),//400
+    PAYMENT_METHOD_INVALID(4089, "Payment method invalid!", HttpStatus.BAD_REQUEST),//400
     INVALID_KEY(400, "Invalid message key!", HttpStatus.BAD_REQUEST),
     INVALID_DOB(400, "Invalid date of birth!", HttpStatus.BAD_REQUEST),
     INVALID_TOKEN(400, "Invalid token!", HttpStatus.BAD_REQUEST),
