@@ -104,6 +104,8 @@ public enum ErrorCode {
     RESET_TOKEN_INVALID(4087, "Reset passowd token invalid!", HttpStatus.BAD_REQUEST),//400
     TAG_NOT_EXISTS(4088, "TagName not exists!", HttpStatus.BAD_REQUEST),//400
     PAYMENT_METHOD_INVALID(4089, "Payment method invalid!", HttpStatus.BAD_REQUEST),//400
+    FILE_ISNT_IMAGE(4090, "Only image files (JPEG, PNG, GIF, BMP, TIFF) are accepted!", HttpStatus.BAD_REQUEST),//400
+    FILE_IS_EMPTY(4091, "File upload is empty!", HttpStatus.BAD_REQUEST),//400
     INVALID_KEY(400, "Invalid message key!", HttpStatus.BAD_REQUEST),
     INVALID_DOB(400, "Invalid date of birth!", HttpStatus.BAD_REQUEST),
     INVALID_TOKEN(400, "Invalid token!", HttpStatus.BAD_REQUEST),

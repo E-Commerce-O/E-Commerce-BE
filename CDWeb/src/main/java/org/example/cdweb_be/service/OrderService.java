@@ -192,6 +192,14 @@ public class OrderService {
         if(OrderStatus.getByStatusCode(status) == null) throw new AppException(ErrorCode.ORDER_STATUS_INVALID);
         if(order.getStatus() == status) throw new AppException(ErrorCode.ORDER_CANT_UPDATE.setMessage("Cannot update because new status duplicates old status"));
         switch (order.getStatus()){
+            case OrderStatus.ST_CHO_THANH_TOAN:{
+                if(status == OrderStatus.ST_DAT_HANG_TC || status == OrderStatus.ST_DA_HUY){
+                    updateStatus(order, status);
+                }else{
+                    break;
+                }
+                return "Update status of order: "+orderId+" successful!";
+            }
             case OrderStatus.ST_DAT_HANG_TC:{
                 if(status == OrderStatus.ST_DANG_CBI_HANG || status == OrderStatus.ST_DA_HUY){
                     updateStatus(order, status);

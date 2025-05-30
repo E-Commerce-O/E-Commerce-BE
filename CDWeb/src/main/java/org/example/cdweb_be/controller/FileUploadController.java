@@ -21,10 +21,14 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartResolver;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 
 @RestController
 @RequestMapping("upload")
@@ -38,11 +42,24 @@ public class FileUploadController {
     @NonFinal
     @Value("${file.upload-dir}")
     protected String uploadDir;
+    static final List<String> ALLOWED_CONTENT_TYPES = Arrays.asList(
+            ".jpeg",
+            ".jpg",
+            ".png",
+            ".gif",
+            ".bmp",
+            ".tiff",
+            ".tif",
+            ".webp",
+            ".heif",
+            ".heic"
+    );
+
     @PostMapping
     public ApiResponse uploadFile(@RequestParam("file") MultipartFile file) {
 
         if (file.isEmpty()) {
-            throw  new AppException(ErrorCode.IMAGE_REQUIRED);
+            throw new AppException(ErrorCode.IMAGE_REQUIRED);
         }
         String imageUrl = uploadToCatbox(file);
         if (imageUrl != null) {
@@ -61,6 +78,7 @@ public class FileUploadController {
 //            return new ApiResponse("Image upload failed: " + e.getMessage());
 //        }
     }
+
     private String uploadImageAndGetLink(MultipartFile imageFile) {
         try {
             // Tạo URL đến API Imgur
@@ -122,17 +140,19 @@ public class FileUploadController {
         }
         return null;
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<byte[]> getImage(@PathVariable String id) {
         Image imageEntity = imageRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Image not found"));
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Content-Type", "image/png"); // Hoặc kiểu MIME tương ứng với ảnh
+        headers.set("Content-Type", "image/jpg"); // Hoặc kiểu MIME tương ứng với ảnh
 
         return new ResponseEntity<>(imageEntity.getImageData(), headers, HttpStatus.OK);
     }
-//    @PostMapping("/catbox")
+
+    //    @PostMapping("/catbox")
     public String uploadToCatbox(@RequestParam("file") MultipartFile file) {
         try {
             RestTemplate restTemplate = new RestTemplate();
@@ -152,18 +172,26 @@ public class FileUploadController {
             return "File upload failed: " + e.getMessage();
         }
     }
+
     @PostMapping("/db")
     public ApiResponse uploadFileDB(@RequestParam("file") MultipartFile file) {
-
         try {
+            if (file.isEmpty() || file.getBytes().length == 0) throw new AppException(ErrorCode.FILE_IS_EMPTY);
+            if (!isImageFile(file.getOriginalFilename())) throw new AppException((ErrorCode.FILE_ISNT_IMAGE));
             Image imageEntity = new Image();
             imageEntity.setImageData(file.getBytes());
             imageEntity.setImageName(file.getOriginalFilename());
             imageRepository.save(imageEntity);
-            return new ApiResponse("/identity/upload/"+imageEntity.getId());
+            return new ApiResponse("/identity/upload/" + imageEntity.getId());
         } catch (IOException e) {
-            e.printStackTrace();
-            return new ApiResponse("Image upload failed: " + e.getMessage());
+            throw new AppException(ErrorCode.SERVER_ERROR);
         }
+    }
+
+    private boolean isImageFile(String fileName) {
+        for (String ext : ALLOWED_CONTENT_TYPES) {
+            if (fileName.endsWith(ext)) return true;
+        }
+        return false;
     }
 }
