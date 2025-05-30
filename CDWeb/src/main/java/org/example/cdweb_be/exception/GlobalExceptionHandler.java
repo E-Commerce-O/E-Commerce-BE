@@ -9,6 +9,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 @ControllerAdvice
 @Slf4j
@@ -20,6 +21,7 @@ public class GlobalExceptionHandler {
         response.setCode(errorCode.getCode());
         response.setSuccess(errorCode.isSuccess());
         response.setData(exception.getMessage());
+        exception.printStackTrace();
         log.error(exception.toString());
         return ResponseEntity.status(errorCode.getStatusCode()).body(response);
     }

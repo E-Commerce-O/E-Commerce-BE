@@ -51,7 +51,7 @@ public class PaymentController {
                 Long orderIdLong = Long.parseLong(orderId);
 
                 // update order statusor
-                orderService.updateStatus(orderIdLong, OrderStatus.ST_DANG_CBI_HANG);
+                orderService.updateStatus(orderIdLong, OrderStatus.ST_DAT_HANG_TC);
             }catch (Exception e) {
                 e.printStackTrace();
             }

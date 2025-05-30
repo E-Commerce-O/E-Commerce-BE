@@ -12,6 +12,7 @@ import org.example.cdweb_be.dto.response.OrderStatusResponse;
 import org.example.cdweb_be.dto.response.OrderUser;
 import org.example.cdweb_be.entity.*;
 import org.example.cdweb_be.enums.OrderStatus;
+import org.example.cdweb_be.enums.PaymentMethodEnum;
 import org.example.cdweb_be.enums.VoucherType;
 import org.example.cdweb_be.exception.AppException;
 import org.example.cdweb_be.exception.ErrorCode;
@@ -42,6 +43,7 @@ public class OrderService {
     VoucherService voucherService;
     ProductService productService;
     AuthenticationService authenticationService;
+    PaymentMethodRepository paymentMethodRepository;
 
     public OrderResponse add(String token, OrderCreateRequest request) {
         long userId = authenticationService.getUserId(token);
@@ -58,6 +60,8 @@ public class OrderService {
         if(cartItems.size() != request.getCartItemIds().size()) throw new AppException(ErrorCode.CART_ITEM_DUPLICATED);
         Address address = addressRepository.findById(request.getAddressId()).orElseThrow(() ->
                 new AppException(ErrorCode.ADDRESS_NOT_EXISTS));
+        PaymentMethod paymentMethod = paymentMethodRepository.findById(request.getPaymentMethodId()).orElseThrow(() ->
+                new AppException(ErrorCode.PAYMENT_METHOD_INVALID));
         if (address.getUser().getId() != userId) throw new AppException(ErrorCode.ADDRESS_UNAUTHORIZED);
         List<DeliveryMethodUtil> deliveryMethods = addressService.getInfoShip(address.getId());
         if (!deliveryMethods.contains(request.getDeliveryMethod()))
@@ -84,9 +88,11 @@ public class OrderService {
 
         }
         double productDecrease = (productVC == null)?0:voucherService.applyVouhcer(applyVoucherRequest);
+        int orderStatus = OrderStatus.ST_DAT_HANG_TC;
+        if(paymentMethod.getId()!= PaymentMethodEnum.CASH_ON_DELIVERY) orderStatus = OrderStatus.ST_CHO_THANH_TOAN;
         Order order = Order.builder()
                 .user(user)
-                .status(OrderStatus.ST_DAT_HANG_TC)
+                .status(orderStatus)
                 .createdAt(new Timestamp(System.currentTimeMillis()))
                 .build();
         order = orderRepository.save(order);
@@ -117,6 +123,7 @@ public class OrderService {
                 .productDecrease(productDecrease)
                 .shipVoucher(shipVC)
                 .shipDecrease(shipDecrease)
+                .paymentMethod(paymentMethod)
                 .build();
         orderDetail =orderDetailRepository.save(orderDetail);
         List<OrderItemResponse> itemResponses = new ArrayList<>();
@@ -185,6 +192,14 @@ public class OrderService {
         if(OrderStatus.getByStatusCode(status) == null) throw new AppException(ErrorCode.ORDER_STATUS_INVALID);
         if(order.getStatus() == status) throw new AppException(ErrorCode.ORDER_CANT_UPDATE.setMessage("Cannot update because new status duplicates old status"));
         switch (order.getStatus()){
+            case OrderStatus.ST_CHO_THANH_TOAN:{
+                if(status == OrderStatus.ST_DAT_HANG_TC || status == OrderStatus.ST_DA_HUY){
+                    updateStatus(order, status);
+                }else{
+                    break;
+                }
+                return "Update status of order: "+orderId+" successful!";
+            }
             case OrderStatus.ST_DAT_HANG_TC:{
                 if(status == OrderStatus.ST_DANG_CBI_HANG || status == OrderStatus.ST_DA_HUY){
                     updateStatus(order, status);
@@ -272,6 +287,7 @@ public class OrderService {
                 .receiverAddress(address)
                 .orderUser(new OrderUser(user))
                 .deliveryMethod(deliveryMethod)
+                .paymentMethod(orderDetail.getPaymentMethod())
                 .productDecrease(orderDetail.getProductDecrease())
                 .orderItems(itemResponses)
                 .shipDecrease(orderDetail.getShipDecrease())
@@ -280,10 +296,12 @@ public class OrderService {
                 .updatedAt(order.getUpdatedAt())
                 .build();
         totalPrice -= orderResponse.getProductDecrease();
-
         totalPrice -= orderResponse.getShipDecrease();
+        double totalPayment = totalPrice;
+        if(orderDetail.getPaymentMethod().getId() != PaymentMethodEnum.CASH_ON_DELIVERY && order.getStatus() != OrderStatus.ST_CHO_THANH_TOAN)
+            totalPayment =0;
         orderResponse.setTotalPrice(totalPrice);
-        orderResponse.setTotalPayment(totalPrice);
+        orderResponse.setTotalPayment(totalPayment);
         return orderResponse;
     }
 }

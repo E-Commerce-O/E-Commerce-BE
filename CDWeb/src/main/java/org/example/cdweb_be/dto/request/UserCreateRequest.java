@@ -16,7 +16,7 @@ import org.example.cdweb_be.validator.PhoneNumberConstraint;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserCreateRequest {
-    @Size(min = 6, message = "USERNAME_INVALID")
+    @Size(min = 5, message = "USERNAME_INVALID")
     String username;
     @Size(min = 6, message = "PASSWORD_INVALID")
     String password;
