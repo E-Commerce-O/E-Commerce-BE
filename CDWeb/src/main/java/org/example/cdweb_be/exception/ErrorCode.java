@@ -14,7 +14,7 @@ public enum ErrorCode {
     CATEGORY_EXISTED(4003, "Category name existed!", HttpStatus.BAD_REQUEST),
     NOT_FOUND(4004, "Not found!", HttpStatus.BAD_REQUEST),
     CATEGORY_NOT_EXISTS(4005, "CategoryId not exists", HttpStatus.BAD_REQUEST),
-    USERNAME_INVALID(4006, "Username must be at least 6 characters!", HttpStatus.BAD_REQUEST),
+    USERNAME_INVALID(4006, "Username must be at least 5 characters!", HttpStatus.BAD_REQUEST),
     PASSWORD_INVALID(4007, "Password must be at least 6 characters!", HttpStatus.BAD_REQUEST),
     EMAIL_INVALID(4008, "Email invalid!", HttpStatus.BAD_REQUEST),
     PHONENUMER_INVALID(4009, "Phone number invalid!", HttpStatus.BAD_REQUEST),

@@ -24,6 +24,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -193,5 +195,18 @@ public class FileUploadController {
             if (fileName.endsWith(ext)) return true;
         }
         return false;
+    }
+    private byte[] optimizeFileSize(MultipartFile multipartFile) throws IOException {
+        File file = File.createTempFile("tempFile", multipartFile.getOriginalFilename());
+
+        // Ghi dữ liệu từ MultipartFile vào file
+        multipartFile.transferTo(file);
+        BufferedImage originalImage = ImageIO.read(file);
+        log.info("width: "+originalImage.getWidth());
+        log.info("height: "+originalImage.getHeight());
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(originalImage, "jpg", baos);
+        byte[] imageBytes = baos.toByteArray();
+        return imageBytes;
     }
 }
