@@ -235,9 +235,8 @@ public class FileUploadController {
         }
         return false;
     }
-    private byte[] compressFile(BufferedImage bufferedImage) {
+    private byte[] compressFile(BufferedImage bufferedImage) throws IOException{
             // Nén ảnh
-            try {
 //                bufferedImage = new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(), BufferedImage.TYPE_INT_RGB);
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ImageWriter writer = ImageIO.getImageWritersByFormatName("jpg").next();
@@ -249,10 +248,6 @@ public class FileUploadController {
                 writer.dispose();
 
                 return baos.toByteArray();
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new RuntimeException(e);
-            }
 
     }
     private BufferedImage resizeImage(BufferedImage bufferedImage, int imageWidth) throws IOException{
