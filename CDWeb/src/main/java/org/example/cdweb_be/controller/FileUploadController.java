@@ -195,8 +195,25 @@ public class FileUploadController {
             throw new AppException(ErrorCode.SERVER_ERROR);
         }
     }
+    @PostMapping("/resize/{imageWidth}")
+    public ApiResponse uploadFileResize(@RequestParam("file") MultipartFile file, @PathVariable int imageWidth) {
+        try {
+            if (file.isEmpty() || file.getBytes().length == 0) throw new AppException(ErrorCode.FILE_IS_EMPTY);
+            if (!isImageFile(file.getOriginalFilename())) throw new AppException((ErrorCode.FILE_ISNT_IMAGE));
+            BufferedImage bufferedImage = ImageIO.read(file.getInputStream());
+            log.info("Original size: "+file.getBytes().length);
+            log.info("New size: "+ compressFile(resizeImage(bufferedImage, imageWidth)).length);
+            Image imageEntity = new Image();
+            imageEntity.setImageData(compressFile(resizeImage(bufferedImage, imageWidth)));
+            imageEntity.setImageName(file.getOriginalFilename());
+            imageRepository.save(imageEntity);
+            return new ApiResponse("/identity/upload/" + imageEntity.getId());
+        } catch (IOException e) {
+            throw new AppException(ErrorCode.SERVER_ERROR);
+        }
+    }
     @PostMapping("/keep-size")
-    public ApiResponse uploadFileResize(@RequestParam("file") MultipartFile file) {
+    public ApiResponse uploadFileKeepSize(@RequestParam("file") MultipartFile file) {
         try {
             if (file.isEmpty() || file.getBytes().length == 0) throw new AppException(ErrorCode.FILE_IS_EMPTY);
             if (!isImageFile(file.getOriginalFilename())) throw new AppException((ErrorCode.FILE_ISNT_IMAGE));
