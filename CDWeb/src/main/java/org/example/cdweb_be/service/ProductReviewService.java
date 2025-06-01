@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.example.cdweb_be.component.MessageProvider;
 import org.example.cdweb_be.dto.request.ProductReviewCreateRequest;
 import org.example.cdweb_be.dto.response.OrderUser;
 import org.example.cdweb_be.dto.response.ProductReviewResponse;
@@ -31,6 +32,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class ProductReviewService {
+    MessageProvider messageProvider;
     ProductReviewRepository productReviewRepository;
     OrderItemRepository orderItemRepository;
     OrderRepository orderRepository;
@@ -40,17 +42,17 @@ public class ProductReviewService {
     public ProductReviewResponse add(String token, ProductReviewCreateRequest request) {
         long userId = authenticationService.getUserId(token);
         Order order = orderRepository.findById(request.getOrderId()).orElseThrow(() ->
-                new AppException(ErrorCode.ORDER_NOT_EXISTS));
+                new AppException(messageProvider,ErrorCode.ORDER_NOT_EXISTS));
         if(order.getStatus() != OrderStatus.ST_GIAO_THANH_CONG && order.getStatus() != OrderStatus.ST_YC_TRA_HANG&& order.getStatus() != OrderStatus.ST_DA_TRA_HANG)
-            throw new AppException(ErrorCode.PRODUCT_REVIEW_STATUS_INVALID);
+            throw new AppException(messageProvider,ErrorCode.PRODUCT_REVIEW_STATUS_INVALID);
         Product product = productRepository.findById(request.getProductId()).orElseThrow(() ->
-                new AppException(ErrorCode.PRODUCT_NOT_EXISTS));
+                new AppException(messageProvider,ErrorCode.PRODUCT_NOT_EXISTS));
         OrderItem orderItem = orderItemRepository.findByOrderIdAndProductId(order.getId(), product.getId()).orElseThrow(() ->
-                new AppException(ErrorCode.PRODUCT_REVIEW_NOT_EXIST));
-        if(order.getUser().getId() != userId) throw new AppException(ErrorCode.PRODUCT_REVIEW_UNAUTH);
+                new AppException(messageProvider,ErrorCode.PRODUCT_REVIEW_NOT_EXIST));
+        if(order.getUser().getId() != userId) throw new AppException(messageProvider,ErrorCode.PRODUCT_REVIEW_UNAUTH);
         Optional<ProductReview> productReviewOptional = productReviewRepository.findByOrderIdAndProductId(order.getId(), product.getId());
-        if(productReviewOptional.isPresent()) throw new AppException(ErrorCode.PRODUCT_REVIEW_EXISTED);
-        if(request.getRatingScore() <1 || request.getRatingScore()>5) throw new AppException(ErrorCode.RATING_SCORE_INVALID);
+        if(productReviewOptional.isPresent()) throw new AppException(messageProvider,ErrorCode.PRODUCT_REVIEW_EXISTED);
+        if(request.getRatingScore() <1 || request.getRatingScore()>5) throw new AppException(messageProvider,ErrorCode.RATING_SCORE_INVALID);
         ProductReview productReview = ProductReview.builder()
                 .product(product)
                 .order(order)

@@ -8,6 +8,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.example.cdweb_be.component.MessageProvider;
 import org.example.cdweb_be.dto.request.*;
 import org.example.cdweb_be.dto.response.LoginResponse;
 import org.example.cdweb_be.dto.response.UserResponse;
@@ -46,16 +47,18 @@ public class UserService {
     EmailService emailService;
     OtpRepository otpRepository;
     ObjectMapper objectMapper;
+    MessageProvider messageProvider;
     String DEFAULT_IMAGE_PATH = "https://i.imgur.com/W60xqJf.png";
     public UserResponse addUser(UserCreateRequest request){
+        
         Optional<User> userOptional = null;
 //        validEmail(request.getEmail());
         userOptional = userRepository.findByUsername(request.getUsername());
-        if (userOptional.isPresent()) throw new AppException(ErrorCode.USERNAME_EXISTED);
+        if (userOptional.isPresent()) throw new AppException(messageProvider,ErrorCode.USERNAME_EXISTED);
         userOptional = userRepository.findByEmail(request.getEmail());
-        if (userOptional.isPresent()) throw new AppException(ErrorCode.EMAIL_EXISTED);
+        if (userOptional.isPresent()) throw new AppException(messageProvider,ErrorCode.EMAIL_EXISTED);
         userOptional = userRepository.findByPhoneNumber(request.getPhoneNumber());
-        if (userOptional.isPresent()) throw new AppException(ErrorCode.PHONE_NUMBER_EXISTED);
+        if (userOptional.isPresent()) throw new AppException(messageProvider,ErrorCode.PHONE_NUMBER_EXISTED);
         User user = userMapper.toUser(request);
         user.setRole(Role.USER.name());
         user.setAvtPath(DEFAULT_IMAGE_PATH);
@@ -68,10 +71,10 @@ public class UserService {
         User user = userRepository.findByUsername(username).get();
         Optional<User> userOptional = userRepository.findByEmail(request.getEmail());
         if (userOptional.isPresent() && !user.getEmail().equals(request.getEmail()))
-            throw new AppException(ErrorCode.EMAIL_EXISTED);
+            throw new AppException(messageProvider,ErrorCode.EMAIL_EXISTED);
         userOptional = userRepository.findByPhoneNumber(request.getPhoneNumber());
         if (userOptional.isPresent() && !user.getPhoneNumber().equals(request.getPhoneNumber()))
-            throw new AppException(ErrorCode.PHONE_NUMBER_EXISTED);
+            throw new AppException(messageProvider,ErrorCode.PHONE_NUMBER_EXISTED);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setEmail(request.getEmail());
         user.setAvtPath(request.getAvtPath());
@@ -84,9 +87,9 @@ public class UserService {
     }
     public LoginResponse login(LoginRequest request){
         User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
+                .orElseThrow(() -> new AppException(messageProvider,ErrorCode.USER_NOT_EXISTS));
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new AppException(ErrorCode.PASSWORD_INCORRECT);
+            throw new AppException(messageProvider,ErrorCode.PASSWORD_INCORRECT);
         }
         String accessToken = authenticationService.generateToken(user);
         Optional<RefreshToken> refreshTokenOptional = refreshTokenRepository.findByUserId(user.getId());
@@ -109,7 +112,7 @@ public class UserService {
         try {
 
             RefreshToken refreshToken = refreshTokenRepository.findById(request.getRefreshToken())
-                    .orElseThrow(() -> new AppException(ErrorCode.REFRESH_TOKEN_NOT_FOUND));
+                    .orElseThrow(() -> new AppException(messageProvider,ErrorCode.REFRESH_TOKEN_NOT_FOUND));
             User user = userRepository.findById(refreshToken.getUserId()).get();
             String accessToken = authenticationService.generateToken(user);
             refreshToken.setExpriredAt(new Timestamp(Instant.now().plus(14, ChronoUnit.DAYS).toEpochMilli()));
@@ -120,7 +123,7 @@ public class UserService {
                     .build();
 
         }catch (Exception e){
-            throw new AppException(ErrorCode.SERVER_ERROR);
+            throw new AppException(messageProvider,ErrorCode.SERVER_ERROR);
         }
     }
     public boolean validEmail(String email){
@@ -142,10 +145,10 @@ public class UserService {
             if (userOptional.isPresent()) {
                 return userMapper.toUserResponse(userOptional.get());
             } else {
-                throw new AppException(ErrorCode.USER_NOT_EXISTS);
+                throw new AppException(messageProvider,ErrorCode.USER_NOT_EXISTS);
             }
         } catch (Exception e) {
-            throw new AppException(ErrorCode.SERVER_ERROR);
+            throw new AppException(messageProvider,ErrorCode.SERVER_ERROR);
         }
     }
 //    @PreAuthorize("hasRole('ADMIN')")
@@ -161,7 +164,7 @@ public class UserService {
         JWTClaimsSet claimsSet = authenticationService.getClaimsSet("Bearer "+accessToken.getAccessToken());
         Date expireAt =  claimsSet.getExpirationTime();
         if (expireAt.before(new Date(System.currentTimeMillis()))){
-            throw new AppException(ErrorCode.TOKEN_EXPIRED);
+            throw new AppException(messageProvider,ErrorCode.TOKEN_EXPIRED);
         }else{
 
             return "AccessToken is still valid";
@@ -172,7 +175,7 @@ public class UserService {
     public String sendOTP(String userNameOrEmail){
         Optional<User> userOptional = userRepository.findByEmail(userNameOrEmail);
         if(userOptional.isEmpty()) userOptional = userRepository.findByUsername(userNameOrEmail);
-        if(userOptional.isEmpty()) throw new AppException(ErrorCode.USERNAME_OR_EMAIL_NOT_EXISTS);
+        if(userOptional.isEmpty()) throw new AppException(messageProvider,ErrorCode.USERNAME_OR_EMAIL_NOT_EXISTS);
         User user = userOptional.get();
         String otp = "";
         Random rd = new Random();
@@ -190,7 +193,7 @@ public class UserService {
                 .build();
         boolean success = emailService.sendEmailResetPassword(otpEntity);
         if(!success){
-            throw new AppException(ErrorCode.SERVER_ERROR);
+            throw new AppException(messageProvider,ErrorCode.SERVER_ERROR);
         }
         otpEntity = otpRepository.save(otpEntity);
 
@@ -199,16 +202,16 @@ public class UserService {
     public JsonNode verifyOTP(VerifyOtpRequest request){
         Optional<User> userOptional = userRepository.findByEmail(request.getUsernameOrEmail());
         if(userOptional.isEmpty()) userOptional = userRepository.findByUsername(request.getUsernameOrEmail());
-        if(userOptional.isEmpty()) throw new AppException(ErrorCode.USERNAME_OR_EMAIL_NOT_EXISTS);
+        if(userOptional.isEmpty()) throw new AppException(messageProvider,ErrorCode.USERNAME_OR_EMAIL_NOT_EXISTS);
 
         Optional<OTP> otpOptional = otpRepository.findByEmail(request.getUsernameOrEmail());
         if(otpOptional.isEmpty()) otpOptional = otpRepository.findByUsername(request.getUsernameOrEmail());
-        if(otpOptional.isEmpty()) throw new AppException(ErrorCode.USERNAME_OR_EMAIL_INVALID_OTP);
+        if(otpOptional.isEmpty()) throw new AppException(messageProvider,ErrorCode.USERNAME_OR_EMAIL_INVALID_OTP);
 
         OTP otp = otpOptional.get();
-        if(otp.getVerified() != null && !otp.getVerified().isEmpty() ) throw new AppException(ErrorCode.OTP_VERIFIED);
-        if(otp.getExpireAt().before(new Timestamp(System.currentTimeMillis()))) throw new AppException(ErrorCode.OTP_EXPIRED);
-        if(!otp.getOtp().equals(request.getOtp())) throw new AppException(ErrorCode.OTP_INCORRECT);
+        if(otp.getVerified() != null && !otp.getVerified().isEmpty() ) throw new AppException(messageProvider,ErrorCode.OTP_VERIFIED);
+        if(otp.getExpireAt().before(new Timestamp(System.currentTimeMillis()))) throw new AppException(messageProvider,ErrorCode.OTP_EXPIRED);
+        if(!otp.getOtp().equals(request.getOtp())) throw new AppException(messageProvider,ErrorCode.OTP_INCORRECT);
         String verified = UUID.randomUUID().toString();
         while (otpRepository.findByVerified(verified).isPresent()){
             verified = UUID.randomUUID().toString();
@@ -221,11 +224,11 @@ public class UserService {
     }
     public String resetPassword(ResetPasswordRequest request){
         OTP otp = otpRepository.findByVerified(request.getResetPasswordToken()).orElseThrow(() ->
-                new AppException(ErrorCode.RESET_TOKEN_INVALID));
-        if(request.getNewPassword().length()<6) throw new AppException(ErrorCode.PASSWORD_INVALID);
+                new AppException(messageProvider,ErrorCode.RESET_TOKEN_INVALID));
+        if(request.getNewPassword().length()<6) throw new AppException(messageProvider,ErrorCode.PASSWORD_INVALID);
         Optional<User> userOptional = userRepository.findByUsername(otp.getUsername());
         if(userOptional.isEmpty()) userOptional = userRepository.findByEmail(otp.getEmail());
-        if(userOptional.isEmpty()) throw new AppException(ErrorCode.SERVER_ERROR);
+        if(userOptional.isEmpty()) throw new AppException(messageProvider,ErrorCode.SERVER_ERROR);
         User user = userOptional.get();
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);

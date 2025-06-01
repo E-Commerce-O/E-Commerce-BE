@@ -3,6 +3,7 @@ package org.example.cdweb_be.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.example.cdweb_be.component.MessageProvider;
 import org.example.cdweb_be.dto.request.ApplyVoucherRequest;
 import org.example.cdweb_be.dto.request.VoucherRequest;
 import org.example.cdweb_be.dto.response.CategoryVoucher;
@@ -33,19 +34,19 @@ public class VoucherService {
     CartItemRepository cartItemRepository;
     OrderDetailRepository orderDetailRepository;
     ProductService productService;
-
+    MessageProvider messageProvider;
     public VoucherResponse add(VoucherRequest request) {
         validationRequest(request);
         Optional<Voucher> voucherOptional = voucherRepository.findByCode(request.getCode());
-        if (voucherOptional.isPresent()) throw new AppException(ErrorCode.VOUCHER_CODE_EXISTED);
+        if (voucherOptional.isPresent()) throw new AppException(messageProvider,ErrorCode.VOUCHER_CODE_EXISTED);
         Set<Category> categories = new HashSet<>();
         for (long categoryId : request.getCategoryIds()) {
             Category category = categoryRepository.findById(categoryId).orElseThrow(() ->
-                    new AppException(ErrorCode.CATEGORY_NOT_EXISTS.setMessage("CategoryId: " + categoryId + " not exists!")));
+                    new AppException(messageProvider,ErrorCode.CATEGORY_NOT_EXISTS));
             categories.add(category);
         }
         if (categories.size() != request.getCategoryIds().size()) {
-            throw new AppException(ErrorCode.CATEGORY_DUPLICATE);
+            throw new AppException(messageProvider,ErrorCode.CATEGORY_DUPLICATE);
         }
         Voucher voucher = voucherMapper.toVoucber(request);
         voucher.setCreatedAt(new Timestamp(System.currentTimeMillis()));
@@ -64,7 +65,7 @@ public class VoucherService {
 
     public VoucherResponse update(long id, VoucherRequest request) {
         Voucher voucher = voucherRepository.findById(id).orElseThrow(() ->
-                new AppException(ErrorCode.VOUCHER_NOT_EXISTS));
+                new AppException(messageProvider,ErrorCode.VOUCHER_NOT_EXISTS));
         validationRequest(request);
         voucher = voucherMapper.toVoucber(request);
         voucher.setId(id);
@@ -75,11 +76,11 @@ public class VoucherService {
         Set<Category> categories = new HashSet<>();
         for (long categoryId : request.getCategoryIds()) {
             Category category = categoryRepository.findById(categoryId).orElseThrow(() ->
-                    new AppException(ErrorCode.CATEGORY_NOT_EXISTS.setMessage("CategoryId: " + categoryId + " not exists!")));
+                    new AppException(messageProvider,ErrorCode.CATEGORY_NOT_EXISTS));
             categories.add(category);
         }
         if (categories.size() != request.getCategoryIds().size()) {
-            throw new AppException(ErrorCode.CATEGORY_DUPLICATE);
+            throw new AppException(messageProvider,ErrorCode.CATEGORY_DUPLICATE);
         }
         for (Category category : categories) {
             categoryApplyOfVoucherRepository.save(CategoryApplyOfVouhcer.builder()
@@ -93,18 +94,18 @@ public class VoucherService {
     public double applyVouhcer(ApplyVoucherRequest request) {
         double result = 0;
         Voucher voucher = voucherRepository.findById(request.getVoucherId()).orElseThrow(() ->
-                new AppException(ErrorCode.VOUCHER_NOT_EXISTS));
+                new AppException(messageProvider,ErrorCode.VOUCHER_NOT_EXISTS));
         int quantity = getRemainingQuantity(voucher);
-        if (quantity <= 0) throw new AppException(ErrorCode.VOUCHER_EXPIRED_QUANTITY);
+        if (quantity <= 0) throw new AppException(messageProvider,ErrorCode.VOUCHER_EXPIRED_QUANTITY);
         if (voucher.getEndAt().before(new Timestamp(System.currentTimeMillis())))
-            throw new AppException(ErrorCode.VOUCHER_EXPIRED);
-        if(request.getCartItemIds().size() ==0) throw new AppException(ErrorCode.CART_ITEM_REQUIRED);
+            throw new AppException(messageProvider,ErrorCode.VOUCHER_EXPIRED);
+        if(request.getCartItemIds().size() ==0) throw new AppException(messageProvider,ErrorCode.CART_ITEM_REQUIRED);
         List<CartItem> cartItems = new ArrayList<>();
         List<Category> categoriesOfVoucher = categoryApplyOfVoucherRepository.findByVoucherId(voucher.getId())
                 .stream().map(categoryApplyOfVouhcer -> categoryApplyOfVouhcer.getCategory()).collect(Collectors.toList());
         for (long id : request.getCartItemIds()) {
             CartItem cartItem = cartItemRepository.findById(id).orElseThrow(() ->
-                    new AppException(ErrorCode.CART_ITEM_NOT_EXISTS));
+                    new AppException(messageProvider,ErrorCode.CART_ITEM_NOT_EXISTS));
             cartItems.add(cartItem);
         }
         double totalPriceValid = 0;
@@ -116,9 +117,9 @@ public class VoucherService {
                 totalPriceValid += ci.getQuantity() * productPrice;
             }
         }
-        if(totalPriceValid < voucher.getMinPrice()) throw new AppException(ErrorCode.VOUCHER_CANT_APPLY);
+        if(totalPriceValid < voucher.getMinPrice()) throw new AppException(messageProvider,ErrorCode.VOUCHER_CANT_APPLY);
         if(voucher.getType() == VoucherType.FREESHIP.getType()){
-            if(request.getShippingCost() ==0) throw new AppException(ErrorCode.SHIPPING_COST_REQUIRED);
+            if(request.getShippingCost() ==0) throw new AppException(messageProvider,ErrorCode.SHIPPING_COST_REQUIRED);
             result = Math.min(voucher.getMaxDecrease(), request.getShippingCost() * voucher.getPercentDecrease() / 100);
         }else{
             result = Math.min(voucher.getMaxDecrease(), totalPriceValid * voucher.getPercentDecrease() / 100);
@@ -132,14 +133,14 @@ public class VoucherService {
     }
 
     public List<VoucherResponse> getByType(int type) {
-        if (!VoucherType.contain(type)) throw new AppException(ErrorCode.VOUCHER_TYPE_INVALID);
+        if (!VoucherType.contain(type)) throw new AppException(messageProvider,ErrorCode.VOUCHER_TYPE_INVALID);
         List<Voucher> vouchers = voucherRepository.findByType(type);
         return vouchers.stream().map(voucher -> convertToVoucherResponse(voucher)).collect(Collectors.toList());
     }
 
     public VoucherResponse getByCode(String code) {
         Voucher voucher = voucherRepository.findByCodeValid(code).orElseThrow(() ->
-                new AppException(ErrorCode.VOUCHER_CODE_NOT_EXISTS));
+                new AppException(messageProvider,ErrorCode.VOUCHER_CODE_NOT_EXISTS));
         return convertToVoucherResponse(voucher);
     }
 
@@ -154,15 +155,15 @@ public class VoucherService {
     }
 
     public void validationRequest(VoucherRequest request) {
-        if (!VoucherType.contain(request.getType())) throw new AppException(ErrorCode.VOUCHER_TYPE_INVALID);
+        if (!VoucherType.contain(request.getType())) throw new AppException(messageProvider,ErrorCode.VOUCHER_TYPE_INVALID);
 
-        if (request.getCode().length() < 6) throw new AppException(ErrorCode.VOUCHER_CODE_INVALD);
+        if (request.getCode().length() < 6) throw new AppException(messageProvider,ErrorCode.VOUCHER_CODE_INVALID);
         if (request.getPercentDecrease() < 0 || request.getPercentDecrease() > 100)
-            throw new AppException(ErrorCode.VOUCHER_PERCENT_DECREASE_INVALD);
-        if (request.getQuantity() < 0) throw new AppException(ErrorCode.VOUCHER_QUANTITY_INVALD);
-        if (request.getMinPrice() < 0) throw new AppException(ErrorCode.VOUCHER_MIN_PRICE_INVALD);
+            throw new AppException(messageProvider,ErrorCode.VOUCHER_PERCENT_DECREASE_INVALID);
+        if (request.getQuantity() < 0) throw new AppException(messageProvider,ErrorCode.VOUCHER_QUANTITY_INVALID);
+        if (request.getMinPrice() < 0) throw new AppException(messageProvider,ErrorCode.VOUCHER_MIN_PRICE_INVALID);
         if (request.getEndAt().before(request.getStartAt()))
-            throw new AppException(ErrorCode.VOUCHER_END_AT_INVALD);
+            throw new AppException(messageProvider,ErrorCode.VOUCHER_END_AT_INVALID);
 
     }
 

@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
+import org.example.cdweb_be.component.MessageProvider;
 import org.example.cdweb_be.dto.response.ApiResponse;
 import org.example.cdweb_be.entity.Image;
 import org.example.cdweb_be.exception.AppException;
@@ -40,6 +41,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class FileUploadController {
+    MessageProvider messageProvider;
     String CATBOX_URL = "https://catbox.moe/user/api.php";
     String CLIENT_ID = "dd8ce706a76465e";
     int IMAGE_WIDTH = 700;//px
@@ -64,13 +66,13 @@ public class FileUploadController {
     public ApiResponse uploadFile(@RequestParam("file") MultipartFile file) {
 
         if (file.isEmpty()) {
-            throw new AppException(ErrorCode.IMAGE_REQUIRED);
+            throw new AppException(messageProvider,ErrorCode.IMAGE_REQUIRED);
         }
         String imageUrl = uploadToCatbox(file);
         if (imageUrl != null) {
             return new ApiResponse<>(imageUrl);
         } else {
-            throw new AppException(ErrorCode.SERVER_ERROR);
+            throw new AppException(messageProvider,ErrorCode.SERVER_ERROR);
         }
 //        try {
 //            Image imageEntity = new Image();
@@ -181,8 +183,8 @@ public class FileUploadController {
     @PostMapping("/db")
     public ApiResponse uploadFileDB(@RequestParam("file") MultipartFile file) {
         try {
-            if (file.isEmpty() || file.getBytes().length == 0) throw new AppException(ErrorCode.FILE_IS_EMPTY);
-            if (!isImageFile(file.getOriginalFilename())) throw new AppException((ErrorCode.FILE_ISNT_IMAGE));
+            if (file.isEmpty() || file.getBytes().length == 0) throw new AppException(messageProvider,ErrorCode.FILE_IS_EMPTY);
+            if (!isImageFile(file.getOriginalFilename())) throw new AppException(messageProvider,ErrorCode.FILE_ISNT_IMAGE);
             BufferedImage bufferedImage = ImageIO.read(file.getInputStream());
             log.info("Original size: "+file.getBytes().length);
             log.info("New size: "+ compressFile(resizeImage(bufferedImage, IMAGE_WIDTH)).length);
@@ -192,14 +194,14 @@ public class FileUploadController {
             imageRepository.save(imageEntity);
             return new ApiResponse("/identity/upload/" + imageEntity.getId());
         } catch (IOException e) {
-            throw new AppException(ErrorCode.SERVER_ERROR);
+            throw new AppException(messageProvider,ErrorCode.SERVER_ERROR);
         }
     }
     @PostMapping("/resize/{imageWidth}")
     public ApiResponse uploadFileResize(@RequestParam("file") MultipartFile file, @PathVariable int imageWidth) {
         try {
-            if (file.isEmpty() || file.getBytes().length == 0) throw new AppException(ErrorCode.FILE_IS_EMPTY);
-            if (!isImageFile(file.getOriginalFilename())) throw new AppException((ErrorCode.FILE_ISNT_IMAGE));
+            if (file.isEmpty() || file.getBytes().length == 0) throw new AppException(messageProvider,ErrorCode.FILE_IS_EMPTY);
+            if (!isImageFile(file.getOriginalFilename())) throw new AppException(messageProvider,(ErrorCode.FILE_ISNT_IMAGE));
             BufferedImage bufferedImage = ImageIO.read(file.getInputStream());
             log.info("Original size: "+file.getBytes().length);
             log.info("New size: "+ compressFile(resizeImage(bufferedImage, imageWidth)).length);
@@ -209,14 +211,14 @@ public class FileUploadController {
             imageRepository.save(imageEntity);
             return new ApiResponse("/identity/upload/" + imageEntity.getId());
         } catch (IOException e) {
-            throw new AppException(ErrorCode.SERVER_ERROR);
+            throw new AppException(messageProvider,ErrorCode.SERVER_ERROR);
         }
     }
     @PostMapping("/keep-size")
     public ApiResponse uploadFileKeepSize(@RequestParam("file") MultipartFile file) {
         try {
-            if (file.isEmpty() || file.getBytes().length == 0) throw new AppException(ErrorCode.FILE_IS_EMPTY);
-            if (!isImageFile(file.getOriginalFilename())) throw new AppException((ErrorCode.FILE_ISNT_IMAGE));
+            if (file.isEmpty() || file.getBytes().length == 0) throw new AppException(messageProvider,ErrorCode.FILE_IS_EMPTY);
+            if (!isImageFile(file.getOriginalFilename())) throw new AppException(messageProvider,(ErrorCode.FILE_ISNT_IMAGE));
             BufferedImage bufferedImage = ImageIO.read(file.getInputStream());
             log.info("Original size: "+file.getBytes().length);
             log.info("New size: "+ compressFile(resizeImage(bufferedImage, -1)).length);
@@ -226,7 +228,7 @@ public class FileUploadController {
             imageRepository.save(imageEntity);
             return new ApiResponse("/identity/upload/" + imageEntity.getId());
         } catch (IOException e) {
-            throw new AppException(ErrorCode.SERVER_ERROR);
+            throw new AppException(messageProvider,ErrorCode.SERVER_ERROR);
         }
     }
     private boolean isImageFile(String fileName) {

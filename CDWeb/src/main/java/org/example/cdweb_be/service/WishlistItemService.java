@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.example.cdweb_be.component.MessageProvider;
 import org.example.cdweb_be.dto.response.ProductResponse;
 import org.example.cdweb_be.entity.Product;
 import org.example.cdweb_be.entity.User;
@@ -30,15 +31,16 @@ public class WishlistItemService {
     ProductRepository productRepository;
     UserRepository userRepository;
     ProductService productService;
+    MessageProvider messageProvider;
     public String addWishlist(String token, long productId){
         long userId = authenticationService.getUserId(token);
         User user = userRepository.findById(userId).get();
         Product product = productRepository.findById(productId).orElseThrow(
-                () -> new AppException(ErrorCode.PRODUCT_NOT_EXISTS)
+                () -> new AppException(messageProvider,ErrorCode.PRODUCT_NOT_EXISTS)
         );
         Optional<WishlistItem> wishlistItemOptional = wishlistItemRepository.findByUserIdAndProductId(userId, productId);
         if(wishlistItemOptional.isPresent()){
-            throw new AppException(ErrorCode.WHISTLIST_EXISTED);
+            throw new AppException(messageProvider,ErrorCode.WISHLIST_EXISTED);
         }
         WishlistItem wishlistItem = WishlistItem.builder()
                 .user(user)
@@ -54,10 +56,10 @@ public class WishlistItemService {
         long userId = authenticationService.getUserId(token);
         User user = userRepository.findById(userId).get();
         Product product = productRepository.findById(productId).orElseThrow(
-                () -> new AppException(ErrorCode.PRODUCT_NOT_EXISTS)
+                () -> new AppException(messageProvider,ErrorCode.PRODUCT_NOT_EXISTS)
         );
         WishlistItem wishlistItem = wishlistItemRepository.findByUserIdAndProductId(userId, productId)
-                .orElseThrow(() -> new AppException(ErrorCode.WHISTLIST_NOT_EXISTS));
+                .orElseThrow(() -> new AppException(messageProvider,ErrorCode.WISHLIST_NOT_EXISTS));
         wishlistItemRepository.delete(wishlistItem);
         return "Delete productId: "+productId+" from your wishlist successfully";
     }

@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.example.cdweb_be.component.MessageProvider;
 import org.example.cdweb_be.dto.request.ProductImportCreateRequest;
 import org.example.cdweb_be.dto.request.ProductImportUpdateRequest;
 import org.example.cdweb_be.dto.response.ProductImportResponse;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ProductImportService {
+    MessageProvider messageProvider;
     ProductImportRepository productImportRepository;
     ProductRepository productRepository;
     UserRepository userRepository;
@@ -43,22 +45,22 @@ public class ProductImportService {
     }
     public ProductImportResponse add(String token, ProductImportCreateRequest request){
         Product product = productRepository.findById(request.getProductId()).orElseThrow(
-                () -> new AppException(ErrorCode.PRODUCT_NOT_EXISTS)
+                () -> new AppException(messageProvider,ErrorCode.PRODUCT_NOT_EXISTS)
         );
         ProductColor productColor = null;
         if(!productColorRepository.findByProductId(product.getId()).isEmpty()){
             productColor = productColorRepository.findById(request.getColorId()).orElseThrow(() ->
-                    new AppException(ErrorCode.PRODUCT_COLOR_NOT_EXISTS));
-            if(productColorRepository.findByIdAndProductId(productColor.getId(), product.getId()).isEmpty()) throw new AppException(ErrorCode.PRODUCT_COLOR_INVALID);
+                    new AppException(messageProvider,ErrorCode.PRODUCT_COLOR_NOT_EXISTS));
+            if(productColorRepository.findByIdAndProductId(productColor.getId(), product.getId()).isEmpty()) throw new AppException(messageProvider,ErrorCode.PRODUCT_COLOR_INVALID);
         }
         ProductSize size = null;
         if(!productSizeRepository.findByProductId(product.getId()).isEmpty()){
             size = productSizeRepository.findById(request.getSizeId()).orElseThrow(() ->
-                    new AppException(ErrorCode.PRODUCT_SIZE_NOT_EXISTS));
-            if(size.getProduct().getId() != product.getId()) throw new AppException(ErrorCode.PRODUCT_SIZE_INVALID);
+                    new AppException(messageProvider,ErrorCode.PRODUCT_SIZE_NOT_EXISTS));
+            if(size.getProduct().getId() != product.getId()) throw new AppException(messageProvider,ErrorCode.PRODUCT_SIZE_INVALID);
         }
-        if(request.getQuantity() <=0) throw new AppException(ErrorCode.QUANTITY_INVALID);
-        if(request.getPrice() <=0) throw new AppException(ErrorCode.PRICE_INVALID);
+        if(request.getQuantity() <=0) throw new AppException(messageProvider,ErrorCode.QUANTITY_INVALID);
+        if(request.getPrice() <=0) throw new AppException(messageProvider,ErrorCode.PRICE_INVALID);
         long userId = authenticationService.getUserId(token);
         User user = userRepository.findById(request.getUserImported()).orElse(
                 userRepository.findById(userId).get()
@@ -78,18 +80,18 @@ public class ProductImportService {
     }
     public ProductImportResponse update(String token, ProductImportUpdateRequest request){
         ProductImport productImport = productImportRepository.findById(request.getImportId()).orElseThrow(() ->
-                new AppException(ErrorCode.PRODUCT_IMPORT_NOT_EXISTS));
+                new AppException(messageProvider,ErrorCode.PRODUCT_IMPORT_NOT_EXISTS));
         Product product = productRepository.findById(request.getProductId()).orElseThrow(
-                () -> new AppException(ErrorCode.PRODUCT_NOT_EXISTS)
+                () -> new AppException(messageProvider,ErrorCode.PRODUCT_NOT_EXISTS)
         );
         ProductColor productColor = productColorRepository.findById(request.getColorId()).orElseThrow(() ->
-                new AppException(ErrorCode.PRODUCT_COLOR_NOT_EXISTS));
-        if(productColorRepository.findByIdAndProductId(productColor.getId(), product.getId()).isEmpty()) throw new AppException(ErrorCode.PRODUCT_COLOR_INVALID);
+                new AppException(messageProvider,ErrorCode.PRODUCT_COLOR_NOT_EXISTS));
+        if(productColorRepository.findByIdAndProductId(productColor.getId(), product.getId()).isEmpty()) throw new AppException(messageProvider,ErrorCode.PRODUCT_COLOR_INVALID);
         ProductSize size = productSizeRepository.findById(request.getSizeId()).orElseThrow(() ->
-                new AppException(ErrorCode.PRODUCT_SIZE_NOT_EXISTS));
-        if(size.getProduct().getId() != product.getId()) throw new AppException(ErrorCode.PRODUCT_SIZE_INVALID);
-        if(request.getQuantity() <=0) throw new AppException(ErrorCode.QUANTITY_INVALID);
-        if(request.getPrice() <=0) throw new AppException(ErrorCode.PRICE_INVALID);
+                new AppException(messageProvider,ErrorCode.PRODUCT_SIZE_NOT_EXISTS));
+        if(size.getProduct().getId() != product.getId()) throw new AppException(messageProvider,ErrorCode.PRODUCT_SIZE_INVALID);
+        if(request.getQuantity() <=0) throw new AppException(messageProvider,ErrorCode.QUANTITY_INVALID);
+        if(request.getPrice() <=0) throw new AppException(messageProvider,ErrorCode.PRICE_INVALID);
         long userId = authenticationService.getUserId(token);
         User user = userRepository.findById(request.getUserImported()).orElse(
                 userRepository.findById(userId).get()
@@ -128,13 +130,13 @@ public class ProductImportService {
             }
         }
         if (!change) {
-            throw new AppException(ErrorCode.CANT_UPDATE_IMPORT);
+            throw new AppException(messageProvider,ErrorCode.CANT_UPDATE_IMPORT);
         }
         return convertToProductImportResponse(productImportRepository.save(productImport));
     }
     public String delete(long importId){
         ProductImport productImport = productImportRepository.findById(importId).orElseThrow(() ->
-                new AppException(ErrorCode.PRODUCT_IMPORT_NOT_EXISTS));
+                new AppException(messageProvider,ErrorCode.PRODUCT_IMPORT_NOT_EXISTS));
         productImportRepository.delete(productImport);
         return "Delete import: "+importId+" successfilly!";
     }

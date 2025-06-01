@@ -42,7 +42,7 @@ public class UserController {
         return new ApiResponse(userService.addUser(request));
     }
     @PostMapping("/login")
-    ApiResponse login(@RequestBody LoginRequest request){
+    ApiResponse login(@Valid @RequestBody LoginRequest request){
         return new ApiResponse(userService.login(request));
     }
     @PostMapping("/refreshToken")

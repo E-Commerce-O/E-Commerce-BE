@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.example.cdweb_be.component.MessageProvider;
 import org.example.cdweb_be.dto.request.TagCreateRequest;
 import org.example.cdweb_be.entity.Tag;
 import org.example.cdweb_be.exception.AppException;
@@ -20,13 +21,14 @@ import java.util.Optional;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class TagService {
+    MessageProvider messageProvider;
     TagRepository tagRepository;
     TagMapper tagMapper;
 
     public Tag addTag(TagCreateRequest request) {
         Optional<Tag> tagOptional = tagRepository.findById(request.getName());
         if (tagOptional.isPresent()) {
-            throw new AppException(ErrorCode.TAG_EXISTED);
+            throw new AppException(messageProvider,ErrorCode.TAG_EXISTED);
         } else {
 
             return tagRepository.save(tagMapper.toTag(request));
@@ -38,7 +40,7 @@ public class TagService {
         if (tagOptional.isPresent()) {
             return tagOptional.get();
         } else {
-            throw new AppException(ErrorCode.NOT_FOUND);
+            throw new AppException(messageProvider,ErrorCode.NOT_FOUND);
 
         }
     }
@@ -58,7 +60,7 @@ public class TagService {
             tag.setDescription(request.getDescription());
             return tagRepository.save(tag);
         } else {
-            throw new AppException(ErrorCode.NOT_FOUND);
+            throw new AppException(messageProvider,ErrorCode.NOT_FOUND);
         }
     }
 
