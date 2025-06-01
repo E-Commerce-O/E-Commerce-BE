@@ -237,7 +237,7 @@ public class ProductService {
                 .orElseThrow(() -> new AppException(messageProvider,ErrorCode.IMAGE_NOT_EXISTS));
         if (image.getProduct().getId() == product.getId()) {
             productImageRepository.delete(image);
-            return "Delete image success!";
+            return messageProvider.getMessage("product.delete.image");
         } else {
             throw new AppException(messageProvider,ErrorCode.IMAGE_INVALID);
         }
@@ -327,7 +327,7 @@ public class ProductService {
         productTagRepository.deleteAll(productTagRepository.findByProductId(productId));
         productDetailRepository.deleteAll(productDetailRepository.findByProductId(productId));
         productRepository.delete(product);
-        return "Delete product success!";
+        return messageProvider.getMessage("product.delete");
     }
 
     @Transactional

@@ -175,7 +175,7 @@ public class CartService {
         Cart cart = cartRepository.findById(cartItem.getCart().getId()).get();
         if(cart.getUser().getId() != userId) throw new AppException(messageProvider,ErrorCode.CART_ITEM_UNAUTH);
         cartItemRepository.delete(cartItem);
-        return "Delete cartItem: "+cartItemId+" successfully!";
+        return messageProvider.getMessage("cartItem.delete");
     }
 
 

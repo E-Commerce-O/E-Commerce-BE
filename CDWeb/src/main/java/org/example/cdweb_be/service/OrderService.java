@@ -173,7 +173,7 @@ public class OrderService {
             throw new AppException(messageProvider,ErrorCode.ORDER_CANT_CANCEL);
         }
         updateStatus(order, OrderStatus.ST_DA_HUY);
-        return "Cancel order: "+orderId+" successful";
+        return messageProvider.getMessage("order.cancel");
     }
 
     public String returnOrder(String token, long orderId){
@@ -185,7 +185,7 @@ public class OrderService {
             throw new AppException(messageProvider,ErrorCode.ORDER_CANT_CANCEL);
         }
         updateStatus(order, OrderStatus.ST_YC_TRA_HANG);
-        return "Return order: "+orderId+" successful. The carrier will pick up the goods soon and the money will be refunded afterwards.";
+        return messageProvider.getMessage("order.return");
     }
     public String updateStatus(long orderId, int status){
         Order order = orderRepository.findById(orderId).orElseThrow(() ->
@@ -199,7 +199,7 @@ public class OrderService {
                 }else{
                     break;
                 }
-                return "Update status of order: "+orderId+" successful!";
+                return messageProvider.getMessage("order.update.status");
             }
             case OrderStatus.ST_DAT_HANG_TC:{
                 if(status == OrderStatus.ST_DANG_CBI_HANG || status == OrderStatus.ST_DA_HUY){
@@ -207,7 +207,7 @@ public class OrderService {
                 }else{
                     break;
                 }
-                return "Update status of order: "+orderId+" successful!";
+                return messageProvider.getMessage("order.update.status");
             }
             case OrderStatus.ST_DANG_CBI_HANG:{
                 if(status == OrderStatus.ST_DVVC_LAY_HANG || status == OrderStatus.ST_DA_HUY){
@@ -215,7 +215,7 @@ public class OrderService {
                 }else{
                     break;
                 }
-                return "Update status of order: "+orderId+" successful!";
+                return messageProvider.getMessage("order.update.status");
             }
             case OrderStatus.ST_DVVC_LAY_HANG:{
                 if(status == OrderStatus.ST_DANG_VAN_CHUYEN){
@@ -223,7 +223,7 @@ public class OrderService {
                 }else{
                     break;
                 }
-                return "Update status of order: "+orderId+" successful!";
+                return messageProvider.getMessage("order.update.status");
             }
             case OrderStatus.ST_DANG_VAN_CHUYEN:{
                 if(status == OrderStatus.ST_DANG_GIAO){
@@ -231,7 +231,7 @@ public class OrderService {
                 }else{
                     break;
                 }
-                return "Update status of order: "+orderId+" successful!";
+                return messageProvider.getMessage("order.update.status");
             }
             case OrderStatus.ST_DANG_GIAO:{
                 if(status == OrderStatus.ST_GIAO_THANH_CONG){
@@ -239,7 +239,7 @@ public class OrderService {
                 }else{
                     break;
                 }
-                return "Update status of order: "+orderId+" successful!";
+                return messageProvider.getMessage("order.update.status");
             }
             case OrderStatus.ST_YC_TRA_HANG:{
                 if(status == OrderStatus.ST_DA_TRA_HANG){
@@ -247,12 +247,10 @@ public class OrderService {
                 }else{
                     break;
                 }
-                return "Update status of order: "+orderId+" successful!";
+                return messageProvider.getMessage("order.update.status");
             }
 
         }
-        String errorMessage = "Cannot update status of order: "+orderId+" to '"+OrderStatus.getByStatusCode(status).getStatusName()+
-                "' because current status is '"+OrderStatus.getByStatusCode(order.getStatus()).getStatusName()+"'";
        throw new AppException(messageProvider,ErrorCode.ORDER_CANT_UPDATE);
     }
     public OrderResponse getById(long orderId){

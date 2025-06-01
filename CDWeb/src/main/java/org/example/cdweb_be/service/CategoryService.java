@@ -37,8 +37,10 @@ public class CategoryService {
         return categoryRepository.findAll();
     }
     public String deleteCategory(long id){
+        Category category = categoryRepository.findById(id).orElseThrow(() ->
+                new AppException(messageProvider, ErrorCode.CATEGORY_NOT_EXISTS));
         categoryRepository.deleteById(id);
-        return "Delete category successful!";
+        return messageProvider.getMessage("category.delete");
     }
     public Category updateCategory(Category request){
         Optional<Category> categoryOptional = categoryRepository.findById(request.getId());

@@ -85,7 +85,7 @@ public class AddressService {
         );
         if(userId != address.getUser().getId()) throw new AppException(messageProvider,ErrorCode.ADDRESS_UNAUTHORIZED);
         addressRepository.deleteById(addressId);
-        return "Address deleted successfully";
+        return messageProvider.getMessage("address.delete");
     }
     public Address convertAddressRequestToAddres(AddressRequest request){
         Province province = provinceRepository.findById(request.getProvinceId()).orElseThrow(

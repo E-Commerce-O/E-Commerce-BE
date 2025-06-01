@@ -138,7 +138,7 @@ public class ProductImportService {
         ProductImport productImport = productImportRepository.findById(importId).orElseThrow(() ->
                 new AppException(messageProvider,ErrorCode.PRODUCT_IMPORT_NOT_EXISTS));
         productImportRepository.delete(productImport);
-        return "Delete import: "+importId+" successfilly!";
+        return messageProvider.getMessage("import.delete");
     }
     public ProductImportResponse convertToProductImportResponse(ProductImport productImport){
         return ProductImportResponse.builder()

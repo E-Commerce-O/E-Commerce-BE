@@ -39,9 +39,9 @@ public class OrderController {
         return new ApiResponse(orderService.add(token, request));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
+//    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     @PutMapping("/status")
-    public ApiResponse updateStatus(@RequestParam long orderId, @RequestParam int status){
+    public ApiResponse updateStatus(@RequestParam("orderId") long orderId, @RequestParam("status") int status){
         return new ApiResponse(orderService.updateStatus(orderId, status));
     }
     @PutMapping("/cancel/{orderId}")

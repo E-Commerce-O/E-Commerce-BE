@@ -167,7 +167,7 @@ public class UserService {
             throw new AppException(messageProvider,ErrorCode.TOKEN_EXPIRED);
         }else{
 
-            return "AccessToken is still valid";
+            return messageProvider.getMessage("valid.token");
         }
 
     }
@@ -197,7 +197,7 @@ public class UserService {
         }
         otpEntity = otpRepository.save(otpEntity);
 
-        return "OTP has been sent to email "+otpEntity.getEmail();
+        return messageProvider.getMessage("send.otp")+otpEntity.getEmail();
     }
     public JsonNode verifyOTP(VerifyOtpRequest request){
         Optional<User> userOptional = userRepository.findByEmail(request.getUsernameOrEmail());
@@ -233,7 +233,7 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
         otpRepository.delete(otp);
-        return "Reset pasword successful";
+        return messageProvider.getMessage("reset.password");
 
     }
 }
