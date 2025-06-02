@@ -27,33 +27,33 @@ public class ProductController {
     ProductService productService;
 
     @GetMapping
-    public ApiResponse getAllProduct() {
-        return new ApiResponse(productService.getAll());
+    public ApiResponse getAllProduct( @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "9") int size) {
+        return new ApiResponse(productService.getAll(page, size));
     }
     @GetMapping("/{productId}")
     public ApiResponse getProductById(@PathVariable long productId, HttpServletRequest request){
         return new ApiResponse(productService.getByProductId(productId, request));
     }
     @GetMapping("/name/{productName}")
-    public ApiResponse getByName(@PathVariable String productName){
-        return new ApiResponse(productService.getByName(productName));
+    public ApiResponse getByName(@PathVariable String productName, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "9") int size){
+        return new ApiResponse(productService.getByName(productName, page, size));
     }
     @GetMapping("/category/{categoryId}")
-    public ApiResponse getByCategory(@PathVariable long categoryId){
-        return new ApiResponse(productService.getByCategory(categoryId));
+    public ApiResponse getByCategory(@PathVariable long categoryId, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "9") int size){
+        return new ApiResponse(productService.getByCategory(categoryId, page, size));
 
     }
     @GetMapping("/similar/{productId}")
-    public ApiResponse getSimilar(@PathVariable long productId){
-        return new ApiResponse(productService.getSimilar(productId));
+    public ApiResponse getSimilar(@PathVariable long productId , @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "9") int size){
+        return new ApiResponse(productService.getSimilar(productId, page, size));
     }
     @GetMapping("/history")
-    public ApiResponse getHistory(HttpServletRequest request){
-        return new ApiResponse(productService.getHistory(request));
+    public ApiResponse getHistory(HttpServletRequest request, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "9") int size){
+        return new ApiResponse(productService.getHistory(request, page, size));
     }
     @GetMapping("/tag/{tagName}")
-    public ApiResponse getProductsByTag(@PathVariable String tagName){
-        return new ApiResponse(productService.getProductByTag(tagName));
+    public ApiResponse getProductsByTag(@PathVariable String tagName, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "9") int size){
+        return new ApiResponse(productService.getProductByTag(tagName, page, size));
     }
     @PostMapping()
     public ApiResponse addProduct(@RequestBody ProductCreateRequest request){

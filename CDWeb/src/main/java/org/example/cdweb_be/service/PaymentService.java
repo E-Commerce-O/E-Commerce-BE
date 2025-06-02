@@ -3,6 +3,7 @@ package org.example.cdweb_be.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.example.cdweb_be.component.MessageProvider;
 import org.example.cdweb_be.entity.PaymentMethod;
 import org.example.cdweb_be.respository.PaymentMethodRepository;
 import org.springframework.http.HttpEntity;
@@ -22,6 +23,7 @@ import java.util.Map;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class PaymentService {
     PaymentMethodRepository paymentMethodRepository;
+    MessageProvider messageProvider;
     public List<PaymentMethod> getAllActive(){
         return paymentMethodRepository.findAllActive();
     }

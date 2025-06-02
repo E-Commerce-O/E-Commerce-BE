@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.*;
 public class WishlistItemController {
     WishlistItemService wishlistItemService;
     @GetMapping("/myWishlist")
-    public ApiResponse getMyWishlist(@RequestHeader("Authorization") String token){
-        return new ApiResponse(wishlistItemService.getMyWishlist(token));
+    public ApiResponse getMyWishlist(@RequestHeader("Authorization") String token, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "9") int size){
+        return new ApiResponse(wishlistItemService.getMyWishlist(token, page, size));
     }
     @PostMapping("/{productId}")
     public ApiResponse addWishlist(@RequestHeader("Authorization") String token, @PathVariable long productId){

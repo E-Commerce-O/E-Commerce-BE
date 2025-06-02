@@ -4,12 +4,10 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.example.cdweb_be.component.MessageProvider;
 import org.example.cdweb_be.dto.request.ApplyVoucherRequest;
 import org.example.cdweb_be.dto.request.OrderCreateRequest;
-import org.example.cdweb_be.dto.response.OrderItemResponse;
-import org.example.cdweb_be.dto.response.OrderResponse;
-import org.example.cdweb_be.dto.response.OrderStatusResponse;
-import org.example.cdweb_be.dto.response.OrderUser;
+import org.example.cdweb_be.dto.response.*;
 import org.example.cdweb_be.entity.*;
 import org.example.cdweb_be.enums.OrderStatus;
 import org.example.cdweb_be.enums.PaymentMethodEnum;
@@ -18,6 +16,7 @@ import org.example.cdweb_be.exception.AppException;
 import org.example.cdweb_be.exception.ErrorCode;
 import org.example.cdweb_be.respository.*;
 import org.example.cdweb_be.utils.responseUtilsAPI.DeliveryMethodUtil;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -44,7 +43,7 @@ public class OrderService {
     ProductService productService;
     AuthenticationService authenticationService;
     PaymentMethodRepository paymentMethodRepository;
-
+    MessageProvider messageProvider;
     public OrderResponse add(String token, OrderCreateRequest request) {
         long userId = authenticationService.getUserId(token);
         User user = userRepository.findById(userId).get();
@@ -52,20 +51,20 @@ public class OrderService {
         Set<CartItem> cartItems = new HashSet<>();
         for(long cartItemId: request.getCartItemIds()){
             CartItem cartItem = cartItemRepository.findById(cartItemId).orElseThrow(() ->
-                    new AppException(ErrorCode.CART_ITEM_NOT_EXISTS));
-            if(cartItem.getCart().getId() != cart.getId()) throw new AppException(ErrorCode.CART_ITEM_UNAUTH);
+                    new AppException(messageProvider,ErrorCode.CART_ITEM_NOT_EXISTS));
+            if(cartItem.getCart().getId() != cart.getId()) throw new AppException(messageProvider,ErrorCode.CART_ITEM_UNAUTH);
             cartItems.add(cartItem);
         }
-        if(cartItems.size() ==0) throw new AppException(ErrorCode.CART_ITEM_REQUIRED);
-        if(cartItems.size() != request.getCartItemIds().size()) throw new AppException(ErrorCode.CART_ITEM_DUPLICATED);
+        if(cartItems.size() ==0) throw new AppException(messageProvider,ErrorCode.CART_ITEM_REQUIRED);
+        if(cartItems.size() != request.getCartItemIds().size()) throw new AppException(messageProvider,ErrorCode.CART_ITEM_DUPLICATED);
         Address address = addressRepository.findById(request.getAddressId()).orElseThrow(() ->
-                new AppException(ErrorCode.ADDRESS_NOT_EXISTS));
+                new AppException(messageProvider,ErrorCode.ADDRESS_NOT_EXISTS));
         PaymentMethod paymentMethod = paymentMethodRepository.findById(request.getPaymentMethodId()).orElseThrow(() ->
-                new AppException(ErrorCode.PAYMENT_METHOD_INVALID));
-        if (address.getUser().getId() != userId) throw new AppException(ErrorCode.ADDRESS_UNAUTHORIZED);
+                new AppException(messageProvider,ErrorCode.PAYMENT_METHOD_INVALID));
+        if (address.getUser().getId() != userId) throw new AppException(messageProvider,ErrorCode.ADDRESS_UNAUTHORIZED);
         List<DeliveryMethodUtil> deliveryMethods = addressService.getInfoShip(address.getId());
         if (!deliveryMethods.contains(request.getDeliveryMethod()))
-            throw new AppException(ErrorCode.DELIVERY_METHOD_INVALID);
+            throw new AppException(messageProvider,ErrorCode.DELIVERY_METHOD_INVALID);
         Voucher shipVC = null;
         ApplyVoucherRequest applyVoucherRequest = ApplyVoucherRequest.builder()
                 .cartItemIds(request.getCartItemIds())
@@ -73,8 +72,8 @@ public class OrderService {
                 .build();
         if(request.getFreeshipVcId()>0){
             shipVC = voucherRepository.findById(request.getFreeshipVcId()).orElseThrow( () ->
-                    new AppException(ErrorCode.VOUCHER_NOT_EXISTS));
-            if(shipVC.getType() == VoucherType.PRODUCT.getType()) throw new AppException(ErrorCode.VOUCHER_SHIP_INVALID);
+                    new AppException(messageProvider,ErrorCode.VOUCHER_NOT_EXISTS));
+            if(shipVC.getType() == VoucherType.PRODUCT.getType()) throw new AppException(messageProvider,ErrorCode.VOUCHER_SHIP_INVALID);
             applyVoucherRequest.setVoucherId(shipVC.getId());
         }
 
@@ -82,8 +81,8 @@ public class OrderService {
         Voucher productVC = null;
         if(request.getProductVcId() >0){
             productVC = voucherRepository.findById(request.getProductVcId()).orElseThrow(() ->
-                    new AppException(ErrorCode.VOUCHER_NOT_EXISTS));
-            if(productVC.getType() == VoucherType.FREESHIP.getType()) throw new AppException(ErrorCode.VOUCHER_SHOP_INVALID);
+                    new AppException(messageProvider,ErrorCode.VOUCHER_NOT_EXISTS));
+            if(productVC.getType() == VoucherType.FREESHIP.getType()) throw new AppException(messageProvider,ErrorCode.VOUCHER_SHOP_INVALID);
             applyVoucherRequest.setVoucherId(productVC.getId());
 
         }
@@ -99,7 +98,7 @@ public class OrderService {
         List<OrderItem> orderItems = new ArrayList<>();
         for(CartItem cartItem : cartItems){
             int remainingQuantity = productService.getRemainingQuantity(cartItem.getProduct(), cartItem.getSize(), cartItem.getColor());
-            if(remainingQuantity < cartItem.getQuantity()) throw new AppException(ErrorCode.PRODUCT_QUANTITY_NOT_ENOUGH.setMessage(cartItem.getErrorCodeMessage()));
+            if(remainingQuantity < cartItem.getQuantity()) throw new AppException(messageProvider,ErrorCode.PRODUCT_QUANTITY_NOT_ENOUGH);
             OrderItem orderItem = new OrderItem(cartItem);
             orderItem.setOrder(order);
             orderItem.setDiscount(productService.getDiscount(cartItem.getProduct(), cartItem.getSize(), cartItem.getColor()));
@@ -147,50 +146,65 @@ public class OrderService {
 
         return orderResponse;
     }
-    public List<OrderResponse> getMyOrders(String token){
+    public PagingResponse getMyOrders(String token, int page, int size){
         long userId = authenticationService.getUserId(token);
-        List<OrderResponse> result = orderRepository.findByUserId(userId).stream()
+        List<OrderResponse> orderResponses = orderRepository.findByUserId(userId, PageRequest.of(page-1, size)).stream()
                 .map(order -> convertToOrderResponse(order)).collect(Collectors.toList());
-        return result;
+        return PagingResponse.<OrderResponse>builder()
+                .page(page)
+                .size(size)
+                .totalItem(orderRepository.countByUserId(userId))
+                .data(orderResponses)
+                .build();
     }
-    public List<OrderResponse> getAll(){
-        List<OrderResponse> result = orderRepository.findAll().stream()
+    public PagingResponse getAll(int page, int size){
+        List<OrderResponse> orderResponses = orderRepository.findAll(PageRequest.of(page-1, size)).stream()
                 .map(order -> convertToOrderResponse(order)).collect(Collectors.toList());
-        return result;
+         return PagingResponse.<OrderResponse>builder()
+                .page(page)
+                .size(size)
+                .totalItem(orderRepository.count())
+                .data(orderResponses)
+                .build();
     }
-    public List<OrderResponse> getAllByStatus(int status){
-        List<OrderResponse> result = orderRepository.findByStatus(status).stream()
+    public PagingResponse getAllByStatus(int status, int page, int size){
+        List<OrderResponse> orderResponses = orderRepository.findByStatus(status, PageRequest.of(page-1, size)).stream()
                 .map(order -> convertToOrderResponse(order)).collect(Collectors.toList());
-        return result;
+        return PagingResponse.<OrderResponse>builder()
+                .page(page)
+                .size(size)
+                .totalItem(orderRepository.countByStatus(status))
+                .data(orderResponses)
+                .build();
     }
     public String cancelOrder(String token, long orderId){
         long userId = authenticationService.getUserId(token);
         Order order = orderRepository.findById(orderId).orElseThrow(() ->
-                new AppException(ErrorCode.ORDER_NOT_EXISTS));
-        if(order.getUser().getId() != userId) throw new AppException(ErrorCode.ORDER_UPDATE_UNAUTH);
+                new AppException(messageProvider,ErrorCode.ORDER_NOT_EXISTS));
+        if(order.getUser().getId() != userId) throw new AppException(messageProvider,ErrorCode.ORDER_UPDATE_UNAUTH);
         if(order.getStatus() > OrderStatus.ST_DANG_CBI_HANG){
-            throw new AppException(ErrorCode.ORDER_CANT_CANCEL.setMessage("Cannot cancel this order because this order is "+OrderStatus.getByStatusCode(order.getStatus()).getStatusName()));
+            throw new AppException(messageProvider,ErrorCode.ORDER_CANT_CANCEL);
         }
         updateStatus(order, OrderStatus.ST_DA_HUY);
-        return "Cancel order: "+orderId+" successful";
+        return messageProvider.getMessage("order.cancel");
     }
 
     public String returnOrder(String token, long orderId){
         long userId = authenticationService.getUserId(token);
         Order order = orderRepository.findById(orderId).orElseThrow(() ->
-                new AppException(ErrorCode.ORDER_NOT_EXISTS));
-        if(order.getUser().getId() != userId) throw new AppException(ErrorCode.ORDER_UPDATE_UNAUTH);
+                new AppException(messageProvider,ErrorCode.ORDER_NOT_EXISTS));
+        if(order.getUser().getId() != userId) throw new AppException(messageProvider,ErrorCode.ORDER_UPDATE_UNAUTH);
         if(order.getStatus() != OrderStatus.ST_GIAO_THANH_CONG){
-            throw new AppException(ErrorCode.ORDER_CANT_CANCEL.setMessage("Cannot return this order because this order is "+OrderStatus.getByStatusCode(order.getStatus()).getStatusName()));
+            throw new AppException(messageProvider,ErrorCode.ORDER_CANT_CANCEL);
         }
         updateStatus(order, OrderStatus.ST_YC_TRA_HANG);
-        return "Return order: "+orderId+" successful. The carrier will pick up the goods soon and the money will be refunded afterwards.";
+        return messageProvider.getMessage("order.return");
     }
     public String updateStatus(long orderId, int status){
         Order order = orderRepository.findById(orderId).orElseThrow(() ->
-                new AppException(ErrorCode.ORDER_NOT_EXISTS));
-        if(OrderStatus.getByStatusCode(status) == null) throw new AppException(ErrorCode.ORDER_STATUS_INVALID);
-        if(order.getStatus() == status) throw new AppException(ErrorCode.ORDER_CANT_UPDATE.setMessage("Cannot update because new status duplicates old status"));
+                new AppException(messageProvider,ErrorCode.ORDER_NOT_EXISTS));
+        if(OrderStatus.getByStatusCode(status) == null) throw new AppException(messageProvider,ErrorCode.ORDER_STATUS_INVALID);
+        if(order.getStatus() == status) throw new AppException(messageProvider,ErrorCode.ORDER_CANT_UPDATE);
         switch (order.getStatus()){
             case OrderStatus.ST_CHO_THANH_TOAN:{
                 if(status == OrderStatus.ST_DAT_HANG_TC || status == OrderStatus.ST_DA_HUY){
@@ -198,7 +212,7 @@ public class OrderService {
                 }else{
                     break;
                 }
-                return "Update status of order: "+orderId+" successful!";
+                return messageProvider.getMessage("order.update.status");
             }
             case OrderStatus.ST_DAT_HANG_TC:{
                 if(status == OrderStatus.ST_DANG_CBI_HANG || status == OrderStatus.ST_DA_HUY){
@@ -206,7 +220,7 @@ public class OrderService {
                 }else{
                     break;
                 }
-                return "Update status of order: "+orderId+" successful!";
+                return messageProvider.getMessage("order.update.status");
             }
             case OrderStatus.ST_DANG_CBI_HANG:{
                 if(status == OrderStatus.ST_DVVC_LAY_HANG || status == OrderStatus.ST_DA_HUY){
@@ -214,7 +228,7 @@ public class OrderService {
                 }else{
                     break;
                 }
-                return "Update status of order: "+orderId+" successful!";
+                return messageProvider.getMessage("order.update.status");
             }
             case OrderStatus.ST_DVVC_LAY_HANG:{
                 if(status == OrderStatus.ST_DANG_VAN_CHUYEN){
@@ -222,7 +236,7 @@ public class OrderService {
                 }else{
                     break;
                 }
-                return "Update status of order: "+orderId+" successful!";
+                return messageProvider.getMessage("order.update.status");
             }
             case OrderStatus.ST_DANG_VAN_CHUYEN:{
                 if(status == OrderStatus.ST_DANG_GIAO){
@@ -230,7 +244,7 @@ public class OrderService {
                 }else{
                     break;
                 }
-                return "Update status of order: "+orderId+" successful!";
+                return messageProvider.getMessage("order.update.status");
             }
             case OrderStatus.ST_DANG_GIAO:{
                 if(status == OrderStatus.ST_GIAO_THANH_CONG){
@@ -238,7 +252,7 @@ public class OrderService {
                 }else{
                     break;
                 }
-                return "Update status of order: "+orderId+" successful!";
+                return messageProvider.getMessage("order.update.status");
             }
             case OrderStatus.ST_YC_TRA_HANG:{
                 if(status == OrderStatus.ST_DA_TRA_HANG){
@@ -246,17 +260,15 @@ public class OrderService {
                 }else{
                     break;
                 }
-                return "Update status of order: "+orderId+" successful!";
+                return messageProvider.getMessage("order.update.status");
             }
 
         }
-        String errorMessage = "Cannot update status of order: "+orderId+" to '"+OrderStatus.getByStatusCode(status).getStatusName()+
-                "' because current status is '"+OrderStatus.getByStatusCode(order.getStatus()).getStatusName()+"'";
-       throw new AppException(ErrorCode.ORDER_CANT_UPDATE.setMessage(errorMessage));
+       throw new AppException(messageProvider,ErrorCode.ORDER_CANT_UPDATE);
     }
     public OrderResponse getById(long orderId){
         Order order = orderRepository.findById(orderId).orElseThrow(() ->
-                new AppException(ErrorCode.ORDER_NOT_EXISTS));
+                new AppException(messageProvider,ErrorCode.ORDER_NOT_EXISTS));
         return convertToOrderResponse(order);
     }
     public void updateStatus(Order order, int status){

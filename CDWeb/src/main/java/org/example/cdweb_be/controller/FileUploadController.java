@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
+import org.example.cdweb_be.component.MessageProvider;
 import org.example.cdweb_be.dto.response.ApiResponse;
 import org.example.cdweb_be.entity.Image;
 import org.example.cdweb_be.exception.AppException;
@@ -21,10 +22,12 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartResolver;
-import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -38,8 +41,10 @@ import java.util.List;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class FileUploadController {
+    MessageProvider messageProvider;
     String CATBOX_URL = "https://catbox.moe/user/api.php";
     String CLIENT_ID = "dd8ce706a76465e";
+    int IMAGE_WIDTH = 700;//px
     ImageRepository imageRepository;
     @NonFinal
     @Value("${file.upload-dir}")
@@ -61,13 +66,13 @@ public class FileUploadController {
     public ApiResponse uploadFile(@RequestParam("file") MultipartFile file) {
 
         if (file.isEmpty()) {
-            throw new AppException(ErrorCode.IMAGE_REQUIRED);
+            throw new AppException(messageProvider,ErrorCode.IMAGE_REQUIRED);
         }
         String imageUrl = uploadToCatbox(file);
         if (imageUrl != null) {
             return new ApiResponse<>(imageUrl);
         } else {
-            throw new AppException(ErrorCode.SERVER_ERROR);
+            throw new AppException(messageProvider,ErrorCode.SERVER_ERROR);
         }
 //        try {
 //            Image imageEntity = new Image();
@@ -178,35 +183,89 @@ public class FileUploadController {
     @PostMapping("/db")
     public ApiResponse uploadFileDB(@RequestParam("file") MultipartFile file) {
         try {
-            if (file.isEmpty() || file.getBytes().length == 0) throw new AppException(ErrorCode.FILE_IS_EMPTY);
-            if (!isImageFile(file.getOriginalFilename())) throw new AppException((ErrorCode.FILE_ISNT_IMAGE));
+            if (file.isEmpty() || file.getBytes().length == 0) throw new AppException(messageProvider,ErrorCode.FILE_IS_EMPTY);
+            if (!isImageFile(file.getOriginalFilename())) throw new AppException(messageProvider,ErrorCode.FILE_ISNT_IMAGE);
+            BufferedImage bufferedImage = ImageIO.read(file.getInputStream());
+            log.info("Original size: "+file.getBytes().length);
+            log.info("New size: "+ compressFile(resizeImage(bufferedImage, IMAGE_WIDTH)).length);
             Image imageEntity = new Image();
-            imageEntity.setImageData(file.getBytes());
+            imageEntity.setImageData(compressFile(resizeImage(bufferedImage, IMAGE_WIDTH)));
             imageEntity.setImageName(file.getOriginalFilename());
             imageRepository.save(imageEntity);
             return new ApiResponse("/identity/upload/" + imageEntity.getId());
         } catch (IOException e) {
-            throw new AppException(ErrorCode.SERVER_ERROR);
+            throw new AppException(messageProvider,ErrorCode.SERVER_ERROR);
         }
     }
-
+    @PostMapping("/resize/{imageWidth}")
+    public ApiResponse uploadFileResize(@RequestParam("file") MultipartFile file, @PathVariable int imageWidth) {
+        try {
+            if (file.isEmpty() || file.getBytes().length == 0) throw new AppException(messageProvider,ErrorCode.FILE_IS_EMPTY);
+            if (!isImageFile(file.getOriginalFilename())) throw new AppException(messageProvider,(ErrorCode.FILE_ISNT_IMAGE));
+            BufferedImage bufferedImage = ImageIO.read(file.getInputStream());
+            log.info("Original size: "+file.getBytes().length);
+            log.info("New size: "+ compressFile(resizeImage(bufferedImage, imageWidth)).length);
+            Image imageEntity = new Image();
+            imageEntity.setImageData(compressFile(resizeImage(bufferedImage, imageWidth)));
+            imageEntity.setImageName(file.getOriginalFilename());
+            imageRepository.save(imageEntity);
+            return new ApiResponse("/identity/upload/" + imageEntity.getId());
+        } catch (IOException e) {
+            throw new AppException(messageProvider,ErrorCode.SERVER_ERROR);
+        }
+    }
+    @PostMapping("/keep-size")
+    public ApiResponse uploadFileKeepSize(@RequestParam("file") MultipartFile file) {
+        try {
+            if (file.isEmpty() || file.getBytes().length == 0) throw new AppException(messageProvider,ErrorCode.FILE_IS_EMPTY);
+            if (!isImageFile(file.getOriginalFilename())) throw new AppException(messageProvider,(ErrorCode.FILE_ISNT_IMAGE));
+            BufferedImage bufferedImage = ImageIO.read(file.getInputStream());
+            log.info("Original size: "+file.getBytes().length);
+            log.info("New size: "+ compressFile(resizeImage(bufferedImage, -1)).length);
+            Image imageEntity = new Image();
+            imageEntity.setImageData(compressFile(resizeImage(bufferedImage, -1)));
+            imageEntity.setImageName(file.getOriginalFilename());
+            imageRepository.save(imageEntity);
+            return new ApiResponse("/identity/upload/" + imageEntity.getId());
+        } catch (IOException e) {
+            throw new AppException(messageProvider,ErrorCode.SERVER_ERROR);
+        }
+    }
     private boolean isImageFile(String fileName) {
         for (String ext : ALLOWED_CONTENT_TYPES) {
             if (fileName.endsWith(ext)) return true;
         }
         return false;
     }
-    private byte[] optimizeFileSize(MultipartFile multipartFile) throws IOException {
-        File file = File.createTempFile("tempFile", multipartFile.getOriginalFilename());
+    private byte[] compressFile(BufferedImage bufferedImage) throws IOException{
+            // Nén ảnh
+//                bufferedImage = new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(), BufferedImage.TYPE_INT_RGB);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ImageWriter writer = ImageIO.getImageWritersByFormatName("jpg").next();
+                ImageWriteParam param = writer.getDefaultWriteParam();
+                param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+                param.setCompressionQuality(0.8f); // Đặt mức độ nén (0.0 - 1.0)
+                writer.setOutput(ImageIO.createImageOutputStream(baos));
+                writer.write(null, new IIOImage(bufferedImage, null, null), param);
+                writer.dispose();
 
-        // Ghi dữ liệu từ MultipartFile vào file
-        multipartFile.transferTo(file);
-        BufferedImage originalImage = ImageIO.read(file);
-        log.info("width: "+originalImage.getWidth());
-        log.info("height: "+originalImage.getHeight());
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write(originalImage, "jpg", baos);
-        byte[] imageBytes = baos.toByteArray();
-        return imageBytes;
+                return baos.toByteArray();
+
+    }
+    private BufferedImage resizeImage(BufferedImage bufferedImage, int imageWidth) throws IOException{
+//        BufferedImage originalImage = ImageIO.read(multipartFile.getInputStream());
+//        log.info("Original width: " + originalImage.getWidth());
+//        log.info("Original height: " + originalImage.getHeight());
+        double newRate = imageWidth > 0? bufferedImage.getWidth()/(double)imageWidth:1;
+        // Thay đổi kích thước (nếu cần)
+        int newWidth =  (int)(bufferedImage.getWidth() /newRate ); // Giảm 50%
+        int newHeight = (int)(bufferedImage.getHeight() / newRate);
+        BufferedImage resizedImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
+
+        // Vẽ ảnh resize
+        Graphics2D g = resizedImage.createGraphics();
+        g.drawImage(bufferedImage, 0, 0, newWidth, newHeight, null);
+        g.dispose();
+        return resizedImage;
     }
 }

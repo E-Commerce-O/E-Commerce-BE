@@ -17,17 +17,17 @@ public class OrderController {
     OrderService orderService;
 //    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     @GetMapping
-    public ApiResponse getAll(){
-        return new ApiResponse(orderService.getAll());
+    public ApiResponse getAll(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "9") int size){
+        return new ApiResponse(orderService.getAll(page, size));
     }
     @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     @GetMapping("/status/{status}")
-    public ApiResponse getByType(@PathVariable int status){
-        return new ApiResponse(orderService.getAllByStatus(status));
+    public ApiResponse getByType(@PathVariable int status, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "9") int size){
+        return new ApiResponse(orderService.getAllByStatus(status, page, size));
     }
     @GetMapping("/myOrders")
-    public ApiResponse getMyOrders(@RequestHeader("Authorization") String token){
-        return new ApiResponse(orderService.getMyOrders(token));
+    public ApiResponse getMyOrders(@RequestHeader("Authorization") String token, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "9") int size){
+        return new ApiResponse(orderService.getMyOrders(token, page, size));
     }
     @GetMapping("/{orderId}")
     public ApiResponse getById(@PathVariable long orderId){
@@ -41,7 +41,7 @@ public class OrderController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     @PutMapping("/status")
-    public ApiResponse updateStatus(@RequestParam long orderId, @RequestParam int status){
+    public ApiResponse updateStatus(@RequestParam("orderId") long orderId, @RequestParam("status") int status){
         return new ApiResponse(orderService.updateStatus(orderId, status));
     }
     @PutMapping("/cancel/{orderId}")

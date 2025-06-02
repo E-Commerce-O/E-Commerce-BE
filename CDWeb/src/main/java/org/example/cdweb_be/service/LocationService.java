@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.example.cdweb_be.component.MessageProvider;
 import org.example.cdweb_be.entity.District;
 import org.example.cdweb_be.entity.Province;
 import org.example.cdweb_be.entity.Ward;
@@ -31,7 +32,7 @@ public class LocationService {
     WardRepository wardRepository;
     AuthenticationService authenticationService;
     AddressMapper addressMapper;
-
+    MessageProvider messageProvider;
 
     public List<Province> getAllProvinces(){
             return provinceRepository.findAll();
@@ -44,20 +45,20 @@ public class LocationService {
     }
     public List<District> getDistrictsByProvince(long provinceId){
         Province province = provinceRepository.findById(provinceId).orElseThrow(
-                () -> new AppException(ErrorCode.PROVINCE_NOT_EXISTS)
+                () -> new AppException(messageProvider,ErrorCode.PROVINCE_NOT_EXISTS)
         );
         return districtRepository.findByProvinceId(provinceId);
     }
 //    public List<String> getDistrictsByProvince(long provinceId){
 //        Province province = provinceRepository.findById(provinceId).orElseThrow(
-//                () -> new AppException(ErrorCode.PROVINCE_NOT_EXISTS)
+//                () -> new AppException(messageProvider,ErrorCode.PROVINCE_NOT_EXISTS)
 //        );
 //        return districtRepository.findByProvinceId(provinceId).stream().map(district ->
 //                district.getName()).collect(Collectors.toList());
 //    }
     public List<District> getDistrictsByProvinceAndName(long provinceId, String districtName){
         Province province = provinceRepository.findById(provinceId).orElseThrow(
-                () -> new AppException(ErrorCode.PROVINCE_NOT_EXISTS)
+                () -> new AppException(messageProvider,ErrorCode.PROVINCE_NOT_EXISTS)
         );
         return districtRepository.findByProvinceIdAndName(provinceId, districtName);
     }
@@ -66,20 +67,20 @@ public class LocationService {
     }
     public List<Ward> getWardsByDistrict(long districtId){
         District district = districtRepository.findById(districtId).orElseThrow(
-                () -> new AppException(ErrorCode.DISTRICT_NOT_EXISTS)
+                () -> new AppException(messageProvider,ErrorCode.DISTRICT_NOT_EXISTS)
         );
         return wardRepository.findByDistrictId(districtId);
     }
 //public List<String> getWardsByDistrict(long districtId){
 //    District district = districtRepository.findById(districtId).orElseThrow(
-//            () -> new AppException(ErrorCode.DISTRICT_NOT_EXISTS)
+//            () -> new AppException(messageProvider,ErrorCode.DISTRICT_NOT_EXISTS)
 //    );
 //    return wardRepository.findByDistrictId(districtId).stream().map(ward ->
 //            ward.getName()).collect(Collectors.toList());
 //}
     public List<Ward> getWardsByDistrictAndName(long districtId, String wardName){
         District district = districtRepository.findById(districtId).orElseThrow(
-                () -> new AppException(ErrorCode.DISTRICT_NOT_EXISTS)
+                () -> new AppException(messageProvider,ErrorCode.DISTRICT_NOT_EXISTS)
         );
         return wardRepository.findByDistrictIdAndName(districtId, wardName);
     }

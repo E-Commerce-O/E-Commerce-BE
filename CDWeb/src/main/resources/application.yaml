@@ -26,6 +26,9 @@ server:
 #      ddl-auto: update
 #    show-sql: true
 spring:
+  messages:
+    basename: messages_vi
+    encoding: UTF-8
   servlet:
     multipart:
       max-file-size: 5MB

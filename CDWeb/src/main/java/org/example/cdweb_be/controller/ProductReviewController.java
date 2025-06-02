@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.cdweb_be.dto.request.ProductReviewCreateRequest;
 import org.example.cdweb_be.dto.response.ApiResponse;
-import org.example.cdweb_be.entity.ProductReview;
 import org.example.cdweb_be.service.ProductReviewService;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,11 +15,11 @@ import org.springframework.web.bind.annotation.*;
 public class ProductReviewController {
     ProductReviewService productReviewService;
     @GetMapping("/product/{productId}")
-    public ApiResponse getByProduct(@PathVariable long productId){
-        return new ApiResponse(productReviewService.getByProductId(productId));
+    public ApiResponse getByProduct(@PathVariable long productId, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "9") int size){
+        return new ApiResponse(productReviewService.getByProductId(productId, page, size));
     }
     @PostMapping
-    public ApiResponse add(@RequestBody ProductReviewCreateRequest request){
-        return new ApiResponse();
+    public ApiResponse add(@RequestHeader("Authorization") String token, @RequestBody ProductReviewCreateRequest request){
+        return new ApiResponse(productReviewService.add(token, request));
     }
 }

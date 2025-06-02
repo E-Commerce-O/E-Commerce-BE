@@ -13,6 +13,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.example.cdweb_be.component.MessageProvider;
 import org.example.cdweb_be.exception.AppException;
 import org.example.cdweb_be.exception.ErrorCode;
 import org.example.cdweb_be.utils.responseUtilsAPI.DistrictUtil;
@@ -21,6 +22,7 @@ import org.example.cdweb_be.utils.responseUtilsAPI.ProvinceUtil;
 import org.example.cdweb_be.utils.responseUtilsAPI.WardUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -189,11 +191,11 @@ public class AddressUltils {
                 // Xử lý jsonArray ở đây
             } else {
                 System.out.println("Error: " + responseCode);
-                throw new AppException(ErrorCode.SERVER_ERROR);
+                throw new RuntimeException();
             }
 
         } catch (Exception e) {
-            throw new AppException(ErrorCode.SERVER_ERROR);
+            throw new RuntimeException(e);
         }
     }
 

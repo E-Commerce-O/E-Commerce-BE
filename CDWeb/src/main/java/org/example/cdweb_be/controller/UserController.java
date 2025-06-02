@@ -30,8 +30,8 @@ public class UserController {
         return new ApiResponse(userService.getMyInfo(token));
     }
     @GetMapping
-    ApiResponse getAllUsers(){
-        return new ApiResponse(userService.getAllUsers());
+    ApiResponse getAllUsers(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "9") int size){
+        return new ApiResponse(userService.getAllUsers(page, size));
     }
     @PostMapping("/validToken")
     ApiResponse validToken(@RequestBody ValidTokenRequest accessToken){
@@ -42,7 +42,7 @@ public class UserController {
         return new ApiResponse(userService.addUser(request));
     }
     @PostMapping("/login")
-    ApiResponse login(@RequestBody LoginRequest request){
+    ApiResponse login(@Valid @RequestBody LoginRequest request){
         return new ApiResponse(userService.login(request));
     }
     @PostMapping("/refreshToken")

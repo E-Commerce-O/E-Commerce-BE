@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.example.cdweb_be.component.MessageProvider;
 import org.example.cdweb_be.dto.request.CartItemRequest;
 import org.example.cdweb_be.dto.response.CartItemResponse;
 import org.example.cdweb_be.dto.response.CartResponse;
@@ -28,7 +29,6 @@ import java.util.stream.Collectors;
 public class CartService {
     ProductSizeRepository productSizeRepository;
     ProductColorRepository productColorRepository;
-    ProductMapper productMapper;
     ProductImageRepository productImageRepository;
     CartRepository cartRepository;
     AuthenticationService authenticationService;
@@ -37,7 +37,7 @@ public class CartService {
     ProductRepository productRepository;
     CartItemRepository cartItemRepository;
     ProductService productService;
-
+    MessageProvider messageProvider;
     public CartResponse getMyCart(String token) {
         long userId = authenticationService.getUserId(token);
         User user = userRepository.findById(userId).get();
@@ -72,16 +72,16 @@ public class CartService {
                 .build());
         cart = cartRepository.save(cart);
         Product product = productRepository.findById(request.getProductId()).orElseThrow(() ->
-                new AppException(ErrorCode.PRODUCT_NOT_EXISTS));
+                new AppException(messageProvider,ErrorCode.PRODUCT_NOT_EXISTS));
         Optional<ProductColor> color = productColorRepository.findByIdAndProductId(request.getProductColor(), request.getProductId());
         Optional<ProductSize> size = productSizeRepository.findByIdAndProductId(request.getProductSize(), request.getProductId());
         if (!productSizeRepository.findByProductId(request.getProductId()).isEmpty() && size.isEmpty()) {
 //            log.info(!productSizeRepository.findByProductId(request.getProductId()).isEmpty()+"");
 //            log.info(size.isEmpty()+"");
-            throw new AppException(ErrorCode.CART_ITEM_INVAID_SIZE);
+            throw new AppException(messageProvider,ErrorCode.CART_ITEM_INVALID_SIZE);
         }
         if (!productColorRepository.findByProductId(request.getProductId()).isEmpty() && color.isEmpty()) {
-            throw new AppException(ErrorCode.CART_ITEM_INVAID_COLOR);
+            throw new AppException(messageProvider,ErrorCode.CART_ITEM_INVALID_COLOR);
         }
         Optional<CartItem> cartItemOptional = null;
         if (color.isPresent() && size.isPresent()) {
@@ -113,7 +113,7 @@ public class CartService {
         }
         int remainingQuantity =productService.getRemainingQuantity(cartItem.getProduct(), cartItem.getSize(), cartItem.getColor());
         if(cartItem.getQuantity() > remainingQuantity){
-            throw new AppException(ErrorCode.QUANTYTI_INSUFFICIENT);
+            throw new AppException(messageProvider,ErrorCode.QUANTITY_INSUFFICIENT);
         }
         cartItem = cartItemRepository.save(cartItem);
         CartItemResponse cartItemResponse = convertToCartItemResponse(cartItem);
@@ -124,13 +124,13 @@ public class CartService {
     public CartItemResponse increaseQuantity(String token, long cartItemId){
         long userId = authenticationService.getUserId(token);
         CartItem cartItem = cartItemRepository.findById(cartItemId).orElseThrow(() ->
-                new AppException(ErrorCode.CART_ITEM_NOT_EXISTS));
+                new AppException(messageProvider,ErrorCode.CART_ITEM_NOT_EXISTS));
         Cart cart = cartRepository.findById(cartItem.getCart().getId()).get();
-        if(cart.getUser().getId() != userId) throw new AppException(ErrorCode.CART_ITEM_UNAUTH);
+        if(cart.getUser().getId() != userId) throw new AppException(messageProvider,ErrorCode.CART_ITEM_UNAUTH);
         cartItem.setQuantity(cartItem.getQuantity()+1);
         int remainingQuantity =productService.getRemainingQuantity(cartItem.getProduct(), cartItem.getSize(), cartItem.getColor());
         if(cartItem.getQuantity() > remainingQuantity){
-            throw new AppException(ErrorCode.QUANTYTI_INSUFFICIENT);
+            throw new AppException(messageProvider,ErrorCode.QUANTITY_INSUFFICIENT);
         }
         cartItem = cartItemRepository.save(cartItem);
         CartItemResponse cartItemResponse = convertToCartItemResponse(cartItem);
@@ -141,9 +141,9 @@ public class CartService {
     public CartItemResponse decreaseQuantity(String token, long cartItemId){
         long userId = authenticationService.getUserId(token);
         CartItem cartItem = cartItemRepository.findById(cartItemId).orElseThrow(() ->
-                new AppException(ErrorCode.CART_ITEM_NOT_EXISTS));
+                new AppException(messageProvider,ErrorCode.CART_ITEM_NOT_EXISTS));
         Cart cart = cartRepository.findById(cartItem.getCart().getId()).get();
-        if(cart.getUser().getId() != userId) throw new AppException(ErrorCode.CART_ITEM_UNAUTH);
+        if(cart.getUser().getId() != userId) throw new AppException(messageProvider,ErrorCode.CART_ITEM_UNAUTH);
         cartItem.setQuantity(cartItem.getQuantity()-1);
         int remainingQuantity =productService.getRemainingQuantity(cartItem.getProduct(), cartItem.getSize(), cartItem.getColor());
         cartItem = cartItemRepository.save(cartItem);
@@ -154,12 +154,12 @@ public class CartService {
     public CartItemResponse updateQuantity(String token, long cartItemId, int quantity){
         long userId = authenticationService.getUserId(token);
         CartItem cartItem = cartItemRepository.findById(cartItemId).orElseThrow(() ->
-                new AppException(ErrorCode.CART_ITEM_NOT_EXISTS));
+                new AppException(messageProvider,ErrorCode.CART_ITEM_NOT_EXISTS));
         Cart cart = cartRepository.findById(cartItem.getCart().getId()).get();
-        if(cart.getUser().getId() != userId) throw new AppException(ErrorCode.CART_ITEM_UNAUTH);
+        if(cart.getUser().getId() != userId) throw new AppException(messageProvider,ErrorCode.CART_ITEM_UNAUTH);
         int remainingQuantity =productService.getRemainingQuantity(cartItem.getProduct(), cartItem.getSize(), cartItem.getColor());
         if(cartItem.getQuantity() < quantity && quantity > remainingQuantity){
-            throw new AppException(ErrorCode.QUANTYTI_INSUFFICIENT);
+            throw new AppException(messageProvider,ErrorCode.QUANTITY_INSUFFICIENT);
         }
         cartItem.setQuantity(quantity);
         cartItem = cartItemRepository.save(cartItem);
@@ -170,11 +170,11 @@ public class CartService {
     public String delete(String token, long cartItemId){
         long userId = authenticationService.getUserId(token);
         CartItem cartItem = cartItemRepository.findById(cartItemId).orElseThrow(() ->
-                new AppException(ErrorCode.CART_ITEM_NOT_EXISTS));
+                new AppException(messageProvider,ErrorCode.CART_ITEM_NOT_EXISTS));
         Cart cart = cartRepository.findById(cartItem.getCart().getId()).get();
-        if(cart.getUser().getId() != userId) throw new AppException(ErrorCode.CART_ITEM_UNAUTH);
+        if(cart.getUser().getId() != userId) throw new AppException(messageProvider,ErrorCode.CART_ITEM_UNAUTH);
         cartItemRepository.delete(cartItem);
-        return "Delete cartItem: "+cartItemId+" successfully!";
+        return messageProvider.getMessage("cartItem.delete");
     }
 
 
@@ -195,7 +195,7 @@ public class CartService {
                     .createdAt(new Timestamp(System.currentTimeMillis()))
                     .build();
             cartRepository.save(cart);
-            throw new AppException(ErrorCode.CART_IS_EMPTY);
+            throw new AppException(messageProvider,ErrorCode.CART_IS_EMPTY);
         }
         return cartOptional.get();
     }

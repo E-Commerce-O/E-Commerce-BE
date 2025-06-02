@@ -46,11 +46,12 @@ public class SecurityConfig implements WebMvcConfigurer {
 
         // Cấu hình quyền truy cập cho các yêu cầu HTTP
         httpSecurity.authorizeHttpRequests(request ->
-                        request.requestMatchers(HttpMethod.POST, PUBLIC_POST_ENDPOINTS).permitAll() // Cho phép tất cả yêu cầu POST đến PUBLIC_ENDPOINTS
-                                .requestMatchers(HttpMethod.GET, PUBLIC_GET_ENDPOINTS).permitAll()
-                                .requestMatchers("/swagger-ui/index.html").permitAll()
-                                .requestMatchers("/swagger.html","/swagger-ui/**",
-                                        "/swagger-ui.html", "/docs/**", "/v3/api-docs/**").permitAll()
+                        request
+//                                .requestMatchers(HttpMethod.POST, PUBLIC_POST_ENDPOINTS).permitAll() // Cho phép tất cả yêu cầu POST đến PUBLIC_ENDPOINTS
+//                                .requestMatchers(HttpMethod.GET, PUBLIC_GET_ENDPOINTS).permitAll()
+//                                .requestMatchers("/swagger-ui/index.html").permitAll()
+//                                .requestMatchers("/swagger.html","/swagger-ui/**",
+//                                        "/swagger-ui.html", "/docs/**", "/v3/api-docs/**").permitAll()
                                 .requestMatchers("/*", "/*/**").permitAll()
 //                                .requestMatchers("/category/*").permitAll()
 //                                .requestMatchers(HttpMethod.GET,"/user/*").permitAll()

@@ -4,8 +4,10 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.example.cdweb_be.component.MessageProvider;
 import org.example.cdweb_be.dto.request.ProductReviewCreateRequest;
 import org.example.cdweb_be.dto.response.OrderUser;
+import org.example.cdweb_be.dto.response.PagingResponse;
 import org.example.cdweb_be.dto.response.ProductReviewResponse;
 import org.example.cdweb_be.entity.Order;
 import org.example.cdweb_be.entity.OrderItem;
@@ -18,6 +20,9 @@ import org.example.cdweb_be.respository.OrderItemRepository;
 import org.example.cdweb_be.respository.OrderRepository;
 import org.example.cdweb_be.respository.ProductRepository;
 import org.example.cdweb_be.respository.ProductReviewRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -31,6 +36,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class ProductReviewService {
+    MessageProvider messageProvider;
     ProductReviewRepository productReviewRepository;
     OrderItemRepository orderItemRepository;
     OrderRepository orderRepository;
@@ -40,17 +46,17 @@ public class ProductReviewService {
     public ProductReviewResponse add(String token, ProductReviewCreateRequest request) {
         long userId = authenticationService.getUserId(token);
         Order order = orderRepository.findById(request.getOrderId()).orElseThrow(() ->
-                new AppException(ErrorCode.ORDER_NOT_EXISTS));
+                new AppException(messageProvider,ErrorCode.ORDER_NOT_EXISTS));
         if(order.getStatus() != OrderStatus.ST_GIAO_THANH_CONG && order.getStatus() != OrderStatus.ST_YC_TRA_HANG&& order.getStatus() != OrderStatus.ST_DA_TRA_HANG)
-            throw new AppException(ErrorCode.PRODUCT_REVIEW_STATUS_INVALID);
+            throw new AppException(messageProvider,ErrorCode.PRODUCT_REVIEW_STATUS_INVALID);
         Product product = productRepository.findById(request.getProductId()).orElseThrow(() ->
-                new AppException(ErrorCode.PRODUCT_NOT_EXISTS));
+                new AppException(messageProvider,ErrorCode.PRODUCT_NOT_EXISTS));
         OrderItem orderItem = orderItemRepository.findByOrderIdAndProductId(order.getId(), product.getId()).orElseThrow(() ->
-                new AppException(ErrorCode.PRODUCT_REVIEW_NOT_EXIST));
-        if(order.getUser().getId() != userId) throw new AppException(ErrorCode.PRODUCT_REVIEW_UNAUTH);
+                new AppException(messageProvider,ErrorCode.PRODUCT_REVIEW_NOT_EXIST));
+        if(order.getUser().getId() != userId) throw new AppException(messageProvider,ErrorCode.PRODUCT_REVIEW_UNAUTH);
         Optional<ProductReview> productReviewOptional = productReviewRepository.findByOrderIdAndProductId(order.getId(), product.getId());
-        if(productReviewOptional.isPresent()) throw new AppException(ErrorCode.PRODUCT_REVIEW_EXISTED);
-        if(request.getRatingScore() <1 || request.getRatingScore()>5) throw new AppException(ErrorCode.RATING_SCORE_INVALID);
+        if(productReviewOptional.isPresent()) throw new AppException(messageProvider,ErrorCode.PRODUCT_REVIEW_EXISTED);
+        if(request.getRatingScore() <1 || request.getRatingScore()>5) throw new AppException(messageProvider,ErrorCode.RATING_SCORE_INVALID);
         ProductReview productReview = ProductReview.builder()
                 .product(product)
                 .order(order)
@@ -66,11 +72,17 @@ public class ProductReviewService {
         return result;
     }
 
-    public List<ProductReviewResponse> getByProductId(long productId) {
-        List<ProductReview> productReviews = productReviewRepository.findByProductId(productId);
+    public PagingResponse getByProductId(long productId, int page, int size) {
+        Pageable pageable = PageRequest.of(page-1, size);
+        Page<ProductReview> productReviews = productReviewRepository.findByProductId(productId, pageable);
         List<ProductReviewResponse> productReviewResponses = productReviews.stream().map(productReview ->
                 converToProductReviewResponse(productReview)).collect(Collectors.toList());
-        return productReviewResponses;
+        return PagingResponse.<ProductReviewResponse>builder()
+                .page(page)
+                .size(size)
+                .totalItem(productReviewRepository.count())
+                .data(productReviewResponses)
+                .build();
     }
 
 

@@ -10,6 +10,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
+import org.example.cdweb_be.component.MessageProvider;
 import org.example.cdweb_be.entity.User;
 import org.example.cdweb_be.exception.AppException;
 import org.example.cdweb_be.exception.ErrorCode;
@@ -31,6 +32,7 @@ import java.util.StringJoiner;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticationService {
+    MessageProvider messageProvider;
     @NonFinal // đánh dấu để không tự tạo bở các annotation khác
     @Value("${jwt.signerKey}")
     protected String SIGNER_KEY;
@@ -63,7 +65,7 @@ public class AuthenticationService {
             return getClaimsSet(token).getLongClaim("id");
         } catch (Exception e) {
 
-            throw new AppException(ErrorCode.SERVER_ERROR);
+            throw new AppException(messageProvider,ErrorCode.SERVER_ERROR);
         }
     }
     public JWTClaimsSet getClaimsSet(String token) {
@@ -75,11 +77,11 @@ public class AuthenticationService {
                 JWTClaimsSet claims = JWTClaimsSet.parse(jwsObject.getPayload().toJSONObject());
                 return claims;
             } else {
-                throw new AppException(ErrorCode.ACCESS_TOKEN_INVALID);
+                throw new AppException(messageProvider,ErrorCode.ACCESS_TOKEN_INVALID);
             }
 
         } catch (Exception e) {
-            throw new AppException(ErrorCode.ACCESS_TOKEN_INVALID);
+            throw new AppException(messageProvider,ErrorCode.ACCESS_TOKEN_INVALID);
         }
     }
 }

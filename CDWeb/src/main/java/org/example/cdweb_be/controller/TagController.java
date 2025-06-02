@@ -27,6 +27,10 @@ public class TagController {
     ApiResponse getTag(@PathVariable String name) {
         return new ApiResponse(tagService.getTagByName(name));
     }
+    @GetMapping("/paging")
+    ApiResponse getAllTags(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "9") int size){
+        return new ApiResponse(tagService.getAll(page, size));
+    }
     @GetMapping
     ApiResponse getAllTags(){
         return new ApiResponse(tagService.getAll());
@@ -41,8 +45,7 @@ public class TagController {
     }
     @DeleteMapping("/{tagName}")
     ApiResponse deleteTag(@PathVariable String tagName){
-        tagService.deleteTag(tagName);
-        return new ApiResponse<>("Tag deleted successfully");
+        return new ApiResponse<>(tagService.deleteTag(tagName));
     }
 
 }

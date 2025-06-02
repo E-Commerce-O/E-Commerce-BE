@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.example.cdweb_be.component.MessageProvider;
 import org.example.cdweb_be.dto.request.ProductDetailUpdateRequest;
 import org.example.cdweb_be.dto.response.ProductDetailRespone;
 import org.example.cdweb_be.entity.*;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class ProductDetailService {
+    MessageProvider messageProvider;
     ProductRepository productRepository;
     ProductDetailRepository productDetailRepository;
     ProductMapper productMapper;
@@ -54,7 +56,7 @@ public class ProductDetailService {
     public List<ProductDetailRespone> getDetailsByProduct(long productId) {
         Optional<Product> productOptional = productRepository.findById(productId);
         if (productOptional.isEmpty()) {
-            throw new AppException(ErrorCode.PRODUCT_NOT_EXISTS);
+            throw new AppException(messageProvider,ErrorCode.PRODUCT_NOT_EXISTS);
         }
         List<ProductDetail> productDetails = productDetailRepository.findByProductId(productId);
         List<ProductDetailRespone> productDetailResponses = productDetails.stream().map(productDetail -> convertToProductDetailRespons(productDetail)).collect(Collectors.toList());
@@ -65,11 +67,11 @@ public class ProductDetailService {
     public List<ProductDetailRespone> getDetailsByProductAndColor(long productId, long colorId) {
         Optional<Product> productOptional = productRepository.findById(productId);
         if (productOptional.isEmpty()) {
-            throw new AppException(ErrorCode.PRODUCT_NOT_EXISTS);
+            throw new AppException(messageProvider,ErrorCode.PRODUCT_NOT_EXISTS);
         }
         List<ProductDetail> productDetails = productDetailRepository.findByProductIdAndColorId(productId, colorId);
         if (productDetails == null || productDetails.size() == 0) {
-            throw new AppException(ErrorCode.NOT_FOUND);
+            throw new AppException(messageProvider,ErrorCode.NOT_FOUND);
         }
         List<ProductDetailRespone> productDetailResponses = productDetails.stream().map(productDetail -> convertToProductDetailRespons(productDetail)).collect(Collectors.toList());
         return productDetailResponses;
@@ -78,11 +80,11 @@ public class ProductDetailService {
     public ProductDetailRespone getDetailsByProductAndColorAndSize(long productId, long colorId, long sizeId) {
         Optional<Product> productOptional = productRepository.findById(productId);
         if (productOptional.isEmpty()) {
-            throw new AppException(ErrorCode.PRODUCT_NOT_EXISTS);
+            throw new AppException(messageProvider,ErrorCode.PRODUCT_NOT_EXISTS);
         }
         Optional<ProductDetail> productDetails = productDetailRepository.findByProductIdAndColorIdAndSizeId(productId, colorId, sizeId);
         if (productDetails.isEmpty()) {
-            throw new AppException(ErrorCode.NOT_FOUND);
+            throw new AppException(messageProvider,ErrorCode.NOT_FOUND);
         }
         return convertToProductDetailRespons(productDetails.get());
     }
@@ -90,18 +92,18 @@ public class ProductDetailService {
     public List<ProductDetailRespone> getDetailsByProductAndSize(long productId, long sizeId) {
         Optional<Product> productOptional = productRepository.findById(productId);
         if (productOptional.isEmpty()) {
-            throw new AppException(ErrorCode.PRODUCT_NOT_EXISTS);
+            throw new AppException(messageProvider,ErrorCode.PRODUCT_NOT_EXISTS);
         }
         List<ProductDetail> productDetails = productDetailRepository.findByProductIdAndSizeId(productId, sizeId);
         if (productDetails == null || productDetails.size() == 0) {
-            throw new AppException(ErrorCode.NOT_FOUND);
+            throw new AppException(messageProvider,ErrorCode.NOT_FOUND);
         }
         List<ProductDetailRespone> productDetailResponses = productDetails.stream().map(productDetail -> convertToProductDetailRespons(productDetail)).collect(Collectors.toList());
         return productDetailResponses;
     }
 
     public ProductDetailRespone update(ProductDetailUpdateRequest request) {
-        ProductDetail productDetail = productDetailRepository.findById(request.getProductDetailId()).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_DETAIL_NOT_EXISTS));
+        ProductDetail productDetail = productDetailRepository.findById(request.getProductDetailId()).orElseThrow(() -> new AppException(messageProvider,ErrorCode.PRODUCT_DETAIL_NOT_EXISTS));
         productDetail.setPrice(request.getPrice());
         productDetail.setDiscount(request.getDiscount());
         return convertToProductDetailRespons(productDetailRepository.save(productDetail));

@@ -1,8 +1,11 @@
 package org.example.cdweb_be.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.cdweb_be.component.MessageProvider;
 import org.example.cdweb_be.dto.response.ApiResponse;
 import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -14,6 +17,8 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 @ControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+    @Autowired
+    MessageProvider messageProvider;
     @ExceptionHandler(value = RuntimeException.class) // bắt lỗi runtime
     ResponseEntity<ApiResponse> handlingRuntimeException(RuntimeException exception){
         ErrorCode errorCode = ErrorCode.UNCATEGORIZED_EXCEPTION;
@@ -31,10 +36,10 @@ public class GlobalExceptionHandler {
         ApiResponse<String> response = new ApiResponse<>();
         response.setCode(errorCode.getCode());
         response.setSuccess(errorCode.isSuccess());
-        response.setData(errorCode.getMessage());
-        return ResponseEntity
-                .status(errorCode.getStatusCode())
-                .body(response);
+        response.setData(exception.getMessage());
+
+        return ResponseEntity.status(errorCode.getStatusCode()).body(response);
+
     }
     @ExceptionHandler(value = MethodArgumentNotValidException.class) // bắt lỗi validation
     ResponseEntity<ApiResponse> handlingMethodArgumentNotValidException(MethodArgumentNotValidException exception){
@@ -48,7 +53,7 @@ public class GlobalExceptionHandler {
         ApiResponse<String> response = new ApiResponse<>();
         response.setCode(errorCode.getCode());
         response.setSuccess(errorCode.isSuccess());
-        response.setData(errorCode.getMessage());
+        response.setData(messageProvider.getMessage(errorCode.getMessageKey()));
         return ResponseEntity.status(errorCode.getStatusCode()).body(response);
     }
 //    @ExceptionHandler(value = ConstraintViolationException.class) // bắt lỗi validation
@@ -74,7 +79,7 @@ public class GlobalExceptionHandler {
 
                         .code(errorCode.getCode())
                         .isSuccess(errorCode.isSuccess())
-                        .data(errorCode.getMessage())
+                        .data(messageProvider.getMessage(errorCode.getMessageKey()))
                         .build()
         );
     }
@@ -86,7 +91,7 @@ public class GlobalExceptionHandler {
 
                         .code(errorCode.getCode())
                         .isSuccess(errorCode.isSuccess())
-                        .data(errorCode.getMessage())
+                        .data(messageProvider.getMessage(errorCode.getMessageKey()))
                         .build()
         );
     }
