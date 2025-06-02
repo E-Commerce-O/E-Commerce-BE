@@ -12,7 +12,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface ProductHistoryRepository extends JpaRepository<ProductHistory, Long>, PagingAndSortingRepository<ProductHistory, Long> {
+    public interface ProductHistoryRepository extends JpaRepository<ProductHistory, Long> {
     @Query("select ph.product from ProductHistory ph where ph.ip = :ip order by ph.viewAt desc")
     Page<Product> findByIp(String ip, Pageable pageable);
     int countByIp(String ip);

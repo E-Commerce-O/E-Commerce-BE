@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.cdweb_be.component.MessageProvider;
+import org.example.cdweb_be.dto.response.PagingResponse;
 import org.example.cdweb_be.entity.ProductTag;
 import org.example.cdweb_be.entity.Tag;
 import org.example.cdweb_be.respository.ProductTagRepository;
@@ -20,14 +21,28 @@ import java.util.stream.Collectors;
 public class ProductTagService {
     MessageProvider messageProvider;
     ProductTagRepository productTagRepository;
-    public List<Tag> getByProductId(long productId, int page, int size){
-        Page<ProductTag> productTags = productTagRepository.findByProductId(productId, PageRequest.of(page-1, size));
+
+    public PagingResponse getByProductId(long productId, int page, int size) {
+        Page<ProductTag> productTags = productTagRepository.findByProductId(productId, PageRequest.of(page - 1, size));
         List<Tag> tags = productTags.stream().map(
                 productTag -> productTag.getTag()
         ).collect(Collectors.toList());
-        return tags;
+        return PagingResponse.<Tag>builder()
+                .page(page)
+                .size(size)
+                .totalItem(productTagRepository.countByProductId(productId))
+                .data(tags)
+                .build();
     }
-    public Page<ProductTag> getAll(int page, int size){
-        return productTagRepository.findAll(PageRequest.of(page-1, size));
+
+    public PagingResponse getAll(int page, int size) {
+
+        Page<ProductTag> productTags = productTagRepository.findAll(PageRequest.of(page - 1, size));
+        return PagingResponse.<ProductTag>builder()
+                .page(page)
+                .size(size)
+                .totalItem(productTagRepository.count())
+                .data(productTags.stream().toList())
+                .build();
     }
 }

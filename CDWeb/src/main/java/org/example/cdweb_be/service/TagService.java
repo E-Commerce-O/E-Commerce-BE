@@ -6,11 +6,14 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.example.cdweb_be.component.MessageProvider;
 import org.example.cdweb_be.dto.request.TagCreateRequest;
+import org.example.cdweb_be.dto.response.PagingResponse;
 import org.example.cdweb_be.entity.Tag;
 import org.example.cdweb_be.exception.AppException;
 import org.example.cdweb_be.exception.ErrorCode;
 import org.example.cdweb_be.mapper.TagMapper;
 import org.example.cdweb_be.respository.TagRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -45,8 +48,14 @@ public class TagService {
         }
     }
 
-    public List<Tag> getAll() {
-        return tagRepository.findAll();
+    public PagingResponse getAll(int page, int size) {
+        Page<Tag> tags = tagRepository.findAll(PageRequest.of(page-1, size));
+        return PagingResponse.<Tag>builder()
+                .page(page)
+                .size(size)
+                .totalItem(tagRepository.count())
+                .data(tags.stream().toList())
+                .build();
     }
 
     public List<Tag> getAllByid(List<String> tagNames) {
@@ -64,7 +73,8 @@ public class TagService {
         }
     }
 
-    public void deleteTag(String tagName) {
+    public String deleteTag(String tagName) {
         tagRepository.deleteById(tagName);
+        return messageProvider.getMessage("delete.tag");
     }
 }

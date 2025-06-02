@@ -104,7 +104,6 @@ public class ProductService {
             productDetailService.initDetail(product, productColors, sizes);
 
         }
-
         return converToProductResponse(product);
     }
 
@@ -176,6 +175,63 @@ public class ProductService {
 
     }
 
+    public PagingResponse getByName(String productName, int page, int size) {
+        Page<Product> products = productRepository.findByName(productName, PageRequest.of(page-1, size));
+        List<ProductResponse> productResponses = products.stream()
+                .map(product -> converToProductResponse(product)).collect(Collectors.toList());
+        return PagingResponse.<ProductResponse>builder()
+                .page(page)
+                .size(size)
+                .totalItem(productRepository.count())
+                .data(productResponses)
+                .build();
+    }
+
+    public PagingResponse getByCategory(long categoryId, int page, int size) {
+        Category category = categoryRepository.findById(categoryId).orElseThrow(
+                () -> new AppException(messageProvider,ErrorCode.CATEGORY_NOT_EXISTS)
+        );
+        Page<Product> products = productRepository.findByCategoryId(categoryId, PageRequest.of(page-1, size));
+        List<ProductResponse> productResponses = products.stream().map(
+                product -> converToProductResponse(product)
+        ).collect(Collectors.toList());
+        return PagingResponse.<ProductResponse>builder()
+                .page(page)
+                .size(size)
+                .totalItem(productRepository.count())
+                .data(productResponses)
+                .build();
+    }
+
+    public PagingResponse getSimilar(long productId, int page, int size) {
+        Set<ProductResponse> setResponse = new HashSet<>();
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new AppException(messageProvider,ErrorCode.PRODUCT_NOT_EXISTS));
+        List<ProductResponse> productResponses = productRepository.findByName(product.getName(), PageRequest.of(0, 9999)).stream()
+                .map(pr -> converToProductResponse(pr)).collect(Collectors.toList());
+        setResponse.addAll(productResponses);
+        productResponses = productRepository.findByCategoryId(product.getCategory().getId(), PageRequest.of(0, 9999)).stream()
+                .map(pr -> converToProductResponse(pr)).collect(Collectors.toList());
+        setResponse.addAll(productResponses);
+        List<ProductResponse> result = new ArrayList<>(setResponse);
+        int toIndex = ((page-1)*size + size) >=result.size()?result.size()-1:(page-1)*size + size;
+        try {
+            return PagingResponse.<ProductResponse>builder()
+                    .page(page)
+                    .size(size)
+                    .totalItem(productRepository.count())
+                    .data(result.subList((page-1)*size, toIndex))
+                    .build();
+        } catch (Exception e) {
+            return PagingResponse.<ProductResponse>builder()
+                    .page(page)
+                    .size(size)
+                    .totalItem(productRepository.count())
+                    .data(new ArrayList<>())
+                    .build();
+        }
+    }
+
     public ProductResponse converToProductResponse(Product product) {
         ProductResponse productResponse = productMapper.toProductResponse(product);
         List<ProductImage> productImages = productImageRepository.findByProductId(product.getId());
@@ -215,18 +271,6 @@ public class ProductService {
             totalImport += productImport.getQuantity();
         }
         return totalImport - getTotalSale(productId);
-    }
-
-    public PagingResponse getByName(String productName, int page, int size) {
-        Page<Product> products = productRepository.findByName(productName, PageRequest.of(page-1, size));
-        List<ProductResponse> productResponses = products.stream()
-                .map(product -> converToProductResponse(product)).collect(Collectors.toList());
-        return PagingResponse.<ProductResponse>builder()
-                .page(page)
-                .size(size)
-                .totalItem(productRepository.count())
-                .data(productResponses)
-                .build();
     }
 
     public Product updateProduct(ProductUpdateRequest request) {
@@ -312,51 +356,6 @@ public class ProductService {
         List<String> curTags = productTagRepository.findByProductId(product.getId())
                 .stream().map(productTag -> productTag.getTag().getName()).collect(Collectors.toList());
         return curTags;
-    }
-
-    public PagingResponse getByCategory(long categoryId, int page, int size) {
-        Category category = categoryRepository.findById(categoryId).orElseThrow(
-                () -> new AppException(messageProvider,ErrorCode.CATEGORY_NOT_EXISTS)
-        );
-        Page<Product> products = productRepository.findByCategoryId(categoryId, PageRequest.of(page-1, size));
-        List<ProductResponse> productResponses = products.stream().map(
-                product -> converToProductResponse(product)
-        ).collect(Collectors.toList());
-        return PagingResponse.<ProductResponse>builder()
-                .page(page)
-                .size(size)
-                .totalItem(productRepository.count())
-                .data(productResponses)
-                .build();
-    }
-
-    public PagingResponse getSimilar(long productId, int page, int size) {
-        Set<ProductResponse> setResponse = new HashSet<>();
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new AppException(messageProvider,ErrorCode.PRODUCT_NOT_EXISTS));
-        List<ProductResponse> productResponses = productRepository.findByName(product.getName(), PageRequest.of(0, 9999)).stream()
-                .map(pr -> converToProductResponse(pr)).collect(Collectors.toList());
-        setResponse.addAll(productResponses);
-        productResponses = productRepository.findByCategoryId(product.getCategory().getId(), PageRequest.of(0, 9999)).stream()
-                .map(pr -> converToProductResponse(pr)).collect(Collectors.toList());
-        setResponse.addAll(productResponses);
-        List<ProductResponse> result = new ArrayList<>(setResponse);
-        int toIndex = ((page-1)*size + size) >=result.size()?result.size()-1:(page-1)*size + size;
-        try {
-            return PagingResponse.<ProductResponse>builder()
-                    .page(page)
-                    .size(size)
-                    .totalItem(productRepository.count())
-                    .data(result.subList((page-1)*size, toIndex))
-                    .build();
-        } catch (Exception e) {
-            return PagingResponse.<ProductResponse>builder()
-                    .page(page)
-                    .size(size)
-                    .totalItem(productRepository.count())
-                    .data(new ArrayList<>())
-                    .build();
-        }
     }
 
     public String deleteProduct(long productId) {

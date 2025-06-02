@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ProductReviewRepository extends PagingAndSortingRepository<ProductReview, Long>, JpaRepository<ProductReview, Long> {
+public interface ProductReviewRepository extends JpaRepository<ProductReview, Long> {
     @Query("select pr from ProductReview pr where pr.order.user.id =:userId")
     List<ProductReview> findByUserId(@Param("userId") long userId);
     @Query("select pr from ProductReview pr where pr.product.id = :productId")

@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.cdweb_be.component.MessageProvider;
 import org.example.cdweb_be.dto.request.*;
 import org.example.cdweb_be.dto.response.LoginResponse;
+import org.example.cdweb_be.dto.response.PagingResponse;
 import org.example.cdweb_be.dto.response.UserResponse;
 import org.example.cdweb_be.entity.OTP;
 import org.example.cdweb_be.entity.RefreshToken;
@@ -155,12 +156,17 @@ public class UserService {
         }
     }
     @PreAuthorize("hasRole('ADMIN')")
-    public List<UserResponse> getAllUsers(int page, int size){
+    public PagingResponse  getAllUsers(int page, int size){
         Page<User> users = userRepository.findAll(PageRequest.of(page-1, size));
-        List<UserResponse> result = users.stream().map(user ->
+        List<UserResponse> userResponses = users.stream().map(user ->
                 userMapper.toUserResponse(user)
         ).collect(Collectors.toList());
-        return result;
+        return PagingResponse.<UserResponse>builder()
+                .page(page)
+                .size(size)
+                .totalItem(userRepository.count())
+                .data(userResponses)
+                .build();
 
     }
     public String validToken(ValidTokenRequest accessToken){

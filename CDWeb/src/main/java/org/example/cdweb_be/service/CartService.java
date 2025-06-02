@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
 public class CartService {
     ProductSizeRepository productSizeRepository;
     ProductColorRepository productColorRepository;
-    ProductMapper productMapper;
     ProductImageRepository productImageRepository;
     CartRepository cartRepository;
     AuthenticationService authenticationService;

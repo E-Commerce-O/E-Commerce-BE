@@ -13,8 +13,10 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ProductImportRepository extends JpaRepository<ProductImport, Long>, PagingAndSortingRepository<ProductImport, Long> {
+public interface ProductImportRepository extends JpaRepository<ProductImport, Long> {
     Page<ProductImport> findAll(Pageable pageable);
+    Page<ProductImport> findByProductId(long productId, Pageable pageable);
+    Page<ProductImport> findByUserId(long userId, Pageable pageable);
     List<ProductImport> findByProductId(long productId);
     List<ProductImport> findByUserId(long userId);
     @Query("select pi from ProductImport pi where pi.product.id = :productId " +

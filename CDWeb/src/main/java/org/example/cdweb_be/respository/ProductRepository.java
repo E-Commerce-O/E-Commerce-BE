@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product, Long>, PagingAndSortingRepository<Product, Long> {
+public interface ProductRepository extends JpaRepository<Product, Long>{
     Page<Product> findAll(Pageable pageable);
     @Query("SELECT pr FROM Product pr WHERE pr.name like %:productName%")
     Page<Product> findByName(@Param("productName") String productName, Pageable pageable);

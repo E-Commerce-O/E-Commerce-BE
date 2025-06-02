@@ -7,6 +7,7 @@ import org.example.cdweb_be.component.MessageProvider;
 import org.example.cdweb_be.dto.request.ApplyVoucherRequest;
 import org.example.cdweb_be.dto.request.VoucherRequest;
 import org.example.cdweb_be.dto.response.CategoryVoucher;
+import org.example.cdweb_be.dto.response.PagingResponse;
 import org.example.cdweb_be.dto.response.VoucherResponse;
 import org.example.cdweb_be.entity.*;
 import org.example.cdweb_be.enums.OrderStatus;
@@ -129,15 +130,27 @@ public class VoucherService {
         return result;
     }
 
-    public List<VoucherResponse> getAll(int page, int size) {
+    public PagingResponse getAll(int page, int size) {
         Page<Voucher> vouchers = voucherRepository.findAllValid(PageRequest.of(page-1, size));
-        return vouchers.stream().map(voucher -> convertToVoucherResponse(voucher)).collect(Collectors.toList());
+        List<VoucherResponse> voucherResponses = vouchers.stream().map(voucher -> convertToVoucherResponse(voucher)).collect(Collectors.toList());
+        return PagingResponse.<VoucherResponse>builder()
+                .page(page)
+                .size(size)
+                .totalItem(voucherRepository.count())
+                .data(voucherResponses)
+                .build();
     }
 
-    public List<VoucherResponse> getByType(int type, int page, int size) {
+    public PagingResponse getByType(int type, int page, int size) {
         if (!VoucherType.contain(type)) throw new AppException(messageProvider,ErrorCode.VOUCHER_TYPE_INVALID);
         Page<Voucher> vouchers = voucherRepository.findByType(type, PageRequest.of(page-1, size));
-        return vouchers.stream().map(voucher -> convertToVoucherResponse(voucher)).collect(Collectors.toList());
+        List<VoucherResponse> voucherResponses = vouchers.stream().map(voucher -> convertToVoucherResponse(voucher)).collect(Collectors.toList());
+        return PagingResponse.<VoucherResponse>builder()
+                .page(page)
+                .size(size)
+                .totalItem(voucherRepository.countByType(type))
+                .data(voucherResponses)
+                .build();
     }
 
     public VoucherResponse getByCode(String code) {

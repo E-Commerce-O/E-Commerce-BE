@@ -23,4 +23,5 @@ public interface VoucherRepository extends JpaRepository<Voucher, Long>, PagingA
     @Query("select vc from Voucher  vc where vc.type = :type and vc.endAt > now()")
 
     Page<Voucher> findByType(@Param("type") int type, Pageable pageable);
+    int countByType(int type);
 }

@@ -7,10 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.cdweb_be.component.MessageProvider;
 import org.example.cdweb_be.dto.request.ApplyVoucherRequest;
 import org.example.cdweb_be.dto.request.OrderCreateRequest;
-import org.example.cdweb_be.dto.response.OrderItemResponse;
-import org.example.cdweb_be.dto.response.OrderResponse;
-import org.example.cdweb_be.dto.response.OrderStatusResponse;
-import org.example.cdweb_be.dto.response.OrderUser;
+import org.example.cdweb_be.dto.response.*;
 import org.example.cdweb_be.entity.*;
 import org.example.cdweb_be.enums.OrderStatus;
 import org.example.cdweb_be.enums.PaymentMethodEnum;
@@ -19,6 +16,7 @@ import org.example.cdweb_be.exception.AppException;
 import org.example.cdweb_be.exception.ErrorCode;
 import org.example.cdweb_be.respository.*;
 import org.example.cdweb_be.utils.responseUtilsAPI.DeliveryMethodUtil;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -148,21 +146,36 @@ public class OrderService {
 
         return orderResponse;
     }
-    public List<OrderResponse> getMyOrders(String token){
+    public PagingResponse getMyOrders(String token, int page, int size){
         long userId = authenticationService.getUserId(token);
-        List<OrderResponse> result = orderRepository.findByUserId(userId).stream()
+        List<OrderResponse> orderResponses = orderRepository.findByUserId(userId, PageRequest.of(page-1, size)).stream()
                 .map(order -> convertToOrderResponse(order)).collect(Collectors.toList());
-        return result;
+        return PagingResponse.<OrderResponse>builder()
+                .page(page)
+                .size(size)
+                .totalItem(orderRepository.countByUserId(userId))
+                .data(orderResponses)
+                .build();
     }
-    public List<OrderResponse> getAll(){
-        List<OrderResponse> result = orderRepository.findAll().stream()
+    public PagingResponse getAll(int page, int size){
+        List<OrderResponse> orderResponses = orderRepository.findAll(PageRequest.of(page-1, size)).stream()
                 .map(order -> convertToOrderResponse(order)).collect(Collectors.toList());
-        return result;
+         return PagingResponse.<OrderResponse>builder()
+                .page(page)
+                .size(size)
+                .totalItem(orderRepository.count())
+                .data(orderResponses)
+                .build();
     }
-    public List<OrderResponse> getAllByStatus(int status){
-        List<OrderResponse> result = orderRepository.findByStatus(status).stream()
+    public PagingResponse getAllByStatus(int status, int page, int size){
+        List<OrderResponse> orderResponses = orderRepository.findByStatus(status, PageRequest.of(page-1, size)).stream()
                 .map(order -> convertToOrderResponse(order)).collect(Collectors.toList());
-        return result;
+        return PagingResponse.<OrderResponse>builder()
+                .page(page)
+                .size(size)
+                .totalItem(orderRepository.countByStatus(status))
+                .data(orderResponses)
+                .build();
     }
     public String cancelOrder(String token, long orderId){
         long userId = authenticationService.getUserId(token);

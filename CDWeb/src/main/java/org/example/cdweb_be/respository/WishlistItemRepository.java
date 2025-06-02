@@ -13,5 +13,6 @@ import java.util.Optional;
 @Repository
 public interface WishlistItemRepository extends JpaRepository<WishlistItem, Long>, PagingAndSortingRepository<WishlistItem, Long> {
     Page<WishlistItem> findByUserId(long userId, Pageable pageable);
+    int countByUserId(long userId);
     Optional<WishlistItem> findByUserIdAndProductId(long userId, long productId);
 }

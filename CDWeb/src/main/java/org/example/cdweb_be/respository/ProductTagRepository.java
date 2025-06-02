@@ -14,9 +14,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ProductTagRepository extends JpaRepository<ProductTag, Long>, PagingAndSortingRepository<ProductTag, Long> {
+public interface ProductTagRepository extends JpaRepository<ProductTag, Long> {
     Page<ProductTag> findAll(Pageable pageable);
     Page<ProductTag> findByProductId(long productId, Pageable pageable);
+    int countByProductId(long productId);
     List<ProductTag> findByProductId(long productId);
     Optional<ProductTag> findByProductIdAndTagName(long productId, String tagName);
     @Query("select pt.product from ProductTag pt where pt.tag.name = :tagName")

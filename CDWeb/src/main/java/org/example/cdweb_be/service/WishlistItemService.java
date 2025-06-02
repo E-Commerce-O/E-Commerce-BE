@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.example.cdweb_be.component.MessageProvider;
+import org.example.cdweb_be.dto.response.PagingResponse;
 import org.example.cdweb_be.dto.response.ProductResponse;
 import org.example.cdweb_be.entity.Product;
 import org.example.cdweb_be.entity.User;
@@ -65,13 +66,18 @@ public class WishlistItemService {
         wishlistItemRepository.delete(wishlistItem);
         return "Delete productId: "+productId+" from your wishlist successfully";
     }
-    public List<ProductResponse> getMyWishlist(String token, int page, int size){
+    public PagingResponse getMyWishlist(String token, int page, int size){
         long userId = authenticationService.getUserId(token);
         Page<WishlistItem> wishlistItems = wishlistItemRepository.findByUserId(userId, PageRequest.of(page-1, size));
         List<ProductResponse> productResponses = wishlistItems.stream()
                 .map(wishlistItem -> productService.converToProductResponse(wishlistItem.getProduct()))
                 .collect(Collectors.toList());
-        return productResponses;
+        return PagingResponse.<ProductResponse>builder()
+                .page(page)
+                .size(size)
+                .totalItem(wishlistItemRepository.countByUserId(userId))
+                .data(productResponses)
+                .build();
 
     }
 }

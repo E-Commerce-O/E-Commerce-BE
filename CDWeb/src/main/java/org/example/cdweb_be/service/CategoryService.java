@@ -6,11 +6,14 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.example.cdweb_be.component.MessageProvider;
 import org.example.cdweb_be.dto.request.CategoryCreateRequest;
+import org.example.cdweb_be.dto.response.PagingResponse;
 import org.example.cdweb_be.entity.Category;
 import org.example.cdweb_be.exception.AppException;
 import org.example.cdweb_be.exception.ErrorCode;
 import org.example.cdweb_be.mapper.CategoryMapper;
 import org.example.cdweb_be.respository.CategoryRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,8 +36,13 @@ public class CategoryService {
             return categoryRepository.save(category);
         }
     }
-    public List<Category> getAll(){
-        return categoryRepository.findAll();
+    public PagingResponse getAll(int page, int size){
+        return PagingResponse.<Category>builder()
+                .page(page)
+                .size(size)
+                .totalItem(categoryRepository.count())
+                .data(categoryRepository.findAll(PageRequest.of(page-1, size)).stream().toList())
+                .build();
     }
     public String deleteCategory(long id){
         Category category = categoryRepository.findById(id).orElseThrow(() ->

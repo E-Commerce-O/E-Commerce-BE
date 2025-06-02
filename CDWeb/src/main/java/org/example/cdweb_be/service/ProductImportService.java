@@ -7,12 +7,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.cdweb_be.component.MessageProvider;
 import org.example.cdweb_be.dto.request.ProductImportCreateRequest;
 import org.example.cdweb_be.dto.request.ProductImportUpdateRequest;
+import org.example.cdweb_be.dto.response.PagingResponse;
 import org.example.cdweb_be.dto.response.ProductImportResponse;
 import org.example.cdweb_be.dto.response.UserImportProduct;
 import org.example.cdweb_be.entity.*;
 import org.example.cdweb_be.exception.AppException;
 import org.example.cdweb_be.exception.ErrorCode;
 import org.example.cdweb_be.respository.*;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
@@ -33,15 +35,25 @@ public class ProductImportService {
     ProductSizeRepository productSizeRepository;
     AuthenticationService authenticationService;
 
-    public List<ProductImportResponse> getAllProductImports(int page, int size) {
-        List<ProductImportResponse> productImportResponses = productImportRepository.findAll()
+    public PagingResponse getAllProductImports(int page, int size) {
+        List<ProductImportResponse> productImportResponses = productImportRepository.findAll(PageRequest.of(page-1, size))
                 .stream().map(productImport -> convertToProductImportResponse(productImport)).collect(Collectors.toList());
-        return productImportResponses;
+        return PagingResponse.<ProductImportResponse>builder()
+                .page(page)
+                .size(size)
+                .totalItem(productImportRepository.count())
+                .data(productImportResponses)
+                .build();
     }
-    public List<ProductImportResponse> getProductImportByProduct(long productId) {
-        List<ProductImportResponse> productImportResponses = productImportRepository.findByProductId(productId)
+    public PagingResponse getProductImportByProduct(long productId, int page, int size) {
+        List<ProductImportResponse> productImportResponses = productImportRepository.findByProductId(productId, PageRequest.of(page-1, size))
                 .stream().map(productImport -> convertToProductImportResponse(productImport)).collect(Collectors.toList());
-        return productImportResponses;
+        return PagingResponse.<ProductImportResponse>builder()
+                .page(page)
+                .size(size)
+                .totalItem(productImportRepository.count())
+                .data(productImportResponses)
+                .build();
     }
     public ProductImportResponse add(String token, ProductImportCreateRequest request){
         Product product = productRepository.findById(request.getProductId()).orElseThrow(

@@ -21,8 +21,8 @@ public class ProductImportController {
         return new ApiResponse(productImportService.getAllProductImports(page, size));
     }
     @GetMapping("product/{productId}")
-    public ApiResponse getByProduct(@PathVariable long productId) {
-        return new ApiResponse(productImportService.getProductImportByProduct(productId));
+    public ApiResponse getByProduct(@PathVariable long productId, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "9") int size) {
+        return new ApiResponse(productImportService.getProductImportByProduct(productId, page, size));
     }
     @PostMapping
     public ApiResponse add(@RequestHeader("Authorization") String token, @RequestBody ProductImportCreateRequest request){

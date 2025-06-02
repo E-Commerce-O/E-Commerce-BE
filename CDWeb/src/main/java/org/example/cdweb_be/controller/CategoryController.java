@@ -26,8 +26,8 @@ public class CategoryController {
         return new ApiResponse(categoryService.addCategory(request));
     }
     @GetMapping
-    ApiResponse getAll(){
-        return new ApiResponse(categoryService.getAll());
+    ApiResponse getAll(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "9") int size){
+        return new ApiResponse(categoryService.getAll(page, size));
     }
     @PutMapping
     ApiResponse update(@RequestBody Category request){
