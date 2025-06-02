@@ -27,9 +27,13 @@ public class TagController {
     ApiResponse getTag(@PathVariable String name) {
         return new ApiResponse(tagService.getTagByName(name));
     }
-    @GetMapping
+    @GetMapping("/paging")
     ApiResponse getAllTags(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "9") int size){
         return new ApiResponse(tagService.getAll(page, size));
+    }
+    @GetMapping
+    ApiResponse getAllTags(){
+        return new ApiResponse(tagService.getAll());
     }
 //    @GetMapping("/getAllByNames")
 //    ApiResponse getAllTagsById(@RequestBody List<String> tagNames){

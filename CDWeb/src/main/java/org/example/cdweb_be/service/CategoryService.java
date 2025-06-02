@@ -44,6 +44,9 @@ public class CategoryService {
                 .data(categoryRepository.findAll(PageRequest.of(page-1, size)).stream().toList())
                 .build();
     }
+    public List<Category> getAll(){
+        return categoryRepository.findAll();
+    }
     public String deleteCategory(long id){
         Category category = categoryRepository.findById(id).orElseThrow(() ->
                 new AppException(messageProvider, ErrorCode.CATEGORY_NOT_EXISTS));

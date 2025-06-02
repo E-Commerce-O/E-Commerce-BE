@@ -57,6 +57,10 @@ public class TagService {
                 .data(tags.stream().toList())
                 .build();
     }
+    public List<Tag> getAll() {
+        List<Tag> tags = tagRepository.findAll();
+        return tags;
+    }
 
     public List<Tag> getAllByid(List<String> tagNames) {
         return tagRepository.findAllById(tagNames);
