@@ -21,16 +21,16 @@ public class VoucherController {
         return new ApiResponse(voucherService.genCode());
     }
     @GetMapping
-    public ApiResponse getAll(){
-        return new ApiResponse(voucherService.getAll());
+    public ApiResponse getAll(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "9") int size){
+        return new ApiResponse(voucherService.getAll(page, size));
     }
     @GetMapping("/code/{voucherCode}")
     public ApiResponse getByCode(@PathVariable String voucherCode){
         return new ApiResponse(voucherService.getByCode(voucherCode));
     }
     @GetMapping("/type/{type}")
-    public ApiResponse getByType(@PathVariable int type){
-        return new ApiResponse(voucherService.getByType(type));
+    public ApiResponse getByType(@PathVariable int type, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "9") int size){
+        return new ApiResponse(voucherService.getByType(type, page, size));
     }
 
     @PostMapping

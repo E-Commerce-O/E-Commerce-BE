@@ -7,6 +7,8 @@ import org.example.cdweb_be.component.MessageProvider;
 import org.example.cdweb_be.entity.ProductTag;
 import org.example.cdweb_be.entity.Tag;
 import org.example.cdweb_be.respository.ProductTagRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,14 +20,14 @@ import java.util.stream.Collectors;
 public class ProductTagService {
     MessageProvider messageProvider;
     ProductTagRepository productTagRepository;
-    public List<Tag> getByProductId(long productId){
-        List<ProductTag> productTags = productTagRepository.findByProductId(productId);
+    public List<Tag> getByProductId(long productId, int page, int size){
+        Page<ProductTag> productTags = productTagRepository.findByProductId(productId, PageRequest.of(page-1, size));
         List<Tag> tags = productTags.stream().map(
                 productTag -> productTag.getTag()
         ).collect(Collectors.toList());
         return tags;
     }
-    public List<ProductTag> getAll(){
-        return productTagRepository.findAll();
+    public Page<ProductTag> getAll(int page, int size){
+        return productTagRepository.findAll(PageRequest.of(page-1, size));
     }
 }

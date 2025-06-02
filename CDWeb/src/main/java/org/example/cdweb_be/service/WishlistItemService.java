@@ -14,6 +14,8 @@ import org.example.cdweb_be.exception.ErrorCode;
 import org.example.cdweb_be.respository.ProductRepository;
 import org.example.cdweb_be.respository.UserRepository;
 import org.example.cdweb_be.respository.WishlistItemRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -63,9 +65,9 @@ public class WishlistItemService {
         wishlistItemRepository.delete(wishlistItem);
         return "Delete productId: "+productId+" from your wishlist successfully";
     }
-    public List<ProductResponse> getMyWishlist(String token){
+    public List<ProductResponse> getMyWishlist(String token, int page, int size){
         long userId = authenticationService.getUserId(token);
-        List<WishlistItem> wishlistItems = wishlistItemRepository.findByUserId(userId);
+        Page<WishlistItem> wishlistItems = wishlistItemRepository.findByUserId(userId, PageRequest.of(page-1, size));
         List<ProductResponse> productResponses = wishlistItems.stream()
                 .map(wishlistItem -> productService.converToProductResponse(wishlistItem.getProduct()))
                 .collect(Collectors.toList());

@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 // annotation định nghĩa field mặc định của biến
 @FieldDefaults(level = AccessLevel.PRIVATE) // mặc định là private nếu k tự định nghĩa
-public class ProductResponse {
+public class ProductResponse implements Comparable<ProductResponse>{
     long id;
     String name;
     String slug;
@@ -36,4 +36,11 @@ public class ProductResponse {
 //    List<ProductDetailRespone> details;
     Timestamp createdAt;
     Timestamp updatedAt;
+
+    @Override
+    public int compareTo(ProductResponse o) {
+        if(this.id < o.id) return -1;
+        else if(this.id > o.id) return 1;
+        else return 0;
+    }
 }

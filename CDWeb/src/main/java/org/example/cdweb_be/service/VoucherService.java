@@ -16,6 +16,8 @@ import org.example.cdweb_be.exception.ErrorCode;
 import org.example.cdweb_be.mapper.CategoryMapper;
 import org.example.cdweb_be.mapper.VoucherMapper;
 import org.example.cdweb_be.respository.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -127,14 +129,14 @@ public class VoucherService {
         return result;
     }
 
-    public List<VoucherResponse> getAll() {
-        List<Voucher> vouchers = voucherRepository.findAllValid();
+    public List<VoucherResponse> getAll(int page, int size) {
+        Page<Voucher> vouchers = voucherRepository.findAllValid(PageRequest.of(page-1, size));
         return vouchers.stream().map(voucher -> convertToVoucherResponse(voucher)).collect(Collectors.toList());
     }
 
-    public List<VoucherResponse> getByType(int type) {
+    public List<VoucherResponse> getByType(int type, int page, int size) {
         if (!VoucherType.contain(type)) throw new AppException(messageProvider,ErrorCode.VOUCHER_TYPE_INVALID);
-        List<Voucher> vouchers = voucherRepository.findByType(type);
+        Page<Voucher> vouchers = voucherRepository.findByType(type, PageRequest.of(page-1, size));
         return vouchers.stream().map(voucher -> convertToVoucherResponse(voucher)).collect(Collectors.toList());
     }
 

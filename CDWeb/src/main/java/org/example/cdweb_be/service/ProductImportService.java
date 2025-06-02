@@ -33,7 +33,7 @@ public class ProductImportService {
     ProductSizeRepository productSizeRepository;
     AuthenticationService authenticationService;
 
-    public List<ProductImportResponse> getAllProductImports() {
+    public List<ProductImportResponse> getAllProductImports(int page, int size) {
         List<ProductImportResponse> productImportResponses = productImportRepository.findAll()
                 .stream().map(productImport -> convertToProductImportResponse(productImport)).collect(Collectors.toList());
         return productImportResponses;

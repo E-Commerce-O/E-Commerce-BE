@@ -23,6 +23,9 @@ import org.example.cdweb_be.respository.OtpRepository;
 import org.example.cdweb_be.respository.RefreshTokenRepository;
 import org.example.cdweb_be.respository.UserRepository;
 import org.json.JSONObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -151,9 +154,9 @@ public class UserService {
             throw new AppException(messageProvider,ErrorCode.SERVER_ERROR);
         }
     }
-//    @PreAuthorize("hasRole('ADMIN')")
-    public List<UserResponse> getAllUsers(){
-        List<User> users = userRepository.findAll();
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<UserResponse> getAllUsers(int page, int size){
+        Page<User> users = userRepository.findAll(PageRequest.of(page-1, size));
         List<UserResponse> result = users.stream().map(user ->
                 userMapper.toUserResponse(user)
         ).collect(Collectors.toList());

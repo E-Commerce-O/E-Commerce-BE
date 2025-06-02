@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.cdweb_be.component.MessageProvider;
 import org.example.cdweb_be.dto.request.ProductReviewCreateRequest;
 import org.example.cdweb_be.dto.response.OrderUser;
+import org.example.cdweb_be.dto.response.PagingResponse;
 import org.example.cdweb_be.dto.response.ProductReviewResponse;
 import org.example.cdweb_be.entity.Order;
 import org.example.cdweb_be.entity.OrderItem;
@@ -71,12 +72,17 @@ public class ProductReviewService {
         return result;
     }
 
-    public List<ProductReviewResponse> getByProductId(long productId, int page, int quantity) {
-        Pageable pageable = PageRequest.of(page-1, quantity);
+    public PagingResponse getByProductId(long productId, int page, int size) {
+        Pageable pageable = PageRequest.of(page-1, size);
         Page<ProductReview> productReviews = productReviewRepository.findByProductId(productId, pageable);
         List<ProductReviewResponse> productReviewResponses = productReviews.stream().map(productReview ->
                 converToProductReviewResponse(productReview)).collect(Collectors.toList());
-        return productReviewResponses;
+        return PagingResponse.<ProductReviewResponse>builder()
+                .page(page)
+                .size(size)
+                .totalItem(productReviewRepository.count())
+                .data(productReviewResponses)
+                .build();
     }
 
 

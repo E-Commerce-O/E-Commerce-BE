@@ -6,19 +6,20 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.weaver.ast.Or;
 import org.example.cdweb_be.component.MessageProvider;
 import org.example.cdweb_be.dto.request.*;
+import org.example.cdweb_be.dto.response.PagingResponse;
 import org.example.cdweb_be.dto.response.ProductResponse;
 import org.example.cdweb_be.entity.*;
 import org.example.cdweb_be.enums.OrderStatus;
 import org.example.cdweb_be.exception.AppException;
 import org.example.cdweb_be.exception.ErrorCode;
 import org.example.cdweb_be.mapper.ProductMapper;
-import org.example.cdweb_be.mapper.ProductSizeMapper;
 import org.example.cdweb_be.respository.*;
 import org.example.cdweb_be.utils.IPUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -39,7 +40,6 @@ public class ProductService {
     ProductSizeRepository productSizeRepository;
     ProductColorRepository productColorRepository;
     ProductMapper productMapper;
-    ProductReviewService productReviewService;
     ProductImageRepository productImageRepository;
     ProductDetailRepository productDetailRepository;
     ProductTagRepository productTagRepository;
@@ -86,7 +86,7 @@ public class ProductService {
                 tags.add(tagOptional.get());
             }
         }
-        if (images.size() > 0) {
+        if (!images.isEmpty()) {
             images = productImageRepository.saveAll(images);
         }
         if (productColors.size() > 0) {
@@ -148,20 +148,32 @@ public class ProductService {
 
     }
 
-    public List<ProductResponse> getHistory(HttpServletRequest request) {
+    public PagingResponse getHistory(HttpServletRequest request, int page, int size) {
         String ip = IPUtils.getIP(request);
-
-        List<ProductResponse> productResponses = productHistoryRepository.findByIp(ip).stream()
+        Pageable pageable = PageRequest.of(page-1, size);
+        List<ProductResponse> productResponses = productHistoryRepository.findByIp(ip, pageable).stream()
                 .map(product -> converToProductResponse(product)).collect(Collectors.toList());
-        return productResponses;
+        return PagingResponse.<ProductResponse>builder()
+                .page(page)
+                .size(size)
+                .totalItem(productHistoryRepository.countByIp(ip))
+                .data(productResponses)
+                .build();
 
     }
 
-    public List<ProductResponse> getAll() {
-        List<Product> products = productRepository.findAll();
+    public PagingResponse getAll(int page, int size) {
+
+        Page<Product> products = productRepository.findAll(PageRequest.of(page-1, size));
         List<ProductResponse> productResponses = products.stream()
                 .map(product -> converToProductResponse(product)).collect(Collectors.toList());
-        return productResponses;
+        return PagingResponse.<ProductResponse>builder()
+                .page(page)
+                .size(size)
+                .totalItem(productRepository.count())
+                .data(productResponses)
+                .build();
+
     }
 
     public ProductResponse converToProductResponse(Product product) {
@@ -205,11 +217,16 @@ public class ProductService {
         return totalImport - getTotalSale(productId);
     }
 
-    public List<ProductResponse> getByName(String productName) {
-        List<Product> products = productRepository.findByName(productName);
+    public PagingResponse getByName(String productName, int page, int size) {
+        Page<Product> products = productRepository.findByName(productName, PageRequest.of(page-1, size));
         List<ProductResponse> productResponses = products.stream()
                 .map(product -> converToProductResponse(product)).collect(Collectors.toList());
-        return productResponses;
+        return PagingResponse.<ProductResponse>builder()
+                .page(page)
+                .size(size)
+                .totalItem(productRepository.count())
+                .data(productResponses)
+                .build();
     }
 
     public Product updateProduct(ProductUpdateRequest request) {
@@ -297,28 +314,49 @@ public class ProductService {
         return curTags;
     }
 
-    public List<ProductResponse> getByCategory(long categoryId) {
+    public PagingResponse getByCategory(long categoryId, int page, int size) {
         Category category = categoryRepository.findById(categoryId).orElseThrow(
                 () -> new AppException(messageProvider,ErrorCode.CATEGORY_NOT_EXISTS)
         );
-        List<Product> products = productRepository.findByCategoryId(categoryId);
-        List<ProductResponse> result = products.stream().map(
+        Page<Product> products = productRepository.findByCategoryId(categoryId, PageRequest.of(page-1, size));
+        List<ProductResponse> productResponses = products.stream().map(
                 product -> converToProductResponse(product)
         ).collect(Collectors.toList());
-        return result;
+        return PagingResponse.<ProductResponse>builder()
+                .page(page)
+                .size(size)
+                .totalItem(productRepository.count())
+                .data(productResponses)
+                .build();
     }
 
-    public Set<ProductResponse> getSimilar(long productId) {
-        Set<ProductResponse> result = new HashSet<>();
+    public PagingResponse getSimilar(long productId, int page, int size) {
+        Set<ProductResponse> setResponse = new HashSet<>();
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new AppException(messageProvider,ErrorCode.PRODUCT_NOT_EXISTS));
-        List<ProductResponse> productResponses = productRepository.findByName(product.getName()).stream()
+        List<ProductResponse> productResponses = productRepository.findByName(product.getName(), PageRequest.of(0, 9999)).stream()
                 .map(pr -> converToProductResponse(pr)).collect(Collectors.toList());
-        result.addAll(productResponses);
-        productResponses = productRepository.findByCategoryId(product.getCategory().getId()).stream()
+        setResponse.addAll(productResponses);
+        productResponses = productRepository.findByCategoryId(product.getCategory().getId(), PageRequest.of(0, 9999)).stream()
                 .map(pr -> converToProductResponse(pr)).collect(Collectors.toList());
-        result.addAll(productResponses);
-        return result;
+        setResponse.addAll(productResponses);
+        List<ProductResponse> result = new ArrayList<>(setResponse);
+        int toIndex = ((page-1)*size + size) >=result.size()?result.size()-1:(page-1)*size + size;
+        try {
+            return PagingResponse.<ProductResponse>builder()
+                    .page(page)
+                    .size(size)
+                    .totalItem(productRepository.count())
+                    .data(result.subList((page-1)*size, toIndex))
+                    .build();
+        } catch (Exception e) {
+            return PagingResponse.<ProductResponse>builder()
+                    .page(page)
+                    .size(size)
+                    .totalItem(productRepository.count())
+                    .data(new ArrayList<>())
+                    .build();
+        }
     }
 
     public String deleteProduct(long productId) {
@@ -465,9 +503,18 @@ public class ProductService {
         }
 
     }
-    public List<ProductResponse> getProductByTag(String tagName){
+    public PagingResponse getProductByTag(String tagName, int page, int size){
         Tag tag = tagRepository.findById(tagName).orElseThrow(() -> new AppException(messageProvider,ErrorCode.TAG_NOT_EXISTS));
-        List<Product> products = productTagRepository.findProductByTag(tagName);
-        return products.stream().map(product -> converToProductResponse(product)).collect(Collectors.toList());
+        Page<Product> products = productTagRepository.findProductByTag(tagName, PageRequest.of(page-1, size));
+        List<ProductResponse> productResponses  =products.stream().map(product -> converToProductResponse(product)).collect(Collectors.toList());
+        return PagingResponse.<ProductResponse>builder()
+                .page(page)
+                .size(size)
+                .totalItem(productRepository.count())
+                .data(productResponses)
+                .build();
     }
+//    public Pageable createPageable(int page, int size){
+//        return PageRequest.of(page-1, size);
+//    }
 }

@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.*;
 public class ProductImportController {
     ProductImportService productImportService;
     @GetMapping
-    public ApiResponse getAll(){
-        return new ApiResponse(productImportService.getAllProductImports());
+    public ApiResponse getAll(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "9") int size){
+        return new ApiResponse(productImportService.getAllProductImports(page, size));
     }
     @GetMapping("product/{productId}")
     public ApiResponse getByProduct(@PathVariable long productId) {
