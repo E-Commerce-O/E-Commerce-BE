@@ -16,11 +16,11 @@ import org.springframework.web.bind.annotation.*;
 public class ProductReviewController {
     ProductReviewService productReviewService;
     @GetMapping("/product/{productId}")
-    public ApiResponse getByProduct(@PathVariable long productId){
-        return new ApiResponse(productReviewService.getByProductId(productId));
+    public ApiResponse getByProduct(@PathVariable long productId, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "9") int quantity){
+        return new ApiResponse(productReviewService.getByProductId(productId, page, quantity));
     }
     @PostMapping
-    public ApiResponse add(@RequestBody ProductReviewCreateRequest request){
-        return new ApiResponse();
+    public ApiResponse add(@RequestHeader("Authorization") String token, @RequestBody ProductReviewCreateRequest request){
+        return new ApiResponse(productReviewService.add(token, request));
     }
 }

@@ -19,6 +19,9 @@ import org.example.cdweb_be.respository.OrderItemRepository;
 import org.example.cdweb_be.respository.OrderRepository;
 import org.example.cdweb_be.respository.ProductRepository;
 import org.example.cdweb_be.respository.ProductReviewRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -68,8 +71,9 @@ public class ProductReviewService {
         return result;
     }
 
-    public List<ProductReviewResponse> getByProductId(long productId) {
-        List<ProductReview> productReviews = productReviewRepository.findByProductId(productId);
+    public List<ProductReviewResponse> getByProductId(long productId, int page, int quantity) {
+        Pageable pageable = PageRequest.of(page-1, quantity);
+        Page<ProductReview> productReviews = productReviewRepository.findByProductId(productId, pageable);
         List<ProductReviewResponse> productReviewResponses = productReviews.stream().map(productReview ->
                 converToProductReviewResponse(productReview)).collect(Collectors.toList());
         return productReviewResponses;

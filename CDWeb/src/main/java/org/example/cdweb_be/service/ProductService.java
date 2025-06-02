@@ -169,7 +169,7 @@ public class ProductService {
         List<ProductImage> productImages = productImageRepository.findByProductId(product.getId());
         productResponse.setImages(productImages.stream().map(productMapper::toProductImageResponse).collect(Collectors.toList()));
         List<ProductTag> productTags = productTagRepository.findByProductId(product.getId());
-        List<ProductReview> productReviews = productReviewRepository.findByProductId(product.getId());
+        List<ProductReview> productReviews = productReviewRepository.findAllByProductId(product.getId());
         int totalRating = productReviews.stream()
                 .mapToInt(productReview -> productReview.getRatingScore())
                 .sum();
