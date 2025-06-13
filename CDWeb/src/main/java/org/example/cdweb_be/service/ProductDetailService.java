@@ -71,7 +71,7 @@ public class ProductDetailService {
         }
         List<ProductDetail> productDetails = productDetailRepository.findByProductIdAndColorId(productId, colorId);
         if (productDetails == null || productDetails.size() == 0) {
-            throw new AppException(messageProvider,ErrorCode.NOT_FOUND);
+            throw new AppException(messageProvider,ErrorCode.PRODUCT_DONT_HAVE_COLOR);
         }
         List<ProductDetailRespone> productDetailResponses = productDetails.stream().map(productDetail -> convertToProductDetailRespons(productDetail)).collect(Collectors.toList());
         return productDetailResponses;
@@ -84,7 +84,7 @@ public class ProductDetailService {
         }
         Optional<ProductDetail> productDetails = productDetailRepository.findByProductIdAndColorIdAndSizeId(productId, colorId, sizeId);
         if (productDetails.isEmpty()) {
-            throw new AppException(messageProvider,ErrorCode.NOT_FOUND);
+            throw new AppException(messageProvider,ErrorCode.PRODUCT_DONT_HAVE_SIZE_AND_COLOR);
         }
         return convertToProductDetailRespons(productDetails.get());
     }
@@ -96,7 +96,7 @@ public class ProductDetailService {
         }
         List<ProductDetail> productDetails = productDetailRepository.findByProductIdAndSizeId(productId, sizeId);
         if (productDetails == null || productDetails.size() == 0) {
-            throw new AppException(messageProvider,ErrorCode.NOT_FOUND);
+            throw new AppException(messageProvider,ErrorCode.PRODUCT_DONT_HAVE_SIZE);
         }
         List<ProductDetailRespone> productDetailResponses = productDetails.stream().map(productDetail -> convertToProductDetailRespons(productDetail)).collect(Collectors.toList());
         return productDetailResponses;
