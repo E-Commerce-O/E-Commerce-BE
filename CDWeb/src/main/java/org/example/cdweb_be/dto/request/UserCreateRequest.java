@@ -23,7 +23,7 @@ public class UserCreateRequest {
 //    @CustomEmail(message = "EMAIL_INVALID")
     @Email(message = "EMAIL_INVALID")
     String email;
-    @PhoneNumberConstraint(message = "PHONENUMER_INVALID")
+    @PhoneNumberConstraint(message = "PHONENUMBER_INVALID")
     String phoneNumber;
 
 }

@@ -62,6 +62,10 @@ public class UserController {
     public ApiResponse changeInfo(@RequestHeader("Authorization") String token,@Valid @RequestBody UserUpdateRequest request){
         return new ApiResponse(userService.updateUser(token, request));
     }
+    @PutMapping("/password")
+    public ApiResponse changePassword(@RequestHeader("Authorization") String token,@Valid @RequestBody ChangePasswordRequest request){
+        return new ApiResponse(userService.changePassword(token, request));
+    }
     @PutMapping("/resetPassword")
     public ApiResponse resetPassword(@RequestBody ResetPasswordRequest request){
         return new ApiResponse(userService.resetPassword(request));

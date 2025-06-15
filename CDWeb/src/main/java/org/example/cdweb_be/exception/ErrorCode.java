@@ -107,6 +107,8 @@ public enum ErrorCode {
     PRODUCT_DONT_HAVE_COLOR(4098, "product.detail.color", HttpStatus.BAD_REQUEST),
     PRODUCT_DONT_HAVE_SIZE(4099, "product.detail.size", HttpStatus.BAD_REQUEST),
     PRODUCT_DONT_HAVE_SIZE_AND_COLOR(4100, "product.detail.size.color", HttpStatus.BAD_REQUEST),
+    CONFIRM_PASSWORD_INCORRECT(4101, "user.confirm.password", HttpStatus.BAD_REQUEST),
+    PASSWORD_NO_CHANGE(4102, "user.password.no.change", HttpStatus.BAD_REQUEST),
     INVALID_KEY(400, "invalid.key", HttpStatus.BAD_REQUEST),
     INVALID_DOB(401, "invalid.dob", HttpStatus.BAD_REQUEST),
     INVALID_TOKEN(402, "invalid.token", HttpStatus.BAD_REQUEST),

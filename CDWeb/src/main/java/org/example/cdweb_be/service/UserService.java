@@ -80,7 +80,7 @@ public class UserService {
         userOptional = userRepository.findByPhoneNumber(request.getPhoneNumber());
         if (userOptional.isPresent() && !user.getPhoneNumber().equals(request.getPhoneNumber()))
             throw new AppException(messageProvider,ErrorCode.PHONE_NUMBER_EXISTED);
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+//        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setEmail(request.getEmail());
         user.setAvtPath(request.getAvtPath());
         user.setGender(request.getGender());
@@ -88,6 +88,21 @@ public class UserService {
         user.setDateOfBirth(request.getDateOfBirth());
         user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         return userMapper.toUserResponse(userRepository.save(user));
+
+    }
+    public String changePassword(String token, ChangePasswordRequest request){
+        String username = authenticationService.getClaimsSet(token).getSubject();
+        User user = userRepository.findByUsername(username).get();
+        if(!passwordEncoder.matches(request.getOldPassword(), user.getPassword()))
+            throw new AppException(messageProvider, ErrorCode.PASSWORD_INCORRECT);
+        if(!request.getNewPassword().equals(request.getConfirmPassword()))
+            throw new AppException(messageProvider, ErrorCode.CONFIRM_PASSWORD_INCORRECT);
+        if(request.getOldPassword().equals(request.getNewPassword()))
+            throw new AppException(messageProvider, ErrorCode.PASSWORD_NO_CHANGE);
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        userRepository.save(user);
+        return messageProvider.getMessage("user.update.password");
 
     }
     public LoginResponse login(LoginRequest request){
