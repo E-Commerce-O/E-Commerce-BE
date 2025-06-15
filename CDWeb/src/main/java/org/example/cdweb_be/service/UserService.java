@@ -26,6 +26,7 @@ import org.example.cdweb_be.respository.UserRepository;
 import org.json.JSONObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -130,17 +131,17 @@ public class UserService {
             throw new AppException(messageProvider,ErrorCode.SERVER_ERROR);
         }
     }
-    public boolean validEmail(String email){
+    public String validEmail(String email){
         String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+(\\.[a-zA-Z]{2,})*\\.[a-zA-Z]{2,}$";
         Pattern pattern = Pattern.compile(emailRegex);
         Matcher matcher = pattern.matcher(email);
         log.info("Valid email: "+matcher.matches());
         if(!matcher.matches()){
-            return false;
+            throw new AppException(messageProvider, ErrorCode.EMAIL_INVALID);
         }
         Optional<User> userOptional = userRepository.findByEmail(email);
-        if(userOptional.isPresent()) return false;
-        return true;
+        if(userOptional.isPresent()) throw new AppException(messageProvider, ErrorCode.EMAIL_EXISTED);
+        return messageProvider.getMessage("email.valid");
     }
     public UserResponse getMyInfo(String token){
         try{
@@ -155,20 +156,36 @@ public class UserService {
             throw new AppException(messageProvider,ErrorCode.SERVER_ERROR);
         }
     }
-    @PreAuthorize("hasRole('ADMIN')")
-    public PagingResponse  getAllUsers(int page, int size){
-        Page<User> users = userRepository.findAll(PageRequest.of(page-1, size));
+//    @PreAuthorize("hasRole('ADMIN')")
+    public PagingResponse  getAllUsers(int page, int size, String search, String role){
+        Pageable pageable = PageRequest.of(page-1, size);
+        Page<User> users ;
+        long totalItem;
+        if(!search.isEmpty() && !role.isEmpty()){
+            users = userRepository.findAll(pageable, search, role);
+            totalItem = userRepository.countAll(search, role);
+        }else if(!search.isEmpty()){
+            users = userRepository.findAllByName(pageable, search);
+            totalItem = userRepository.countAllByName(search);
+        }else if(!role.isEmpty()){
+            users = userRepository.findAllByRole(pageable, role);
+            totalItem = userRepository.countAllByRole(role);
+        }else{
+            users = userRepository.findAll(pageable);
+            totalItem = userRepository.count();
+        }
         List<UserResponse> userResponses = users.stream().map(user ->
                 userMapper.toUserResponse(user)
         ).collect(Collectors.toList());
         return PagingResponse.<UserResponse>builder()
                 .page(page)
                 .size(size)
-                .totalItem(userRepository.count())
+                .totalItem(totalItem)
                 .data(userResponses)
                 .build();
 
     }
+
     public String validToken(ValidTokenRequest accessToken){
         JWTClaimsSet claimsSet = authenticationService.getClaimsSet("Bearer "+accessToken.getAccessToken());
         Date expireAt =  claimsSet.getExpirationTime();

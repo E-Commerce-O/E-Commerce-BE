@@ -21,7 +21,7 @@ public class LanguageFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
        String acceptLanguage = httpRequest.getHeader("Accept-Language");
-        log.info("acceptLanguage :"+acceptLanguage);
+//        log.info("acceptLanguage :"+acceptLanguage);
         Locale locale = httpRequest.getLocale();
         MessageProvider.setLocale(acceptLanguage);
 

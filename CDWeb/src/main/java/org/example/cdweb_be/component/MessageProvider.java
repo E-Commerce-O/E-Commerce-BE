@@ -33,7 +33,7 @@ public class MessageProvider {
     public void setLocale(String language){
         Locale newLocale = mapLocal.get(language);
         this.locale = (newLocale != null)?newLocale:defaultLocal;
-        log.info("Local: "+this.locale.getCountry());
+//        log.info("Local: "+this.locale.getCountry());
     }
     public Locale getLocale() {
         return locale;

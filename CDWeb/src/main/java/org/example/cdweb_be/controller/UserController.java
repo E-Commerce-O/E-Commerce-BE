@@ -30,8 +30,8 @@ public class UserController {
         return new ApiResponse(userService.getMyInfo(token));
     }
     @GetMapping
-    ApiResponse getAllUsers(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "9") int size){
-        return new ApiResponse(userService.getAllUsers(page, size));
+    ApiResponse getAllUsers(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "9") int size, @RequestParam(defaultValue = "") String search, @RequestParam(defaultValue = "") String role){
+        return new ApiResponse(userService.getAllUsers(page, size, search, role));
     }
     @PostMapping("/validToken")
     ApiResponse validToken(@RequestBody ValidTokenRequest accessToken){
