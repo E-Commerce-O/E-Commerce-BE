@@ -74,4 +74,8 @@ public class UserController {
     public ApiResponse resetPassword(@RequestBody ResetPasswordRequest request){
         return new ApiResponse(userService.resetPassword(request));
     }
+    @PutMapping("/role")
+    public ApiResponse setRole(@RequestParam long userId, @RequestParam String role){
+        return new ApiResponse(userService.setRole(userId, role));
+    }
 }

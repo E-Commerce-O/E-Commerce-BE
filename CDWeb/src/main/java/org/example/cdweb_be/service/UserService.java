@@ -8,6 +8,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Strings;
 import org.example.cdweb_be.component.MessageProvider;
 import org.example.cdweb_be.dto.request.*;
 import org.example.cdweb_be.dto.response.LoginResponse;
@@ -281,5 +282,22 @@ public class UserService {
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new AppException(messageProvider, ErrorCode.USER_NOT_EXISTS));
         return userMapper.toUserResponse(user);
+    }
+    public String setRole(long userId, String role){
+        User user = userRepository.findById(userId).orElseThrow(() ->
+                new AppException(messageProvider, ErrorCode.USER_NOT_EXISTS));
+        role = Strings.toRootUpperCase(role);
+        log.info("role: "+role);
+        try {
+            Role  enumRole = Role.valueOf(role);
+        } catch (Exception e) {
+            throw new AppException(messageProvider, ErrorCode.ROLE_INVALID);
+        }
+            if (user.getRole().equals(Role.ADMIN)) throw new AppException(messageProvider, ErrorCode.CANT_CHANGE_ADMIN_ROLE);
+            if(role.equalsIgnoreCase(user.getRole())) {throw new AppException(messageProvider, ErrorCode.ROLE_NO_HAVE_CHANGE);}
+            user.setRole(role);
+            userRepository.save(user);
+            return messageProvider.getMessage("user.role.change");
+
     }
 }
