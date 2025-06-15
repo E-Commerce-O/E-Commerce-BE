@@ -82,6 +82,7 @@ public class UserService {
         if (userOptional.isPresent() && !user.getPhoneNumber().equals(request.getPhoneNumber()))
             throw new AppException(messageProvider,ErrorCode.PHONE_NUMBER_EXISTED);
 //        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setPhoneNumber(request.getPhoneNumber());
         user.setEmail(request.getEmail());
         user.setAvtPath(request.getAvtPath());
         user.setGender(request.getGender());
