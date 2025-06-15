@@ -21,6 +21,10 @@ import java.util.HashSet;
 //@Validated
 public class UserController {
     UserService userService;
+    @GetMapping("/id/{userId}")
+    ApiResponse getUserById(@PathVariable long userId){
+        return new ApiResponse(userService.getById(userId));
+    }
     @GetMapping("/validEmail/{email}")
     ApiResponse validEmail(@PathVariable String email){
         return new ApiResponse(userService.validEmail(email));

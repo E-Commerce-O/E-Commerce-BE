@@ -277,4 +277,9 @@ public class UserService {
         return messageProvider.getMessage("reset.password");
 
     }
+    public UserResponse getById(long userId){
+        User user = userRepository.findById(userId).orElseThrow(() ->
+                new AppException(messageProvider, ErrorCode.USER_NOT_EXISTS));
+        return userMapper.toUserResponse(user);
+    }
 }
