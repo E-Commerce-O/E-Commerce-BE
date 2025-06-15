@@ -66,9 +66,17 @@ public class UserController {
     public ApiResponse changeInfo(@RequestHeader("Authorization") String token,@Valid @RequestBody UserUpdateRequest request){
         return new ApiResponse(userService.updateUser(token, request));
     }
+    @PutMapping("/changeInfo/admin")
+    public ApiResponse changeInfo(@RequestParam long userId,@Valid @RequestBody UserUpdateRequest request){
+        return new ApiResponse(userService.updateUser(userId, request));
+    }
     @PutMapping("/password")
     public ApiResponse changePassword(@RequestHeader("Authorization") String token,@Valid @RequestBody ChangePasswordRequest request){
         return new ApiResponse(userService.changePassword(token, request));
+    }
+    @PutMapping("/password/admin")
+    public ApiResponse changePassword(@RequestParam long userId, @RequestParam String newPassword){
+        return new ApiResponse(userService.changePassword(userId, newPassword));
     }
     @PutMapping("/resetPassword")
     public ApiResponse resetPassword(@RequestBody ResetPasswordRequest request){

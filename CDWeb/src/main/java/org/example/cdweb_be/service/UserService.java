@@ -92,6 +92,26 @@ public class UserService {
         return userMapper.toUserResponse(userRepository.save(user));
 
     }
+    public UserResponse updateUser(long userId, UserUpdateRequest request){
+        User user = userRepository.findById(userId).orElseThrow(() ->
+                new AppException(messageProvider, ErrorCode.USER_NOT_EXISTS));
+        Optional<User> userOptional = userRepository.findByEmail(request.getEmail());
+        if (userOptional.isPresent() && !user.getEmail().equals(request.getEmail()))
+            throw new AppException(messageProvider,ErrorCode.EMAIL_EXISTED);
+        userOptional = userRepository.findByPhoneNumber(request.getPhoneNumber());
+        if (userOptional.isPresent() && !user.getPhoneNumber().equals(request.getPhoneNumber()))
+            throw new AppException(messageProvider,ErrorCode.PHONE_NUMBER_EXISTED);
+//        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setPhoneNumber(request.getPhoneNumber());
+        user.setEmail(request.getEmail());
+        user.setAvtPath(request.getAvtPath());
+        user.setGender(request.getGender());
+        user.setFullName(request.getFullName());
+        user.setDateOfBirth(request.getDateOfBirth());
+        user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        return userMapper.toUserResponse(userRepository.save(user));
+
+    }
     public String changePassword(String token, ChangePasswordRequest request){
         String username = authenticationService.getClaimsSet(token).getSubject();
         User user = userRepository.findByUsername(username).get();
@@ -102,6 +122,17 @@ public class UserService {
         if(request.getOldPassword().equals(request.getNewPassword()))
             throw new AppException(messageProvider, ErrorCode.PASSWORD_NO_CHANGE);
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        userRepository.save(user);
+        return messageProvider.getMessage("user.update.password");
+
+    }
+    public String changePassword(long userId, String newPassword){
+        User user = userRepository.findById(userId).orElseThrow(() ->
+                new AppException(messageProvider, ErrorCode.USER_NOT_EXISTS));
+        if(passwordEncoder.matches(newPassword, user.getPassword()))
+            throw new AppException(messageProvider, ErrorCode.PASSWORD_NO_CHANGE);
+        user.setPassword(passwordEncoder.encode(newPassword));
         user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         userRepository.save(user);
         return messageProvider.getMessage("user.update.password");
