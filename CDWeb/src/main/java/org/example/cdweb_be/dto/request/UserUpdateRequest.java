@@ -23,7 +23,7 @@ public class UserUpdateRequest {
     @NotNull
     @Email(message = "EMAIL_INVALID")
     String email;
-    @PhoneNumberConstraint(message = "PHONENUMER_INVALID")
+    @PhoneNumberConstraint(message = "PHONENUMBER_INVALID")
     @NotNull
     String phoneNumber;
     String fullName;
