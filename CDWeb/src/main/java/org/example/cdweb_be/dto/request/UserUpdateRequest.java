@@ -15,7 +15,7 @@ import java.sql.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PROTECTED)
 public class UserUpdateRequest {
 //    @NotNull
 //    @Size(min = 6, message = "PASSWORD_INVALID")

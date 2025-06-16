@@ -45,6 +45,10 @@ public class UserController {
     ApiResponse registerUser(@Valid @RequestBody UserCreateRequest request){
         return new ApiResponse(userService.addUser(request));
     }
+    @PostMapping("/admin")
+    ApiResponse addUser(@Valid @RequestBody UserCreateByAdminRequest request){
+        return new ApiResponse(userService.addUser(request));
+    }
     @PostMapping("/login")
     ApiResponse login(@Valid @RequestBody LoginRequest request){
         return new ApiResponse(userService.login(request));
@@ -67,7 +71,7 @@ public class UserController {
         return new ApiResponse(userService.updateUser(token, request));
     }
     @PutMapping("/changeInfo/admin")
-    public ApiResponse changeInfo(@RequestParam long userId,@Valid @RequestBody UserUpdateRequest request){
+    public ApiResponse changeInfo(@RequestParam long userId,@Valid @RequestBody UserUpdateByAdminRequest request){
         return new ApiResponse(userService.updateUser(userId, request));
     }
     @PutMapping("/password")
@@ -86,4 +90,8 @@ public class UserController {
     public ApiResponse setRole(@RequestParam long userId, @RequestParam String role){
         return new ApiResponse(userService.setRole(userId, role));
     }
+//    @DeleteMapping("/{userId}")
+//    public ApiResponse deleteById(@PathVariable long userId){
+//        return new ApiResponse(userService.deleteById(userId));
+//    }
 }

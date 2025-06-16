@@ -72,6 +72,19 @@ public class UserService {
         user.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         return userMapper.toUserResponse(userRepository.save(user));
     }
+    public UserResponse addUser(UserCreateByAdminRequest request){
+        Optional<User> userOptional = null;
+        userOptional = userRepository.findByUsername(request.getUsername());
+        if (userOptional.isPresent()) throw new AppException(messageProvider,ErrorCode.USERNAME_EXISTED);
+        userOptional = userRepository.findByEmail(request.getEmail());
+        if (userOptional.isPresent()) throw new AppException(messageProvider,ErrorCode.EMAIL_EXISTED);
+        userOptional = userRepository.findByPhoneNumber(request.getPhoneNumber());
+        if (userOptional.isPresent()) throw new AppException(messageProvider,ErrorCode.PHONE_NUMBER_EXISTED);
+        User user = userMapper.toUser(request);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+        return userMapper.toUserResponse(userRepository.save(user));
+    }
     public UserResponse updateUser(String token, UserUpdateRequest request){
         String username = authenticationService.getClaimsSet(token).getSubject();
         User user = userRepository.findByUsername(username).get();
@@ -92,7 +105,7 @@ public class UserService {
         return userMapper.toUserResponse(userRepository.save(user));
 
     }
-    public UserResponse updateUser(long userId, UserUpdateRequest request){
+    public UserResponse updateUser(long userId, UserUpdateByAdminRequest request){
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new AppException(messageProvider, ErrorCode.USER_NOT_EXISTS));
         Optional<User> userOptional = userRepository.findByEmail(request.getEmail());
@@ -109,6 +122,7 @@ public class UserService {
         user.setFullName(request.getFullName());
         user.setDateOfBirth(request.getDateOfBirth());
         user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        setRole(userId, request.getRole());
         return userMapper.toUserResponse(userRepository.save(user));
 
     }
@@ -331,5 +345,11 @@ public class UserService {
             userRepository.save(user);
             return messageProvider.getMessage("user.role.change");
 
+    }
+    public String deleteById(long userId){
+        User user = userRepository.findById(userId).orElseThrow(() ->
+                new AppException(messageProvider, ErrorCode.USER_NOT_EXISTS));
+        userRepository.delete(user);
+        return messageProvider.getMessage("user.delete");
     }
 }
