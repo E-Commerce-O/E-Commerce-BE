@@ -25,6 +25,10 @@ public class AddressController {
     public ApiResponse getInfoShips(@PathVariable long addressId){
         return new ApiResponse(addressService.getInfoShip(addressId));
     }
+    @PostMapping("/infoShips/address")
+    public ApiResponse getInfoShips(@RequestBody AddressRequest request){
+        return new ApiResponse(addressService.getInfoShip(request));
+    }
     @PostMapping
     public ApiResponse addAddress(@RequestHeader("Authorization") String token,@RequestBody AddressRequest request){
         return new ApiResponse(addressService.addAddress(token, request));

@@ -34,6 +34,7 @@ public class Product {
 //    List<ProductSize> sizes;
 //    @OneToMany
 //    List<Image> images;
+    @Column( columnDefinition = "TEXT")
     String description;
     String brand;
     Timestamp createdAt;

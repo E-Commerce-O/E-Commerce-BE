@@ -3,6 +3,7 @@ package org.example.cdweb_be.controller;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.example.cdweb_be.dto.request.OrderCreateByAddressRequest;
 import org.example.cdweb_be.dto.request.OrderCreateRequest;
 import org.example.cdweb_be.dto.response.ApiResponse;
 import org.example.cdweb_be.service.OrderService;
@@ -37,6 +38,10 @@ public class OrderController {
     @PostMapping
     public ApiResponse add(@RequestHeader("Authorization") String token, @RequestBody OrderCreateRequest request){
         return new ApiResponse(orderService.add(token, request));
+    }
+    @PostMapping("/address")
+    public ApiResponse add(@RequestHeader("Authorization") String token, @RequestBody OrderCreateByAddressRequest request){
+        return new ApiResponse(orderService.addByAddress(token, request));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")

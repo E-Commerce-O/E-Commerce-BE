@@ -15,16 +15,15 @@ import java.sql.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PROTECTED)
 public class UserUpdateRequest {
-    @NotNull
-    @Size(min = 6, message = "PASSWORD_INVALID")
-    @NotNull
-    String password;
-//    @Email(message = "EMAIL_INVALID")
 //    @NotNull
+//    @Size(min = 6, message = "PASSWORD_INVALID")
+//    String password;
+    @NotNull
+    @Email(message = "EMAIL_INVALID")
     String email;
-    @PhoneNumberConstraint(message = "PHONENUMER_INVALID")
+    @PhoneNumberConstraint(message = "PHONENUMBER_INVALID")
     @NotNull
     String phoneNumber;
     String fullName;

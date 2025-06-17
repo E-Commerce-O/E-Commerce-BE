@@ -23,16 +23,15 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.imageio.IIOImage;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
+import javax.imageio.*;
+import javax.imageio.stream.ImageInputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 @RestController
@@ -74,16 +73,6 @@ public class FileUploadController {
         } else {
             throw new AppException(messageProvider,ErrorCode.SERVER_ERROR);
         }
-//        try {
-//            Image imageEntity = new Image();
-//            imageEntity.setImageData(file.getBytes());
-//            imageEntity.setImageName(file.getOriginalFilename());
-//            imageRepository.save(imageEntity);
-//            return new ApiResponse("Image uploaded successfully: " + file.getOriginalFilename());
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return new ApiResponse("Image upload failed: " + e.getMessage());
-//        }
     }
 
     private String uploadImageAndGetLink(MultipartFile imageFile) {
@@ -185,7 +174,8 @@ public class FileUploadController {
         try {
             if (file.isEmpty() || file.getBytes().length == 0) throw new AppException(messageProvider,ErrorCode.FILE_IS_EMPTY);
             if (!isImageFile(file.getOriginalFilename())) throw new AppException(messageProvider,ErrorCode.FILE_ISNT_IMAGE);
-            BufferedImage bufferedImage = ImageIO.read(file.getInputStream());
+            BufferedImage bufferedImage = getBufferedImage(file);
+            log.info("bufferedImage is null: "+bufferedImage);
             log.info("Original size: "+file.getBytes().length);
             log.info("New size: "+ compressFile(resizeImage(bufferedImage, IMAGE_WIDTH)).length);
             Image imageEntity = new Image();
@@ -202,7 +192,7 @@ public class FileUploadController {
         try {
             if (file.isEmpty() || file.getBytes().length == 0) throw new AppException(messageProvider,ErrorCode.FILE_IS_EMPTY);
             if (!isImageFile(file.getOriginalFilename())) throw new AppException(messageProvider,(ErrorCode.FILE_ISNT_IMAGE));
-            BufferedImage bufferedImage = ImageIO.read(file.getInputStream());
+            BufferedImage bufferedImage = getBufferedImage(file);
             log.info("Original size: "+file.getBytes().length);
             log.info("New size: "+ compressFile(resizeImage(bufferedImage, imageWidth)).length);
             Image imageEntity = new Image();
@@ -237,35 +227,60 @@ public class FileUploadController {
         }
         return false;
     }
-    private byte[] compressFile(BufferedImage bufferedImage) throws IOException{
-            // Nén ảnh
-//                bufferedImage = new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(), BufferedImage.TYPE_INT_RGB);
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ImageWriter writer = ImageIO.getImageWritersByFormatName("jpg").next();
-                ImageWriteParam param = writer.getDefaultWriteParam();
-                param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-                param.setCompressionQuality(0.8f); // Đặt mức độ nén (0.0 - 1.0)
-                writer.setOutput(ImageIO.createImageOutputStream(baos));
-                writer.write(null, new IIOImage(bufferedImage, null, null), param);
-                writer.dispose();
+    private byte[] compressFile(BufferedImage bufferedImage) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageWriter writer = ImageIO.getImageWritersByFormatName("jpg").next();
+        ImageWriteParam param = writer.getDefaultWriteParam();
+        param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+        param.setCompressionQuality(0.8f); // Thử giảm xuống 0.5f nếu cần
 
-                return baos.toByteArray();
+        writer.setOutput(ImageIO.createImageOutputStream(baos));
+        writer.write(null, new IIOImage(bufferedImage, null, null), param);
+        writer.dispose();
 
+        return baos.toByteArray();
     }
-    private BufferedImage resizeImage(BufferedImage bufferedImage, int imageWidth) throws IOException{
-//        BufferedImage originalImage = ImageIO.read(multipartFile.getInputStream());
-//        log.info("Original width: " + originalImage.getWidth());
-//        log.info("Original height: " + originalImage.getHeight());
-        double newRate = imageWidth > 0? bufferedImage.getWidth()/(double)imageWidth:1;
-        // Thay đổi kích thước (nếu cần)
-        int newWidth =  (int)(bufferedImage.getWidth() /newRate ); // Giảm 50%
-        int newHeight = (int)(bufferedImage.getHeight() / newRate);
-        BufferedImage resizedImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
 
-        // Vẽ ảnh resize
+    private BufferedImage resizeImage(BufferedImage bufferedImage, int imageWidth) throws IOException {
+        double newRate = imageWidth > 0 ? bufferedImage.getWidth() / (double) imageWidth : 1;
+        newRate = Math.max(1, newRate);
+        int newWidth = (int) (bufferedImage.getWidth() / newRate);
+        int newHeight = (int) (bufferedImage.getHeight() / newRate);
+
+        // Kiểm tra kích thước mới
+        if (newWidth <= 0 || newHeight <= 0) {
+            throw new IllegalArgumentException("Kích thước ảnh không hợp lệ sau khi resize");
+        }
+
+        BufferedImage resizedImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
         Graphics2D g = resizedImage.createGraphics();
         g.drawImage(bufferedImage, 0, 0, newWidth, newHeight, null);
         g.dispose();
+
         return resizedImage;
+    }
+    BufferedImage getBufferedImage(MultipartFile file) throws IOException {
+        BufferedImage bufferedImage;
+        if (file.getOriginalFilename().endsWith(".webp")){
+            bufferedImage = convertWebPToBufferedImage(file);
+        }else{
+            bufferedImage = ImageIO.read(file.getInputStream());
+        }
+
+        return bufferedImage;
+    }
+    public static BufferedImage convertWebPToBufferedImage(MultipartFile file) throws IOException {
+        BufferedImage bufferedImage;
+        try (ImageInputStream input = ImageIO.createImageInputStream(file.getInputStream())) {
+            Iterator<ImageReader> readers = ImageIO.getImageReadersByFormatName("webp");
+            if (readers.hasNext()) {
+                ImageReader reader = readers.next();
+                reader.setInput(input);
+                bufferedImage = reader.read(0);
+            } else {
+                throw new IOException("Không tìm thấy ImageReader cho định dạng webp");
+            }
+        }
+        return bufferedImage;
     }
 }

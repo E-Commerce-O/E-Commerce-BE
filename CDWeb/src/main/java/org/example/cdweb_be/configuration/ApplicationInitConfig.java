@@ -32,7 +32,7 @@ public class ApplicationInitConfig {
                         .avtPath("https://i.imgur.com/W60xqJf.png")
                         .fullName("At Van Min")
                         .email("admin@min.ad")
-                        .password(passwordEncoder.encode("123"))
+                        .password(passwordEncoder.encode("123123"))
                         .role(Role.ADMIN.name())
                         .build();
                 userRepository.save(user);

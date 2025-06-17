@@ -15,6 +15,7 @@ import org.example.cdweb_be.exception.AppException;
 import org.example.cdweb_be.exception.ErrorCode;
 import org.example.cdweb_be.respository.*;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
@@ -35,6 +36,7 @@ public class ProductImportService {
     ProductSizeRepository productSizeRepository;
     AuthenticationService authenticationService;
 
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     public PagingResponse getAllProductImports(int page, int size) {
         List<ProductImportResponse> productImportResponses = productImportRepository.findAll(PageRequest.of(page-1, size))
                 .stream().map(productImport -> convertToProductImportResponse(productImport)).collect(Collectors.toList());
@@ -45,6 +47,7 @@ public class ProductImportService {
                 .data(productImportResponses)
                 .build();
     }
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     public PagingResponse getProductImportByProduct(long productId, int page, int size) {
         List<ProductImportResponse> productImportResponses = productImportRepository.findByProductId(productId, PageRequest.of(page-1, size))
                 .stream().map(productImport -> convertToProductImportResponse(productImport)).collect(Collectors.toList());
@@ -55,6 +58,7 @@ public class ProductImportService {
                 .data(productImportResponses)
                 .build();
     }
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     public ProductImportResponse add(String token, ProductImportCreateRequest request){
         Product product = productRepository.findById(request.getProductId()).orElseThrow(
                 () -> new AppException(messageProvider,ErrorCode.PRODUCT_NOT_EXISTS)
@@ -90,6 +94,7 @@ public class ProductImportService {
 
         return convertToProductImportResponse(productImportRepository.save(newProductImport));
     }
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     public ProductImportResponse update(String token, ProductImportUpdateRequest request){
         ProductImport productImport = productImportRepository.findById(request.getImportId()).orElseThrow(() ->
                 new AppException(messageProvider,ErrorCode.PRODUCT_IMPORT_NOT_EXISTS));
@@ -146,6 +151,7 @@ public class ProductImportService {
         }
         return convertToProductImportResponse(productImportRepository.save(productImport));
     }
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     public String delete(long importId){
         ProductImport productImport = productImportRepository.findById(importId).orElseThrow(() ->
                 new AppException(messageProvider,ErrorCode.PRODUCT_IMPORT_NOT_EXISTS));

@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
+import javax.naming.AuthenticationException;
+
 @ControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
@@ -86,6 +88,19 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = MissingRequestHeaderException.class)// bắt lỗi 403
     ResponseEntity<ApiResponse> handlingMissingRequestHeaderException(MissingRequestHeaderException exception){
         ErrorCode errorCode = ErrorCode.ACCESS_TOKEN_INVALID;
+        return ResponseEntity.status(errorCode.getStatusCode()).body(
+                ApiResponse.builder()
+
+                        .code(errorCode.getCode())
+                        .isSuccess(errorCode.isSuccess())
+                        .data(messageProvider.getMessage(errorCode.getMessageKey()))
+                        .build()
+        );
+    }
+    @ExceptionHandler(AuthenticationException.class)
+    ResponseEntity<ApiResponse> handleAuthenticationException(AuthenticationException ex) {
+        ErrorCode errorCode = ErrorCode.UNAUTHENTICATED;
+        // Xử lý lỗi (ví dụ: ghi log, trả về thông báo lỗi)
         return ResponseEntity.status(errorCode.getStatusCode()).body(
                 ApiResponse.builder()
 

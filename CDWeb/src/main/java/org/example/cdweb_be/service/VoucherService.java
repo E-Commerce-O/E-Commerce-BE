@@ -19,6 +19,7 @@ import org.example.cdweb_be.mapper.VoucherMapper;
 import org.example.cdweb_be.respository.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -38,6 +39,7 @@ public class VoucherService {
     OrderDetailRepository orderDetailRepository;
     ProductService productService;
     MessageProvider messageProvider;
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPOYEE')")
     public VoucherResponse add(VoucherRequest request) {
         validationRequest(request);
         Optional<Voucher> voucherOptional = voucherRepository.findByCode(request.getCode());
@@ -65,7 +67,7 @@ public class VoucherService {
         voucherResponse.setCategoriesApply(categoryVouchers);
         return voucherResponse;
     }
-
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPOYEE')")
     public VoucherResponse update(long id, VoucherRequest request) {
         Voucher voucher = voucherRepository.findById(id).orElseThrow(() ->
                 new AppException(messageProvider,ErrorCode.VOUCHER_NOT_EXISTS));

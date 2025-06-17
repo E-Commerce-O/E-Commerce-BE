@@ -14,6 +14,7 @@ import org.example.cdweb_be.mapper.TagMapper;
 import org.example.cdweb_be.respository.TagRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,6 +29,7 @@ public class TagService {
     TagRepository tagRepository;
     TagMapper tagMapper;
 
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     public Tag addTag(TagCreateRequest request) {
         Optional<Tag> tagOptional = tagRepository.findById(request.getName());
         if (tagOptional.isPresent()) {
@@ -66,6 +68,7 @@ public class TagService {
         return tagRepository.findAllById(tagNames);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     public Tag updateTag(TagCreateRequest request) {
         Optional<Tag> tagOptional = tagRepository.findById(request.getName());
         if (tagOptional.isPresent()) {
@@ -77,6 +80,7 @@ public class TagService {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     public String deleteTag(String tagName) {
         tagRepository.deleteById(tagName);
         return messageProvider.getMessage("delete.tag");

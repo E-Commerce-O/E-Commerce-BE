@@ -1,5 +1,6 @@
 package org.example.cdweb_be.configuration;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,15 +25,54 @@ import javax.crypto.spec.SecretKeySpec;
 @EnableWebSecurity // Kích hoạt các tính năng bảo mật của Spring Security
 @EnableMethodSecurity
 public class SecurityConfig implements WebMvcConfigurer {
-
+    @Autowired
+    JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     // Mảng chứa các endpoint công khai không yêu cầu xác thực
-    private static final String[] PUBLIC_POST_ENDPOINTS = {"/user", "/auth/login", "/auth/introspect", "/upload"};
-    private static final String[] PUBLIC_GET_ENDPOINTS = {"/user", "/auth/login", "/auth/introspect", "/upload"};
+    private static final String[] PUBLIC_POST_ENDPOINTS =
+            {"/vouchers/applyVoucher",
+                    "/users/validToken",
+                    "/users/register",
+                    "/users/login",
+                    "/users/refreshToken",
+                    "/users/sendOTP/**",
+                    "/upload",
+                    "/upload/db",
+                    "/upload/resize/**",
+                    "/upload/keep-size"
+            };
+    private static final String[] PUBLIC_GET_ENDPOINTS =
+            {"/upload/**",
+                    "/vouchers",
+                    "/vouchers/genCode",
+                    "/vouchers/code/**",
+                    "/vouchers/type/**",
+                    "/users/validEmail/**",
+                    "/users/validPhoneNumber/**",
+                    "/tag/*",
+                    "/tag/paging",
+                    "/tag",
+                    "/products/**",
+                    "/products",
+                    "/productDetails/**",
+                    "/categories",
+                    "/categories/**",
+                    "/addresses/infoShips",
+                    "/addresses/infoShips/**",
+                    "/productReview/**",
+                    "/payment",
+                    "/product",
+                    "/product/**",
+                    "/",
+                    "/locations",
+                    "/locations/**"
+
+            };
 
 
     // Lấy giá trị của "jwt.signerKey" từ tệp cấu hình
     @Value("${jwt.signerKey}")
     private String signerKey;
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")  // Allow CORS for all endpoints
@@ -40,6 +80,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")  // Allowed HTTP methods
                 .allowedHeaders("*");  // Allow all headers
     }
+
     // Phương thức cấu hình SecurityFilterChain
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
@@ -47,14 +88,10 @@ public class SecurityConfig implements WebMvcConfigurer {
         // Cấu hình quyền truy cập cho các yêu cầu HTTP
         httpSecurity.authorizeHttpRequests(request ->
                         request
-//                                .requestMatchers(HttpMethod.POST, PUBLIC_POST_ENDPOINTS).permitAll() // Cho phép tất cả yêu cầu POST đến PUBLIC_ENDPOINTS
-//                                .requestMatchers(HttpMethod.GET, PUBLIC_GET_ENDPOINTS).permitAll()
-//                                .requestMatchers("/swagger-ui/index.html").permitAll()
-//                                .requestMatchers("/swagger.html","/swagger-ui/**",
-//                                        "/swagger-ui.html", "/docs/**", "/v3/api-docs/**").permitAll()
-                                .requestMatchers("/*", "/*/**").permitAll()
-//                                .requestMatchers("/category/*").permitAll()
-//                                .requestMatchers(HttpMethod.GET,"/user/*").permitAll()
+                                .requestMatchers(HttpMethod.POST, PUBLIC_POST_ENDPOINTS).permitAll() // Cho phép tất cả yêu cầu POST đến PUBLIC_ENDPOINTS
+                                .requestMatchers(HttpMethod.GET, PUBLIC_GET_ENDPOINTS).permitAll()
+                                .requestMatchers("/swagger.html", "/swagger-ui/**",
+                                        "/swagger-ui.html", "/docs/**", "/v3/api-docs/**").permitAll()
                                 .anyRequest().authenticated()
         ); // Tất cả các yêu cầu khác đều cần xác thực
         httpSecurity.cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.disable());
@@ -65,7 +102,8 @@ public class SecurityConfig implements WebMvcConfigurer {
         httpSecurity.oauth2ResourceServer(oauth2 ->
                 oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder())
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter()))
-                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint()) // điều hướng khi auth thất bại (401)
+                        // điều hướng khi auth thất bại (401)
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
 
 
         ); // Chỉ định bộ giải mã JWT
@@ -76,7 +114,7 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Bean
     JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        jwtGrantedAuthoritiesConverter.setAuthorityPrefix(""); // vì đã thêm role vào token với tên là scope
+        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("ROLE_"); // vì đã thêm role vào token với tên là scope
         // nên nếu muốn đổi thì set lại prefix
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);

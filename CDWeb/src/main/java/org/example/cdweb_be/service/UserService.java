@@ -8,6 +8,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Strings;
 import org.example.cdweb_be.component.MessageProvider;
 import org.example.cdweb_be.dto.request.*;
 import org.example.cdweb_be.dto.response.LoginResponse;
@@ -26,6 +27,7 @@ import org.example.cdweb_be.respository.UserRepository;
 import org.json.JSONObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -37,6 +39,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static org.example.cdweb_be.service.RoleService.exceptUser;
 
 @Service
 @RequiredArgsConstructor
@@ -52,11 +56,11 @@ public class UserService {
     OtpRepository otpRepository;
     ObjectMapper objectMapper;
     MessageProvider messageProvider;
+    RoleService roleService;
+    private final List<String> rolesExceptUser = exceptUser();
     String DEFAULT_IMAGE_PATH = "https://i.imgur.com/W60xqJf.png";
-    public UserResponse addUser(UserCreateRequest request){
-        
+    public UserResponse register(UserCreateRequest request){
         Optional<User> userOptional = null;
-//        validEmail(request.getEmail());
         userOptional = userRepository.findByUsername(request.getUsername());
         if (userOptional.isPresent()) throw new AppException(messageProvider,ErrorCode.USERNAME_EXISTED);
         userOptional = userRepository.findByEmail(request.getEmail());
@@ -70,6 +74,21 @@ public class UserService {
         user.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         return userMapper.toUserResponse(userRepository.save(user));
     }
+    @PreAuthorize("hasRole('ADMIN')")
+    public UserResponse addUser(UserCreateByAdminRequest request){
+        Optional<User> userOptional = null;
+        userOptional = userRepository.findByUsername(request.getUsername());
+        if (userOptional.isPresent()) throw new AppException(messageProvider,ErrorCode.USERNAME_EXISTED);
+        userOptional = userRepository.findByEmail(request.getEmail());
+        if (userOptional.isPresent()) throw new AppException(messageProvider,ErrorCode.EMAIL_EXISTED);
+        userOptional = userRepository.findByPhoneNumber(request.getPhoneNumber());
+        if (userOptional.isPresent()) throw new AppException(messageProvider,ErrorCode.PHONE_NUMBER_EXISTED);
+        User user = userMapper.toUser(request);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+        return userMapper.toUserResponse(userRepository.save(user));
+    }
+    @PreAuthorize("isAuthenticated()")
     public UserResponse updateUser(String token, UserUpdateRequest request){
         String username = authenticationService.getClaimsSet(token).getSubject();
         User user = userRepository.findByUsername(username).get();
@@ -79,7 +98,8 @@ public class UserService {
         userOptional = userRepository.findByPhoneNumber(request.getPhoneNumber());
         if (userOptional.isPresent() && !user.getPhoneNumber().equals(request.getPhoneNumber()))
             throw new AppException(messageProvider,ErrorCode.PHONE_NUMBER_EXISTED);
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+//        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setPhoneNumber(request.getPhoneNumber());
         user.setEmail(request.getEmail());
         user.setAvtPath(request.getAvtPath());
         user.setGender(request.getGender());
@@ -87,6 +107,56 @@ public class UserService {
         user.setDateOfBirth(request.getDateOfBirth());
         user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         return userMapper.toUserResponse(userRepository.save(user));
+
+    }
+    @PreAuthorize("hasRole('ADMIN')")
+    public UserResponse updateUser(long userId, UserUpdateByAdminRequest request){
+        User user = userRepository.findById(userId).orElseThrow(() ->
+                new AppException(messageProvider, ErrorCode.USER_NOT_EXISTS));
+        Optional<User> userOptional = userRepository.findByEmail(request.getEmail());
+        if (userOptional.isPresent() && !user.getEmail().equals(request.getEmail()))
+            throw new AppException(messageProvider,ErrorCode.EMAIL_EXISTED);
+        userOptional = userRepository.findByPhoneNumber(request.getPhoneNumber());
+        if (userOptional.isPresent() && !user.getPhoneNumber().equals(request.getPhoneNumber()))
+            throw new AppException(messageProvider,ErrorCode.PHONE_NUMBER_EXISTED);
+//        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setPhoneNumber(request.getPhoneNumber());
+        user.setEmail(request.getEmail());
+        user.setAvtPath(request.getAvtPath());
+        user.setGender(request.getGender());
+        user.setFullName(request.getFullName());
+        user.setDateOfBirth(request.getDateOfBirth());
+        user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        setRole(userId, request.getRole());
+        return userMapper.toUserResponse(userRepository.save(user));
+
+    }
+    @PreAuthorize("isAuthenticated()")
+    public String changePassword(String token, ChangePasswordRequest request){
+        String username = authenticationService.getClaimsSet(token).getSubject();
+        User user = userRepository.findByUsername(username).get();
+        if(!passwordEncoder.matches(request.getOldPassword(), user.getPassword()))
+            throw new AppException(messageProvider, ErrorCode.PASSWORD_INCORRECT);
+        if(!request.getNewPassword().equals(request.getConfirmPassword()))
+            throw new AppException(messageProvider, ErrorCode.CONFIRM_PASSWORD_INCORRECT);
+        if(request.getOldPassword().equals(request.getNewPassword()))
+            throw new AppException(messageProvider, ErrorCode.PASSWORD_NO_CHANGE);
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        userRepository.save(user);
+        return messageProvider.getMessage("user.update.password");
+
+    }
+    @PreAuthorize("hasRole('ADMIN')")
+    public String changePassword(long userId, String newPassword){
+        User user = userRepository.findById(userId).orElseThrow(() ->
+                new AppException(messageProvider, ErrorCode.USER_NOT_EXISTS));
+        if(passwordEncoder.matches(newPassword, user.getPassword()))
+            throw new AppException(messageProvider, ErrorCode.PASSWORD_NO_CHANGE);
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        userRepository.save(user);
+        return messageProvider.getMessage("user.update.password");
 
     }
     public LoginResponse login(LoginRequest request){
@@ -130,18 +200,30 @@ public class UserService {
             throw new AppException(messageProvider,ErrorCode.SERVER_ERROR);
         }
     }
-    public boolean validEmail(String email){
+    public String validEmail(String email){
         String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+(\\.[a-zA-Z]{2,})*\\.[a-zA-Z]{2,}$";
         Pattern pattern = Pattern.compile(emailRegex);
         Matcher matcher = pattern.matcher(email);
         log.info("Valid email: "+matcher.matches());
         if(!matcher.matches()){
-            return false;
+            throw new AppException(messageProvider, ErrorCode.EMAIL_INVALID);
         }
         Optional<User> userOptional = userRepository.findByEmail(email);
-        if(userOptional.isPresent()) return false;
-        return true;
+        if(userOptional.isPresent()) throw new AppException(messageProvider, ErrorCode.EMAIL_EXISTED);
+        return messageProvider.getMessage("email.valid");
     }
+    public String validPhoneNumber(String phoneNumber){
+        String PHONE_REGEX_1 = "^0\\d{9}$";
+        String PHONE_REGEX_2 = "^\\+\\d{2} \\d{9}$";
+        if(!Pattern.matches(PHONE_REGEX_1, phoneNumber) && !Pattern.matches(PHONE_REGEX_2, phoneNumber)){
+            throw new AppException(messageProvider, ErrorCode.PHONENUMBER_INVALID);
+        }else{
+            Optional<User> user = userRepository.findByPhoneNumber(phoneNumber);
+            if(user.isPresent()) throw new AppException(messageProvider, ErrorCode.PHONE_NUMBER_EXISTED);
+            return messageProvider.getMessage("user.phoneNumber");
+        }
+    }
+    @PreAuthorize("isAuthenticated()")
     public UserResponse getMyInfo(String token){
         try{
             long userId = authenticationService.getClaimsSet(token).getLongClaim("id");
@@ -155,20 +237,37 @@ public class UserService {
             throw new AppException(messageProvider,ErrorCode.SERVER_ERROR);
         }
     }
-    @PreAuthorize("hasRole('ADMIN')")
-    public PagingResponse  getAllUsers(int page, int size){
-        Page<User> users = userRepository.findAll(PageRequest.of(page-1, size));
+//    @PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
+public PagingResponse  getAllUsers(int page, int size, String search, String role){
+        Pageable pageable = PageRequest.of(page-1, size);
+        Page<User> users ;
+        long totalItem;
+        if(!search.isEmpty() && !role.isEmpty()){
+            users = userRepository.findAll(pageable, search, role);
+            totalItem = userRepository.countAll(search, role);
+        }else if(!search.isEmpty()){
+            users = userRepository.findAllByName(pageable, search);
+            totalItem = userRepository.countAllByName(search);
+        }else if(!role.isEmpty()){
+            users = userRepository.findAllByRole(pageable, role);
+            totalItem = userRepository.countAllByRole(role);
+        }else{
+            users = userRepository.findAll(pageable);
+            totalItem = userRepository.count();
+        }
         List<UserResponse> userResponses = users.stream().map(user ->
                 userMapper.toUserResponse(user)
         ).collect(Collectors.toList());
         return PagingResponse.<UserResponse>builder()
                 .page(page)
                 .size(size)
-                .totalItem(userRepository.count())
+                .totalItem(totalItem)
                 .data(userResponses)
                 .build();
 
     }
+
     public String validToken(ValidTokenRequest accessToken){
         JWTClaimsSet claimsSet = authenticationService.getClaimsSet("Bearer "+accessToken.getAccessToken());
         Date expireAt =  claimsSet.getExpirationTime();
@@ -244,5 +343,36 @@ public class UserService {
         otpRepository.delete(otp);
         return messageProvider.getMessage("reset.password");
 
+    }
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
+    public UserResponse getById(long userId){
+        User user = userRepository.findById(userId).orElseThrow(() ->
+                new AppException(messageProvider, ErrorCode.USER_NOT_EXISTS));
+        return userMapper.toUserResponse(user);
+    }
+    @PreAuthorize("hasRole('ADMIN')")
+    public String setRole(long userId, String role){
+        User user = userRepository.findById(userId).orElseThrow(() ->
+                new AppException(messageProvider, ErrorCode.USER_NOT_EXISTS));
+        role = Strings.toRootUpperCase(role);
+        log.info("role: "+role);
+        try {
+            Role  enumRole = Role.valueOf(role);
+        } catch (Exception e) {
+            throw new AppException(messageProvider, ErrorCode.ROLE_INVALID);
+        }
+            if (user.getRole().equals(Role.ADMIN)) throw new AppException(messageProvider, ErrorCode.CANT_CHANGE_ADMIN_ROLE);
+            if(role.equalsIgnoreCase(user.getRole())) {throw new AppException(messageProvider, ErrorCode.ROLE_NO_HAVE_CHANGE);}
+            user.setRole(role);
+            userRepository.save(user);
+            return messageProvider.getMessage("user.role.change");
+
+    }
+    @PreAuthorize("hasRole('ADMIN')")
+    public String deleteById(long userId){
+        User user = userRepository.findById(userId).orElseThrow(() ->
+                new AppException(messageProvider, ErrorCode.USER_NOT_EXISTS));
+        userRepository.delete(user);
+        return messageProvider.getMessage("user.delete");
     }
 }
