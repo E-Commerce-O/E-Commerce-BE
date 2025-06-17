@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
         response.setCode(errorCode.getCode());
         response.setSuccess(errorCode.isSuccess());
         response.setData(exception.getMessage());
-        exception.printStackTrace();
+//        exception.printStackTrace();
         log.error(exception.toString());
         return ResponseEntity.status(errorCode.getStatusCode()).body(response);
     }
