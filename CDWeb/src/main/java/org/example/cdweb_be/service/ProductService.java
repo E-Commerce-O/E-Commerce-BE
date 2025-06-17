@@ -20,6 +20,7 @@ import org.example.cdweb_be.utils.IPUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -47,6 +48,7 @@ public class ProductService {
     ProductReviewRepository productReviewRepository;
     ProductHistoryRepository productHistoryRepository;
 
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     public ProductResponse addProduct(ProductCreateRequest request) {
         Product product = productMapper.toProduct(request);
         product.setCreatedAt(new Timestamp(System.currentTimeMillis()));
@@ -107,6 +109,7 @@ public class ProductService {
         return converToProductResponse(product);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     public List<ProductImage> addProductImages(AddProductImageRequest request) {
         Product product = productRepository.findById(request.getProductId()).orElseThrow(
                 () -> new AppException(messageProvider,ErrorCode.PRODUCT_NOT_EXISTS)
@@ -273,6 +276,7 @@ public class ProductService {
         return totalImport - getTotalSale(productId);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     public Product updateProduct(ProductUpdateRequest request) {
         Product product = productRepository.findById(request.getId()).orElseThrow(
                 () -> new AppException(messageProvider,ErrorCode.PRODUCT_NOT_EXISTS));
@@ -290,6 +294,7 @@ public class ProductService {
         return productRepository.save(product);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     public String deleteImage(long productId, long imageId) {
         Product product = productRepository.findById(productId).orElseThrow(
                 () -> new AppException(messageProvider,ErrorCode.PRODUCT_NOT_EXISTS)
@@ -304,6 +309,7 @@ public class ProductService {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     public List<String> addTags(ProductTagRequest request) {
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new AppException(messageProvider,ErrorCode.PRODUCT_NOT_EXISTS));
@@ -338,6 +344,7 @@ public class ProductService {
         return rs;
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     public List<String> deleteTags(ProductTagRequest request) {
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new AppException(messageProvider,ErrorCode.PRODUCT_NOT_EXISTS));
@@ -358,6 +365,7 @@ public class ProductService {
         return curTags;
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     public String deleteProduct(long productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new AppException(messageProvider,ErrorCode.PRODUCT_NOT_EXISTS));
@@ -367,6 +375,7 @@ public class ProductService {
         return messageProvider.getMessage("product.delete");
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     @Transactional
     public List<ProductColor> addColors(long productId, List<ColorRequest> requests) {
         Product product = productRepository.findById(productId).orElseThrow(
@@ -395,6 +404,7 @@ public class ProductService {
         return productColors;
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     @Transactional
     public List<ProductSize> addSizes(long productId, List<SizeCreateRequest> requests) {
         Product product = productRepository.findById(productId).orElseThrow(() ->

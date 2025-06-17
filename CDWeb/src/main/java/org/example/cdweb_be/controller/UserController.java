@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.cdweb_be.dto.request.*;
 import org.example.cdweb_be.dto.response.ApiResponse;
 import org.example.cdweb_be.service.UserService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,10 +30,15 @@ public class UserController {
     ApiResponse validEmail(@PathVariable String email){
         return new ApiResponse(userService.validEmail(email));
     }
+    @GetMapping("/validPhoneNumber/{phoneNumber}")
+    ApiResponse validPhoneNumber(@PathVariable String phoneNumber){
+        return new ApiResponse(userService.validPhoneNumber(phoneNumber));
+    }
     @GetMapping("/myInfo")
     ApiResponse getMyInfo(@RequestHeader("Authorization") String token){
         return new ApiResponse(userService.getMyInfo(token));
     }
+
     @GetMapping
     ApiResponse getAllUsers(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "9") int size, @RequestParam(defaultValue = "") String search, @RequestParam(defaultValue = "") String role){
         return new ApiResponse(userService.getAllUsers(page, size, search, role));
@@ -43,7 +49,7 @@ public class UserController {
     }
     @PostMapping("/register")
     ApiResponse registerUser(@Valid @RequestBody UserCreateRequest request){
-        return new ApiResponse(userService.addUser(request));
+        return new ApiResponse(userService.register(request));
     }
     @PostMapping("/admin")
     ApiResponse addUser(@Valid @RequestBody UserCreateByAdminRequest request){

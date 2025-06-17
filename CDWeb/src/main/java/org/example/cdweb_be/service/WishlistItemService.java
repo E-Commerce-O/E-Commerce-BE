@@ -17,6 +17,7 @@ import org.example.cdweb_be.respository.UserRepository;
 import org.example.cdweb_be.respository.WishlistItemRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -35,6 +36,7 @@ public class WishlistItemService {
     UserRepository userRepository;
     ProductService productService;
     MessageProvider messageProvider;
+    @PreAuthorize("isAuthenticated()")
     public String addWishlist(String token, long productId){
         long userId = authenticationService.getUserId(token);
         User user = userRepository.findById(userId).get();
@@ -55,6 +57,7 @@ public class WishlistItemService {
 
 
     }
+    @PreAuthorize("isAuthenticated()")
     public String deleteWishlist(String token, long productId){
         long userId = authenticationService.getUserId(token);
         User user = userRepository.findById(userId).get();
@@ -66,6 +69,7 @@ public class WishlistItemService {
         wishlistItemRepository.delete(wishlistItem);
         return "Delete productId: "+productId+" from your wishlist successfully";
     }
+    @PreAuthorize("isAuthenticated()")
     public PagingResponse getMyWishlist(String token, int page, int size){
         long userId = authenticationService.getUserId(token);
         Page<WishlistItem> wishlistItems = wishlistItemRepository.findByUserId(userId, PageRequest.of(page-1, size));

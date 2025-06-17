@@ -5,7 +5,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.example.cdweb_be.component.MessageProvider;
+import org.example.cdweb_be.dto.request.AddressRequest;
 import org.example.cdweb_be.dto.request.ApplyVoucherRequest;
+import org.example.cdweb_be.dto.request.OrderCreateByAddressRequest;
 import org.example.cdweb_be.dto.request.OrderCreateRequest;
 import org.example.cdweb_be.dto.response.*;
 import org.example.cdweb_be.entity.*;
@@ -17,6 +19,7 @@ import org.example.cdweb_be.exception.ErrorCode;
 import org.example.cdweb_be.respository.*;
 import org.example.cdweb_be.utils.responseUtilsAPI.DeliveryMethodUtil;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -44,6 +47,7 @@ public class OrderService {
     AuthenticationService authenticationService;
     PaymentMethodRepository paymentMethodRepository;
     MessageProvider messageProvider;
+    @PreAuthorize("isAuthenticated()")
     public OrderResponse add(String token, OrderCreateRequest request) {
         long userId = authenticationService.getUserId(token);
         User user = userRepository.findById(userId).get();
@@ -146,6 +150,21 @@ public class OrderService {
 
         return orderResponse;
     }
+    @PreAuthorize("isAuthenticated()")
+    public  OrderResponse addByAddress(String token, OrderCreateByAddressRequest request) {
+        long userId = authenticationService.getUserId(token);
+        Address address = addressService.getAddress(userId, request.getAddress());
+        OrderCreateRequest orderCreateRequest = OrderCreateRequest.builder()
+                .addressId(address.getId())
+                .freeshipVcId(request.getFreeshipVcId())
+                .productVcId(request.getProductVcId())
+                .paymentMethodId(request.getPaymentMethodId())
+                .cartItemIds(request.getCartItemIds())
+                .deliveryMethod(request.getDeliveryMethod()).build();
+        return add(token, orderCreateRequest);
+
+    }
+    @PreAuthorize("isAuthenticated()")
     public PagingResponse getMyOrders(String token, int page, int size){
         long userId = authenticationService.getUserId(token);
         List<OrderResponse> orderResponses = orderRepository.findByUserId(userId, PageRequest.of(page-1, size)).stream()
@@ -157,6 +176,7 @@ public class OrderService {
                 .data(orderResponses)
                 .build();
     }
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     public PagingResponse getAll(int page, int size){
         List<OrderResponse> orderResponses = orderRepository.findAll(PageRequest.of(page-1, size)).stream()
                 .map(order -> convertToOrderResponse(order)).collect(Collectors.toList());
@@ -167,6 +187,7 @@ public class OrderService {
                 .data(orderResponses)
                 .build();
     }
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     public PagingResponse getAllByStatus(int status, int page, int size){
         List<OrderResponse> orderResponses = orderRepository.findByStatus(status, PageRequest.of(page-1, size)).stream()
                 .map(order -> convertToOrderResponse(order)).collect(Collectors.toList());
@@ -177,6 +198,7 @@ public class OrderService {
                 .data(orderResponses)
                 .build();
     }
+    @PreAuthorize("isAuthenticated()")
     public String cancelOrder(String token, long orderId){
         long userId = authenticationService.getUserId(token);
         Order order = orderRepository.findById(orderId).orElseThrow(() ->
@@ -189,6 +211,7 @@ public class OrderService {
         return messageProvider.getMessage("order.cancel");
     }
 
+    @PreAuthorize("isAuthenticated()")
     public String returnOrder(String token, long orderId){
         long userId = authenticationService.getUserId(token);
         Order order = orderRepository.findById(orderId).orElseThrow(() ->
@@ -200,6 +223,7 @@ public class OrderService {
         updateStatus(order, OrderStatus.ST_YC_TRA_HANG);
         return messageProvider.getMessage("order.return");
     }
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     public String updateStatus(long orderId, int status){
         Order order = orderRepository.findById(orderId).orElseThrow(() ->
                 new AppException(messageProvider,ErrorCode.ORDER_NOT_EXISTS));
@@ -266,11 +290,13 @@ public class OrderService {
         }
        throw new AppException(messageProvider,ErrorCode.ORDER_CANT_UPDATE);
     }
+    @PreAuthorize("isAuthenticated()")
     public OrderResponse getById(long orderId){
         Order order = orderRepository.findById(orderId).orElseThrow(() ->
                 new AppException(messageProvider,ErrorCode.ORDER_NOT_EXISTS));
         return convertToOrderResponse(order);
     }
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     public void updateStatus(Order order, int status){
         order.setStatus(status);
         order.setUpdatedAt(new Timestamp(System.currentTimeMillis()));

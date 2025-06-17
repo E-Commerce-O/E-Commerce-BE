@@ -14,6 +14,7 @@ import org.example.cdweb_be.exception.ErrorCode;
 import org.example.cdweb_be.mapper.CartMapper;
 import org.example.cdweb_be.mapper.ProductMapper;
 import org.example.cdweb_be.respository.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -38,6 +39,7 @@ public class CartService {
     CartItemRepository cartItemRepository;
     ProductService productService;
     MessageProvider messageProvider;
+    @PreAuthorize("isAuthenticated()")
     public CartResponse getMyCart(String token) {
         long userId = authenticationService.getUserId(token);
         User user = userRepository.findById(userId).get();
@@ -63,6 +65,7 @@ public class CartService {
         }
     }
 
+    @PreAuthorize("isAuthenticated()")
     public CartItemResponse addItem(String token, CartItemRequest request) {
         long userId = authenticationService.getUserId(token);
         User user = userRepository.findById(userId).get();
@@ -121,6 +124,7 @@ public class CartService {
 
         return cartItemResponse;
     }
+    @PreAuthorize("isAuthenticated()")
     public CartItemResponse increaseQuantity(String token, long cartItemId){
         long userId = authenticationService.getUserId(token);
         CartItem cartItem = cartItemRepository.findById(cartItemId).orElseThrow(() ->
@@ -138,6 +142,7 @@ public class CartService {
         return cartItemResponse;
 
     }
+    @PreAuthorize("isAuthenticated()")
     public CartItemResponse decreaseQuantity(String token, long cartItemId){
         long userId = authenticationService.getUserId(token);
         CartItem cartItem = cartItemRepository.findById(cartItemId).orElseThrow(() ->
@@ -151,6 +156,7 @@ public class CartService {
         cartItemResponse.setProductQuantity(remainingQuantity);
         return cartItemResponse;
     }
+    @PreAuthorize("isAuthenticated()")
     public CartItemResponse updateQuantity(String token, long cartItemId, int quantity){
         long userId = authenticationService.getUserId(token);
         CartItem cartItem = cartItemRepository.findById(cartItemId).orElseThrow(() ->
@@ -186,6 +192,7 @@ public class CartService {
 
         return cartItemResponse;
     }
+    @PreAuthorize("isAuthenticated()")
     public Cart getByUser(long userId){
         Optional<Cart> cartOptional = cartRepository.findByUserId(userId);
         Cart cart = null;

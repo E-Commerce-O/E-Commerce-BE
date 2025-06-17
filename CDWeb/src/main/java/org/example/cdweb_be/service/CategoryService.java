@@ -14,6 +14,7 @@ import org.example.cdweb_be.mapper.CategoryMapper;
 import org.example.cdweb_be.respository.CategoryRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,6 +28,8 @@ public class CategoryService {
     CategoryRepository categoryRepository;
     CategoryMapper categoryMapper;
     MessageProvider messageProvider;
+    RoleService roleService;
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     public Category addCategory(CategoryCreateRequest request){
         Optional<Category> categoryOptional = categoryRepository.findByName(request.getName());
         if(categoryOptional.isPresent()){
@@ -47,12 +50,15 @@ public class CategoryService {
     public List<Category> getAll(){
         return categoryRepository.findAll();
     }
+
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     public String deleteCategory(long id){
         Category category = categoryRepository.findById(id).orElseThrow(() ->
                 new AppException(messageProvider, ErrorCode.CATEGORY_NOT_EXISTS));
         categoryRepository.deleteById(id);
         return messageProvider.getMessage("category.delete");
     }
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     public Category updateCategory(Category request){
         Optional<Category> categoryOptional = categoryRepository.findById(request.getId());
         if(categoryOptional.isPresent()){

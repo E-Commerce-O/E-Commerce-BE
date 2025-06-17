@@ -40,6 +40,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static org.example.cdweb_be.service.RoleService.exceptUser;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -54,11 +56,11 @@ public class UserService {
     OtpRepository otpRepository;
     ObjectMapper objectMapper;
     MessageProvider messageProvider;
+    RoleService roleService;
+    private final List<String> rolesExceptUser = exceptUser();
     String DEFAULT_IMAGE_PATH = "https://i.imgur.com/W60xqJf.png";
-    public UserResponse addUser(UserCreateRequest request){
-        
+    public UserResponse register(UserCreateRequest request){
         Optional<User> userOptional = null;
-//        validEmail(request.getEmail());
         userOptional = userRepository.findByUsername(request.getUsername());
         if (userOptional.isPresent()) throw new AppException(messageProvider,ErrorCode.USERNAME_EXISTED);
         userOptional = userRepository.findByEmail(request.getEmail());
@@ -72,6 +74,7 @@ public class UserService {
         user.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         return userMapper.toUserResponse(userRepository.save(user));
     }
+    @PreAuthorize("hasRole('ADMIN')")
     public UserResponse addUser(UserCreateByAdminRequest request){
         Optional<User> userOptional = null;
         userOptional = userRepository.findByUsername(request.getUsername());
@@ -85,6 +88,7 @@ public class UserService {
         user.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         return userMapper.toUserResponse(userRepository.save(user));
     }
+    @PreAuthorize("isAuthenticated()")
     public UserResponse updateUser(String token, UserUpdateRequest request){
         String username = authenticationService.getClaimsSet(token).getSubject();
         User user = userRepository.findByUsername(username).get();
@@ -105,6 +109,7 @@ public class UserService {
         return userMapper.toUserResponse(userRepository.save(user));
 
     }
+    @PreAuthorize("hasRole('ADMIN')")
     public UserResponse updateUser(long userId, UserUpdateByAdminRequest request){
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new AppException(messageProvider, ErrorCode.USER_NOT_EXISTS));
@@ -126,6 +131,7 @@ public class UserService {
         return userMapper.toUserResponse(userRepository.save(user));
 
     }
+    @PreAuthorize("isAuthenticated()")
     public String changePassword(String token, ChangePasswordRequest request){
         String username = authenticationService.getClaimsSet(token).getSubject();
         User user = userRepository.findByUsername(username).get();
@@ -141,6 +147,7 @@ public class UserService {
         return messageProvider.getMessage("user.update.password");
 
     }
+    @PreAuthorize("hasRole('ADMIN')")
     public String changePassword(long userId, String newPassword){
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new AppException(messageProvider, ErrorCode.USER_NOT_EXISTS));
@@ -205,6 +212,18 @@ public class UserService {
         if(userOptional.isPresent()) throw new AppException(messageProvider, ErrorCode.EMAIL_EXISTED);
         return messageProvider.getMessage("email.valid");
     }
+    public String validPhoneNumber(String phoneNumber){
+        String PHONE_REGEX_1 = "^0\\d{9}$";
+        String PHONE_REGEX_2 = "^\\+\\d{2} \\d{9}$";
+        if(!Pattern.matches(PHONE_REGEX_1, phoneNumber) && !Pattern.matches(PHONE_REGEX_2, phoneNumber)){
+            throw new AppException(messageProvider, ErrorCode.PHONENUMBER_INVALID);
+        }else{
+            Optional<User> user = userRepository.findByPhoneNumber(phoneNumber);
+            if(user.isPresent()) throw new AppException(messageProvider, ErrorCode.PHONE_NUMBER_EXISTED);
+            return messageProvider.getMessage("user.phoneNumber");
+        }
+    }
+    @PreAuthorize("isAuthenticated()")
     public UserResponse getMyInfo(String token){
         try{
             long userId = authenticationService.getClaimsSet(token).getLongClaim("id");
@@ -219,7 +238,8 @@ public class UserService {
         }
     }
 //    @PreAuthorize("hasRole('ADMIN')")
-    public PagingResponse  getAllUsers(int page, int size, String search, String role){
+@PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
+public PagingResponse  getAllUsers(int page, int size, String search, String role){
         Pageable pageable = PageRequest.of(page-1, size);
         Page<User> users ;
         long totalItem;
@@ -324,11 +344,13 @@ public class UserService {
         return messageProvider.getMessage("reset.password");
 
     }
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     public UserResponse getById(long userId){
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new AppException(messageProvider, ErrorCode.USER_NOT_EXISTS));
         return userMapper.toUserResponse(user);
     }
+    @PreAuthorize("hasRole('ADMIN')")
     public String setRole(long userId, String role){
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new AppException(messageProvider, ErrorCode.USER_NOT_EXISTS));
@@ -346,6 +368,7 @@ public class UserService {
             return messageProvider.getMessage("user.role.change");
 
     }
+    @PreAuthorize("hasRole('ADMIN')")
     public String deleteById(long userId){
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new AppException(messageProvider, ErrorCode.USER_NOT_EXISTS));

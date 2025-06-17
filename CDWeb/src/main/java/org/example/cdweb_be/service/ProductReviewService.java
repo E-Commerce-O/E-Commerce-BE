@@ -23,6 +23,7 @@ import org.example.cdweb_be.respository.ProductReviewRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -43,6 +44,7 @@ public class ProductReviewService {
     ProductRepository productRepository;
     AuthenticationService authenticationService;
 
+    @PreAuthorize("isAuthenticated()")
     public ProductReviewResponse add(String token, ProductReviewCreateRequest request) {
         long userId = authenticationService.getUserId(token);
         Order order = orderRepository.findById(request.getOrderId()).orElseThrow(() ->

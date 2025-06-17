@@ -73,16 +73,6 @@ public class FileUploadController {
         } else {
             throw new AppException(messageProvider,ErrorCode.SERVER_ERROR);
         }
-//        try {
-//            Image imageEntity = new Image();
-//            imageEntity.setImageData(file.getBytes());
-//            imageEntity.setImageName(file.getOriginalFilename());
-//            imageRepository.save(imageEntity);
-//            return new ApiResponse("Image uploaded successfully: " + file.getOriginalFilename());
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return new ApiResponse("Image upload failed: " + e.getMessage());
-//        }
     }
 
     private String uploadImageAndGetLink(MultipartFile imageFile) {
@@ -253,6 +243,7 @@ public class FileUploadController {
 
     private BufferedImage resizeImage(BufferedImage bufferedImage, int imageWidth) throws IOException {
         double newRate = imageWidth > 0 ? bufferedImage.getWidth() / (double) imageWidth : 1;
+        newRate = Math.max(1, newRate);
         int newWidth = (int) (bufferedImage.getWidth() / newRate);
         int newHeight = (int) (bufferedImage.getHeight() / newRate);
 

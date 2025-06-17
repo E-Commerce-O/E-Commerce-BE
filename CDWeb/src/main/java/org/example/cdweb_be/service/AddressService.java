@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.example.cdweb_be.component.MessageProvider;
+import org.example.cdweb_be.dto.request.AddressCreateRequest;
 import org.example.cdweb_be.dto.request.AddressRequest;
 import org.example.cdweb_be.dto.request.AddressUpdateRequest;
 import org.example.cdweb_be.dto.response.AddressResponse;
@@ -12,12 +13,14 @@ import org.example.cdweb_be.entity.Address;
 import org.example.cdweb_be.entity.District;
 import org.example.cdweb_be.entity.Province;
 import org.example.cdweb_be.entity.Ward;
+import org.example.cdweb_be.enums.Role;
 import org.example.cdweb_be.exception.AppException;
 import org.example.cdweb_be.exception.ErrorCode;
 import org.example.cdweb_be.mapper.AddressMapper;
 import org.example.cdweb_be.respository.*;
 import org.example.cdweb_be.utils.AddressUltils;
 import org.example.cdweb_be.utils.responseUtilsAPI.DeliveryMethodUtil;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -37,16 +40,17 @@ public class AddressService {
     WardRepository wardRepository;
     UserRepository userRepository;
     MessageProvider messageProvider;
+    RoleService roleService;
     int sendProvinceId =2;
     int sendDistrictId = 1231;
-
+    @PreAuthorize("isAuthenticated()")
     public List<AddressResponse> getAll(String token) {
         long userId = authenticationService.getUserId(token);
         List<Address> addresses = addressRepository.findByUserId(userId);
         List<AddressResponse> addressResponses = addresses.stream().map(addressMapper::toAddressResponse).collect(Collectors.toList());
         return addressResponses;
     }
-
+    @PreAuthorize("isAuthenticated()")
     public AddressResponse addAddress(String token, AddressRequest request) {
         long userId = authenticationService.getUserId(token);
         Address address = convertAddressRequestToAddres(request);
@@ -59,6 +63,7 @@ public class AddressService {
         address.setUser(userRepository.findById(userId).get());
         return addressMapper.toAddressResponse(addressRepository.save(address));
     }
+    @PreAuthorize("isAuthenticated()")
     public AddressResponse updateAddress(String token, AddressUpdateRequest request){
         long userId = authenticationService.getUserId(token);
         Address address = addressRepository.findById(request.getAddressId()).orElseThrow(
@@ -78,6 +83,7 @@ public class AddressService {
         address.setHouseNumber(request.getHouseNumber());
         return addressMapper.toAddressResponse(addressRepository.save(address));
     }
+    @PreAuthorize("isAuthenticated()")
     public String deleteAddress(String token, long addressId){
         long userId = authenticationService.getUserId(token);
         Address address = addressRepository.findById(addressId).orElseThrow(
@@ -118,6 +124,19 @@ public class AddressService {
                 new AppException(messageProvider,ErrorCode.ADDRESS_NOT_EXISTS));
         List<DeliveryMethodUtil> deliveryMethodUtils = AddressUltils.getInfoShips(sendProvinceId+"", sendDistrictId+"", address.getProvince().getId()+"", address.getDistrict().getId()+"");
         return deliveryMethodUtils;
+    }
+    public List<DeliveryMethodUtil> getInfoShip(AddressRequest request){
+        List<DeliveryMethodUtil> deliveryMethodUtils = AddressUltils.getInfoShips(sendProvinceId+"", sendDistrictId+"", request.getProvinceId()+"", request.getDistrictId()+"");
+        return deliveryMethodUtils;
+    }
+    public Address getAddress(long userId,AddressRequest request){
+        Optional<Address> addressOptional = addressRepository.findByAllInfo(
+                userId, request.getProvinceId(), request.getDistrictId(),
+                request.getWardId(), request.getHouseNumber());
+        if(addressOptional.isPresent()) return addressOptional.get();
+        Address address = convertAddressRequestToAddres(request);
+        address.setUser(userRepository.findById(userId).get());
+        return (addressRepository.save(address));
     }
 
 }
